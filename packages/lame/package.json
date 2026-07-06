@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@signalapp/lame",
   "description": "LAME MP3 Encoder bindings for Node.js",
   "version": "1.0.0",

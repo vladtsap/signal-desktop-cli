@@ -261,6 +261,11 @@ import {
 } from '../../util/Conversation.preload.ts';
 import type { Emoji } from '../../axo/emoji.std.ts';
 import { isSignalConversation } from '../../util/isSignalConversation.dom.ts';
+import {
+  type DurationSecs,
+  SentTimestampMs,
+  TimestampMs,
+} from '@signalapp/types';
 
 const { chunk, difference, fromPairs, omit, orderBy, pick, values, without } =
   lodash;
@@ -5183,7 +5188,7 @@ function onPinnedMessagesChanged(
 
 function onPinnedMessageAdd(
   targetMessageId: string,
-  pinDurationSeconds: DurationInSeconds | null
+  pinDurationSeconds: DurationSecs | null
 ): StateThunk {
   return async dispatch => {
     const target = await getPinnedMessageTarget(targetMessageId);
@@ -5196,7 +5201,7 @@ function onPinnedMessageAdd(
     );
     strictAssert(targetConversation != null, 'Missing target conversation');
 
-    const pinnedAt = Date.now();
+    const pinnedAt = SentTimestampMs.now();
 
     await conversationJobQueue.add({
       type: conversationQueueJobEnum.enum.PinMessage,
@@ -5242,7 +5247,7 @@ function onPinnedMessageRemove(targetMessageId: string): StateThunk {
     await conversationJobQueue.add({
       type: conversationQueueJobEnum.enum.UnpinMessage,
       ...target,
-      unpinnedAt: Date.now(),
+      unpinnedAt: TimestampMs.now(),
       isSyncOnly: false,
     });
     await DataWriter.deletePinnedMessageByMessageId(targetMessageId);

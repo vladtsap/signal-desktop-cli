@@ -1,7 +1,7 @@
 {
+  "private": true,
   "name": "@signalapp/windows-ucv",
   "version": "1.0.1",
-  "private": true,
   "description": "Windows User Consent Verification",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

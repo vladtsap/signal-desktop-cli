@@ -5,10 +5,10 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import { AxoDialog } from '../../../axo/AxoDialog.dom.tsx';
 import type { LocalizerType } from '../../../types/I18N.std.ts';
 import { AxoRadioGroup } from '../../../axo/AxoRadioGroup.dom.tsx';
-import { DurationInSeconds } from '../../../util/durations/duration-in-seconds.std.ts';
 import { strictAssert } from '../../../util/assert.std.ts';
 import { AxoAlertDialog } from '../../../axo/AxoAlertDialog.dom.tsx';
 import { isInternalFeaturesEnabled } from '../../../util/isInternalFeaturesEnabled.dom.ts';
+import { DurationSecs } from '@signalapp/types';
 
 enum DurationOption {
   TIME_24_HOURS = 'TIME_24_HOURS',
@@ -18,12 +18,12 @@ enum DurationOption {
   DEBUG_10_SECONDS = 'DEBUG_10_SECONDS',
 }
 
-const DURATION_OPTIONS: Record<DurationOption, DurationInSeconds | null> = {
-  [DurationOption.TIME_24_HOURS]: DurationInSeconds.fromHours(24),
-  [DurationOption.TIME_7_DAYS]: DurationInSeconds.fromDays(7),
-  [DurationOption.TIME_30_DAYS]: DurationInSeconds.fromDays(30),
+const DURATION_OPTIONS: Record<DurationOption, DurationSecs | null> = {
+  [DurationOption.TIME_24_HOURS]: DurationSecs.fromHours(24),
+  [DurationOption.TIME_7_DAYS]: DurationSecs.fromDays(7),
+  [DurationOption.TIME_30_DAYS]: DurationSecs.fromDays(30),
   [DurationOption.FOREVER]: null,
-  [DurationOption.DEBUG_10_SECONDS]: DurationInSeconds.fromSeconds(10),
+  [DurationOption.DEBUG_10_SECONDS]: DurationSecs.fromSeconds(10),
 };
 
 enum Step {
@@ -48,7 +48,7 @@ export type PinMessageDialogProps = Readonly<{
   onSeenPinMessageDisappearingMessagesWarning: () => void;
   onPinnedMessageAdd: (
     messageId: string,
-    duration: DurationInSeconds | null
+    duration: DurationSecs | null
   ) => void;
 }>;
 

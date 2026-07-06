@@ -169,6 +169,7 @@ import type { ThemeType } from '../../util/preload.preload.ts';
 import { toNumber } from '../../util/toNumber.std.ts';
 import { isKnownProtoEnumMember } from '../../util/isKnownProtoEnumMember.std.ts';
 import { Emoji } from '../../axo/emoji.std.ts';
+import { TimestampMs } from '@signalapp/types';
 
 const { isNumber } = lodash;
 
@@ -1856,11 +1857,11 @@ export class BackupImportStream extends Writable {
       strictAssert(pinnedAtTimestamp, 'Missing PinDetails.pinnedAtTimestamp');
       strictAssert(pinExpiry, 'Missing PinDetails.pinExpiry');
 
-      const pinnedAt = toNumber(pinnedAtTimestamp);
+      const pinnedAt = TimestampMs.fromBigInt(pinnedAtTimestamp);
 
-      let expiresAt: number | null;
+      let expiresAt: TimestampMs | null;
       if (pinExpiry.pinExpiresAtTimestamp != null) {
-        expiresAt = toNumber(pinExpiry.pinExpiresAtTimestamp);
+        expiresAt = TimestampMs.fromBigInt(pinExpiry.pinExpiresAtTimestamp);
       } else {
         strictAssert(
           pinExpiry.pinNeverExpires,

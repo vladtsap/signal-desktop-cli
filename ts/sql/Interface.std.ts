@@ -80,6 +80,11 @@ import type {
 import { sqlFragment, sqlId, sqlJoin } from './util.std.ts';
 import type { MIMEType } from '../types/MIME.std.ts';
 import type { Emoji } from '../axo/emoji.std.ts';
+import type {
+  ReceivedTimestampMs,
+  SentTimestampMs,
+  ServerTimestampMs,
+} from '@signalapp/types';
 
 export type ReadableDB = Database & { __readable_db: never };
 export type WritableDB = ReadableDB & { __writable_db: never };
@@ -444,12 +449,12 @@ export type StickerPackRefType = Readonly<{
 
 export type UnprocessedType = {
   id: string;
-  timestamp: number;
+  timestamp: SentTimestampMs;
   /*
    * A client generated date used for removing old envelopes from the table
    * on startup.
    */
-  receivedAtDate: number;
+  receivedAtDate: ReceivedTimestampMs;
   receivedAtCounter: number;
   attempts: number;
   type: number;
@@ -463,7 +468,7 @@ export type UnprocessedType = {
   destinationServiceId: ServiceIdString;
   updatedPni: PniString | undefined;
   serverGuid: string;
-  serverTimestamp: number;
+  serverTimestamp: ServerTimestampMs;
   urgent: boolean;
   story: boolean;
   reportingToken: Uint8Array<ArrayBuffer> | undefined;

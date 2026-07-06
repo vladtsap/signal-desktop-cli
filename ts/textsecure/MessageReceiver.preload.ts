@@ -175,6 +175,12 @@ import {
 } from '../types/MessageRequestResponseEvent.std.ts';
 
 import { toNumber } from '../util/toNumber.std.ts';
+import {
+  TimestampMs,
+  ReceivedTimestampMs,
+  SentTimestampMs,
+  ServerTimestampMs,
+} from '@signalapp/types';
 
 const { isBoolean, isNumber, isString, noop } = lodash;
 
@@ -404,7 +410,9 @@ export default class MessageReceiver
         const plaintext = request.body;
 
         const decoded = Proto.Envelope.decode(plaintext);
-        const serverTimestamp = toNumber(decoded.serverTimestamp) ?? 0;
+        const serverTimestamp = ServerTimestampMs.fromBigInt(
+          decoded.serverTimestamp ?? 0n
+        );
 
         const ourAci = this.#storage.user.getCheckedAci();
 
@@ -415,7 +423,7 @@ export default class MessageReceiver
           //   from logs
           id: getGuid().replace(/-/g, '.'),
           receivedAtCounter: incrementMessageCounter(),
-          receivedAtDate: Date.now(),
+          receivedAtDate: ReceivedTimestampMs.now(),
           // Calculate the message age (time on server).
           messageAgeSec: this.#calculateMessageAge(
             request.timestamp,
@@ -444,7 +452,7 @@ export default class MessageReceiver
             decoded.updatedPni,
             'MessageReceiver.handleRequest.updatedPni'
           ),
-          timestamp: toNumber(decoded.clientTimestamp) ?? 0,
+          timestamp: SentTimestampMs.fromBigInt(decoded.clientTimestamp ?? 0n),
           content: content ?? new Uint8Array(0),
           serverGuid:
             (Bytes.isNotEmpty(decoded.serverGuidBinary)
@@ -2111,7 +2119,7 @@ export default class MessageReceiver
         envelopeId: envelope.id,
         destinationE164: destinationE164 ?? '',
         destinationServiceId,
-        timestamp: toNumber(timestamp),
+        timestamp: SentTimestampMs.fromBigInt(timestamp),
         serverTimestamp: envelope.serverTimestamp,
         device: envelope.sourceDevice,
         unidentifiedStatus,
@@ -2119,7 +2127,9 @@ export default class MessageReceiver
         isRecipientUpdate,
         receivedAtCounter: envelope.receivedAtCounter,
         receivedAtDate: envelope.receivedAtDate,
-        expirationStartTimestamp: toNumber(expirationStartTimestamp) ?? 0,
+        expirationStartTimestamp: TimestampMs.fromBigInt(
+          expirationStartTimestamp ?? 0n
+        ),
       },
       this.#removeFromCache.bind(this, envelope)
     );
@@ -3201,7 +3211,9 @@ export default class MessageReceiver
         isRecipientUpdate,
         receivedAtCounter: envelope.receivedAtCounter,
         receivedAtDate: envelope.receivedAtDate,
-        expirationStartTimestamp: toNumber(expirationStartTimestamp) ?? 0,
+        expirationStartTimestamp: TimestampMs.fromBigInt(
+          expirationStartTimestamp ?? 0n
+        ),
       },
       this.#removeFromCache.bind(this, envelope)
     );

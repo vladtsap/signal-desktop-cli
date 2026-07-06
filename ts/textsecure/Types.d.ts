@@ -18,6 +18,12 @@ import type { AnyPaymentEvent } from '../types/Payment.std.ts';
 import type { RawBodyRange } from '../types/BodyRange.std.ts';
 import type { StoryMessageRecipientsType } from '../types/Stories.std.ts';
 import type { Emoji } from '../axo/emoji.std.ts';
+import type {
+  DurationSecs,
+  ReceivedTimestampMs,
+  SentTimestampMs,
+  ServerTimestampMs,
+} from '@signalapp/types';
 
 export type {
   IdentityKeyType,
@@ -86,7 +92,7 @@ export type SessionResetsType = Record<string, number>;
 export type ProcessedEnvelope = Readonly<{
   id: string;
   receivedAtCounter: number;
-  receivedAtDate: number;
+  receivedAtDate: ReceivedTimestampMs;
   messageAgeSec: number;
 
   // Mostly from Proto.Envelope except for null/undefined
@@ -96,10 +102,10 @@ export type ProcessedEnvelope = Readonly<{
   sourceDevice: number | undefined;
   destinationServiceId: ServiceIdString;
   updatedPni: PniString | undefined;
-  timestamp: number;
+  timestamp: SentTimestampMs;
   content: Uint8Array<ArrayBuffer>;
   serverGuid: string;
-  serverTimestamp: number;
+  serverTimestamp: ServerTimestampMs;
   groupId: string | undefined;
   urgent: boolean;
   story: boolean;
@@ -189,8 +195,8 @@ export type ProcessedReaction = {
 
 export type ProcessedPinMessage = Readonly<{
   targetAuthorAci: AciString;
-  targetSentTimestamp: number;
-  pinDuration: DurationInSeconds | null;
+  targetSentTimestamp: SentTimestampMs;
+  pinDuration: DurationSecs | null;
 }>;
 
 export type ProcessedPollCreate = {
