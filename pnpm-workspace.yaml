@@ -49,6 +49,7 @@ overrides:
   'react-popper@2.3.0>react-dom': '19.2.4'
   'react-popper@2.3.0>react': '19.2.4'
   'thenify-all>thenify': '3.3.1'
+  'danger@13.0.10>undici': '6.27.0'
 
 allowUnusedPatches: false
 ignorePatchFailures: false

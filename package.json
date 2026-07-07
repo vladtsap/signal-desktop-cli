@@ -121,11 +121,11 @@
   "dependencies": {
     "@indutny/mac-screen-share": "1.2.5",
     "@indutny/simple-windows-notifications": "2.0.21",
-    "@signalapp/types": "workspace:*",
     "@signalapp/libsignal-client": "0.96.3",
     "@signalapp/mute-state-change": "workspace:*",
     "@signalapp/ringrtc": "2.69.4",
     "@signalapp/sqlcipher": "3.3.9",
+    "@signalapp/types": "workspace:*",
     "@signalapp/windows-ucv": "workspace:*",
     "google-libphonenumber": "3.2.44"
   },
@@ -233,7 +233,7 @@
     "cross-env": "10.1.0",
     "css-loader": "7.1.4",
     "csv-parse": "6.2.1",
-    "danger": "13.0.7",
+    "danger": "13.0.10",
     "dashdash": "2.0.0",
     "debug": "4.4.3",
     "direction": "2.0.1",
