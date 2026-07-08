@@ -542,6 +542,9 @@ importers:
       playwright:
         specifier: 1.60.0
         version: 1.60.0
+      plist:
+        specifier: 5.0.0
+        version: 5.0.0
       pngjs:
         specifier: 7.0.0
         version: 7.0.0
@@ -5330,6 +5333,10 @@ packages:
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==, tarball: https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.13.tgz}
     engines: {node: '>=10.0.0'}
 
+  '@xmldom/xmldom@0.9.10':
+    resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==, tarball: https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.9.10.tgz}
+    engines: {node: '>=14.6'}
+
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==, tarball: https://registry.npmjs.org/@xtuc/ieee754/-/ieee754-1.2.0.tgz}
 
@@ -9199,6 +9206,10 @@ packages:
   plist@3.1.0:
     resolution: {integrity: sha512-uysumyrvkUX0rX/dEVqt8gC3sTBzd4zoWfLeS29nb53imdaXVvLINYXTI2GNqzaMuvacNx4uJQ8+b3zXR0pkgQ==, tarball: https://registry.npmjs.org/plist/-/plist-3.1.0.tgz}
     engines: {node: '>=10.4.0'}
+
+  plist@5.0.0:
+    resolution: {integrity: sha512-20N+g1DvMm/DFRbsvER7tT4wDryq0WunK7VMkDaiJcKNapAnUMkTsAnacFYf8n420F4Hf6/hefgmJRkMb1M0fg==, tarball: https://registry.npmjs.org/plist/-/plist-5.0.0.tgz}
+    engines: {node: '>=18'}
 
   pngjs@6.0.0:
     resolution: {integrity: sha512-TRzzuFRRmEoSW/p1KVAmiOgPco2Irlah+bGFCeNfJXxxYGwSw7YwAOAcd7X28K/m5bjBWKsC29KyoMfHbypayg==, tarball: https://registry.npmjs.org/pngjs/-/pngjs-6.0.0.tgz}
@@ -16155,6 +16166,8 @@ snapshots:
 
   '@xmldom/xmldom@0.8.13': {}
 
+  '@xmldom/xmldom@0.9.10': {}
+
   '@xtuc/ieee754@1.2.0': {}
 
   '@xtuc/long@4.2.2': {}
@@ -20711,6 +20724,11 @@ snapshots:
     dependencies:
       '@xmldom/xmldom': 0.8.13
       base64-js: 1.5.1
+      xmlbuilder: 15.1.1
+
+  plist@5.0.0:
+    dependencies:
+      '@xmldom/xmldom': 0.9.10
       xmlbuilder: 15.1.1
 
   pngjs@6.0.0: {}

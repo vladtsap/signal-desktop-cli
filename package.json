@@ -27,7 +27,7 @@
     "get-strings:locales": "node scripts/build-localized-display-names.mjs locales scripts/locale-data/locale-display-names.csv build/locale-display-names.json",
     "get-strings:countries": "node scripts/build-localized-display-names.mjs countries scripts/locale-data/country-display-names.csv build/country-display-names.json",
     "get-strings:emoji": "node scripts/get-emoji-locales.mjs",
-    "push-strings": "node scripts/remove-strings.mjs && node scripts/push-strings.mjs",
+    "push-strings": "node scripts/remove-strings.mjs && node scripts/extract-info-plist-strings.mjs && node scripts/push-strings.mjs",
     "mark-unusued-strings-deleted": "node scripts/mark-unused-strings-deleted.mjs",
     "get-expire-time": "node scripts/get-expire-time.mjs",
     "build:protobuf": "protopiler --module cjs --output ts/protobuf/compiled.std.js --typedefs ts/protobuf/compiled.std.d.ts protos",
@@ -289,6 +289,7 @@
     "pino": "10.3.1",
     "pixelmatch": "7.1.0",
     "playwright": "1.60.0",
+    "plist": "5.0.0",
     "pngjs": "7.0.0",
     "postcss-loader": "8.2.1",
     "prettier": "3.8.3",
@@ -423,7 +424,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "ElectronTeamID": "U68MSDN6DR",
         "NSCameraUsageDescription": "Signal uses your camera for video calling.",
-        "NSMicrophoneUsageDescription": "Signal uses your microphone for voice and video calling."
+        "NSMicrophoneUsageDescription": "Signal needs access to your microphone to make and receive phone calls and record voice messages."
       }
     },
     "mas": {
@@ -431,7 +432,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "ElectronTeamID": "U68MSDN6DR",
         "NSCameraUsageDescription": "Signal uses your camera for video calling.",
-        "NSMicrophoneUsageDescription": "Signal uses your microphone for voice and video calling."
+        "NSMicrophoneUsageDescription": "Signal needs access to your microphone to make and receive phone calls and record voice messages."
       }
     },
     "win": {

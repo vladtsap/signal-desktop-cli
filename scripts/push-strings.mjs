@@ -44,6 +44,10 @@ const FILES = [
     path: '_locales/en/mas-keywords.txt',
     name: 'mas-keywords.txt',
   },
+  {
+    path: '_locales/en/mas-info-plist.json',
+    name: 'mas-info-plist.json',
+  },
 ];
 
 await pMap(FILES, async ({ path: filePath, name: fileName }) => {

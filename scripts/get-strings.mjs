@@ -63,6 +63,7 @@ const FILES = [
   'mas-subtitle.txt',
   'mas-description.txt',
   'mas-keywords.txt',
+  'mas-info-plist.json',
 ];
 
 console.log('Cleaning _locales directory...');
