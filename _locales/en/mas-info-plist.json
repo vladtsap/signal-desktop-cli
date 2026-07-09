@@ -15,6 +15,6 @@
   },
   "NSMicrophoneUsageDescription": {
     "messageformat": "Signal needs access to your microphone to make and receive phone calls and record voice messages.",
-    "description": "Presented to user by macOS when requesting camera permissions"
+    "description": "Presented to user by macOS when requesting microphone permissions"
   }
 }
