@@ -2326,7 +2326,10 @@ async function sync({
 
     strictAssert(manifest.version != null, 'Manifest without version');
     const version = toNumber(manifest.version) ?? 0;
-    if (version <= localManifestVersion && version > 0) {
+    if (
+      version <= localManifestVersion &&
+      (version !== 0 || localManifestVersion !== 0)
+    ) {
       log.error(
         'sync: remote manifest version mismatch ' +
           `${version} <= ${localManifestVersion}`
