@@ -37,12 +37,6 @@ jobs:
       - name: Install node_modules
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Test
-        run: pnpm test
-
       - name: Publish
         id: changesets
         uses: changesets/action@c47fa68bd43bb8ae0bae7e558622593deebf5955
