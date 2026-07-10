@@ -615,9 +615,10 @@ const getPollForMessage = (
       profileName: voter.profileName,
       title: voter.title,
     };
+    const uniqueOptionIndexes = [...new Set(vote.optionIndexes)];
 
     return {
-      optionIndexes: vote.optionIndexes,
+      optionIndexes: uniqueOptionIndexes,
       timestamp: vote.timestamp,
       isMe: voter.id === ourConversationId,
       from,

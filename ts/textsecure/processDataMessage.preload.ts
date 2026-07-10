@@ -414,11 +414,14 @@ function processPollVote(
     undefined,
     'PollVote.targetAuthorAci'
   );
+  const uniqueOptionIndexes = [
+    ...new Set((pollVote.optionIndexes ?? []).filter(isNotNil)),
+  ];
 
   return {
     targetAuthorAci,
     targetTimestamp: toNumber(pollVote.targetSentTimestamp) ?? 0,
-    optionIndexes: pollVote.optionIndexes?.filter(isNotNil) || [],
+    optionIndexes: uniqueOptionIndexes,
     voteCount: pollVote.voteCount || 0,
   };
 }

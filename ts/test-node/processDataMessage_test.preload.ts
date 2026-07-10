@@ -492,4 +492,42 @@ describe('processDataMessage', () => {
     assert.isFalse(check({ isViewOnce: false }).isViewOnce);
     assert.isTrue(check({ isViewOnce: true }).isViewOnce);
   });
+
+  it('should process poll votes', () => {
+    assert.deepStrictEqual(
+      check({
+        pollVote: {
+          targetAuthorAciBinary: ACI_BINARY_1,
+          targetSentTimestamp: BigInt(TIMESTAMP),
+          optionIndexes: [0],
+          voteCount: 1,
+        },
+      }).pollVote,
+      {
+        targetAuthorAci: ACI_1,
+        targetTimestamp: TIMESTAMP,
+        optionIndexes: [0],
+        voteCount: 1,
+      }
+    );
+  });
+
+  it('should drop duplicate poll vote indexes', () => {
+    assert.deepStrictEqual(
+      check({
+        pollVote: {
+          targetAuthorAciBinary: ACI_BINARY_1,
+          targetSentTimestamp: BigInt(TIMESTAMP),
+          optionIndexes: [0, 0, 1, 1],
+          voteCount: 1,
+        },
+      }).pollVote,
+      {
+        targetAuthorAci: ACI_1,
+        targetTimestamp: TIMESTAMP,
+        optionIndexes: [0, 1],
+        voteCount: 1,
+      }
+    );
+  });
 });
