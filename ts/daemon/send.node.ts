@@ -74,6 +74,14 @@ export type HeadlessSendCrypto = Readonly<{
     }>
   ) => Promise<ReadonlyArray<HeadlessOutboundMessage>>;
   hasSessions: (destination: AciString) => Promise<boolean>;
+  repairSessions: (
+    options: Readonly<{
+      destination: AciString;
+      extraDevices: ReadonlyArray<number>;
+      keys: HeadlessServerKeys;
+      staleDevices: ReadonlyArray<number>;
+    }>
+  ) => Promise<void>;
 }>;
 
 export function hasCurrentSendSession(record: SessionRecord | null): boolean {
@@ -247,7 +255,44 @@ function createLibsignalSendCrypto(
           sessions.getSession(ProtocolAddress.new(destination, deviceId))
         )
       );
-      return existing.every(session => session != null);
+      return existing.every(hasCurrentSendSession);
+    },
+    async repairSessions({ destination, extraDevices, keys, staleDevices }) {
+      const extra = new Set(extraDevices);
+      const stale = new Set(staleDevices);
+      await Promise.all(
+        [...extra, ...stale].map(deviceId =>
+          stores.signalProtocolStore.archiveSession(
+            new QualifiedAddress(ourAci, Address.create(destination, deviceId))
+          )
+        )
+      );
+      await Promise.all(
+        keys.devices.map(async device => {
+          if (extra.has(device.deviceId) || stale.has(device.deviceId)) return;
+          const session = await sessions.getSession(
+            ProtocolAddress.new(destination, device.deviceId)
+          );
+          if (
+            hasCurrentSendSession(session) &&
+            session?.remoteRegistrationId() !== device.registrationId
+          ) {
+            await stores.signalProtocolStore.archiveSession(
+              new QualifiedAddress(
+                ourAci,
+                Address.create(destination, device.deviceId)
+              )
+            );
+          }
+        })
+      );
+      await this.establishSessions({
+        destination,
+        keys: {
+          ...keys,
+          devices: keys.devices.filter(device => !extra.has(device.deviceId)),
+        },
+      });
     },
   };
 }
@@ -435,6 +480,52 @@ export class HeadlessSendService {
     );
   }
 
+  async #transmit(
+    destination: AciString,
+    plaintext: Uint8Array<ArrayBuffer>,
+    timestamp: number,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const messages = await this.#crypto.encrypt({ destination, plaintext });
+    if (messages.length === 0)
+      throw new Error('Signal recipient has no devices');
+    await this.#transport.sendMessage({
+      destination,
+      messages,
+      signal,
+      timestamp,
+      urgent: true,
+    });
+  }
+
+  async #transmitWithDeviceRepair(
+    destination: AciString,
+    plaintext: Uint8Array<ArrayBuffer>,
+    timestamp: number,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      await this.#transmit(destination, plaintext, timestamp, signal);
+      return;
+    } catch (error) {
+      if (!LibSignalErrorBase.is(error, ErrorCode.MismatchedDevices)) {
+        throw error;
+      }
+      const entry = error.entries.find(
+        candidate => candidate.account.getServiceIdString() === destination
+      );
+      if (!entry) throw error;
+      const keys = await this.#fetchKeys(destination, signal);
+      await this.#crypto.repairSessions({
+        destination,
+        extraDevices: entry.extraDevices,
+        keys,
+        staleDevices: entry.staleDevices,
+      });
+      await this.#transmit(destination, plaintext, timestamp, signal);
+    }
+  }
+
   async #send(
     request: SendTextRequest,
     messageId: string,
@@ -502,19 +593,12 @@ export class HeadlessSendService {
         pniSignatureMessage: null,
         senderKeyDistributionMessage: null,
       });
-      const messages = await this.#crypto.encrypt({
+      await this.#transmitWithDeviceRepair(
         destination,
-        plaintext: padMessage(content),
-      });
-      if (messages.length === 0)
-        throw new Error('Signal recipient has no devices');
-      await this.#transport.sendMessage({
-        destination,
-        messages,
-        signal,
+        padMessage(content),
         timestamp,
-        urgent: true,
-      });
+        signal
+      );
       model.set({
         sendStateByConversationId: {
           [conversation.id]: { status: SendStatus.Sent, updatedAt: Date.now() },
@@ -529,9 +613,6 @@ export class HeadlessSendService {
       };
     } catch (error) {
       const classified = classifySendError(error);
-      if (classified.code === 'device-mismatch') {
-        await this.#stores.signalProtocolStore.archiveAllSessions(destination);
-      }
       model.set({
         sendStateByConversationId: {
           [conversation.id]: {

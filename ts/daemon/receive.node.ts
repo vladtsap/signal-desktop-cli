@@ -40,7 +40,9 @@ import { Address } from '../types/Address.std.ts';
 import { QualifiedAddress } from '../types/QualifiedAddress.std.ts';
 import type { ServiceIdString } from '../types/ServiceId.std.ts';
 import { isPniString, normalizeServiceId } from '../types/ServiceId.std.ts';
+import * as Errors from '../types/errors.std.ts';
 import { strictAssert } from '../util/assert.std.ts';
+import { consoleLogger } from '../util/consoleLogger.std.ts';
 import { fromServiceIdBinaryOrString } from '../util/ServiceId.node.ts';
 import { bytesToUuid } from '../util/uuidToBytes.std.ts';
 import { Zone } from '../util/Zone.std.ts';
@@ -86,7 +88,7 @@ export type HeadlessReceiveOptions = Readonly<{
   serverTrustRoots: ReadonlyArray<string>;
 }>;
 
-class UnsupportedIncomingContentError extends Error {}
+export class UnsupportedIncomingContentError extends Error {}
 
 function stableEnvelopeId(body: Uint8Array<ArrayBuffer>): string {
   return createHash('sha256').update(body).digest('hex');
@@ -475,6 +477,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       await this.#accept(request.body);
       request.respond(200);
     } catch (error) {
+      consoleLogger.error(
+        'HeadlessMessageReceiver: failed to process incoming Signal envelope',
+        Errors.toLogFormat(error)
+      );
       request.respond(500);
     }
   }
@@ -510,11 +516,33 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         pendingSessions: true,
         pendingUnprocessed: true,
       });
-      decrypted = await stores.signalProtocolStore.withZone(
+      const outcome: Readonly<
+        | { result: DecryptedEnvelope }
+        | { unsupported: UnsupportedIncomingContentError }
+      > = await stores.signalProtocolStore.withZone(
         zone,
         'HeadlessMessageReceiver.decryptAndStage',
         async () => {
-          const result = await this.#decryptEnvelope(envelope, stores, zone);
+          let result: DecryptedEnvelope;
+          try {
+            result = await this.#decryptEnvelope(envelope, stores, zone);
+          } catch (error) {
+            if (!(error instanceof UnsupportedIncomingContentError)) {
+              throw error;
+            }
+            if (envelope.content.byteLength > 0) {
+              await stores.signalProtocolStore.addUnprocessed(
+                toUnprocessed(
+                  envelope,
+                  envelope.content,
+                  true,
+                  envelope.sourceServiceId
+                ),
+                { zone }
+              );
+            }
+            return { unsupported: error } as const;
+          }
           await stores.signalProtocolStore.addUnprocessed(
             toUnprocessed(
               result.envelope,
@@ -525,9 +553,14 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
             ),
             { zone }
           );
-          return result;
+          return { result } as const;
         }
       );
+      if ('unsupported' in outcome) {
+        this.#unsupportedReason = outcome.unsupported.message;
+        return;
+      }
+      decrypted = outcome.result;
     }
 
     try {

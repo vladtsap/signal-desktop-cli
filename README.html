@@ -563,6 +563,10 @@
             <strong>Current scope:</strong> direct one-to-one text receive and
             send only. Groups, attachments, calls, reactions, stories, sync
             transcripts, and disappearing-message delivery are not implemented.
+            Unsupported content does not produce webhooks. Unsupported
+            ciphertext payloads are retained in encrypted staging; empty
+            unsupported control envelopes are acknowledged without staging
+            because they contain no payload to preserve.
           </div>
           <div class="notice">
             A real account link and live Signal send/receive acceptance test
@@ -833,8 +837,17 @@ curl --fail-with-body \
               message ID; repeating the same request can send a duplicate.
             </li>
             <li>
-              If the connection closes before the response, the outcome is
-              ambiguous and there is no safe automatic-retry mechanism.
+              If Signal explicitly rejects the encrypted payload because the
+              recipient device list changed, the daemon preserves unaffected
+              sessions, selectively repairs missing, extra, stale, or
+              registration-changed devices, and retransmits once inside the same
+              POST. This bounded retry is safe because Signal rejected the first
+              transmission before accepting it. A second mismatch returns
+              retryable HTTP 502.
+            </li>
+            <li>
+              Other transport failures are not retried automatically. If the
+              connection closes before the response, the outcome is ambiguous.
             </li>
           </ul>
 
@@ -1119,6 +1132,20 @@ docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
               This is expected under at-least-once delivery when the consumer
               accepts a request but the daemon does not durably observe its 2xx
               response. Deduplicate using <code>update_id</code>.
+            </div>
+          </details>
+
+          <details>
+            <summary>Readiness is green but incoming webhooks stop</summary>
+            <div>
+              Check <code>docker compose logs signal</code> for
+              <code
+                >HeadlessMessageReceiver: failed to process incoming Signal
+                envelope</code
+              >. Failed envelopes are rejected to Signal for retry rather than
+              acknowledged; investigate the logged decrypt or persistence error.
+              Recipient device-list mismatches during an API send are repaired
+              selectively and do not reset unaffected inbound sessions.
             </div>
           </details>
 

@@ -43,7 +43,7 @@ Not implemented:
 - a public-internet API gateway, webhook management API, or polling API; and
 - concurrent replicas, failover, or profile merging.
 
-E164 destinations can only be used when the restored profile already maps the number to a Signal ACI. A lowercase ACI can be supplied directly. Unsupported incoming content is not exposed as a normal message or webhook. When a supported envelope decrypts but its data message contains unsupported fields, that decrypted record is retained in the encrypted profile's `unprocessed` store for future support.
+E164 destinations can only be used when the restored profile already maps the number to a Signal ACI. A lowercase ACI can be supplied directly. Unsupported incoming content is not exposed as a normal message or webhook. When a supported envelope decrypts but its data message contains unsupported fields, that decrypted record is retained in the encrypted profile's `unprocessed` store for future support. Unsupported ciphertext envelopes with a payload are likewise retained; empty unsupported control envelopes are acknowledged without staging because they contain no payload to preserve.
 
 Incoming disappearing messages are deliberately treated as unsupported: they remain in encrypted staging and are acknowledged, but are never persisted as ordinary messages or sent to the webhook. This prevents the headless subset from silently retaining time-limited content forever.
 
@@ -213,7 +213,7 @@ A successful response has this shape:
 }
 ```
 
-`destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. These are the only accepted request fields, and request bodies are limited to 64 KiB. Each accepted POST creates a fresh outgoing message ID and performs one send operation. There is no application-level deduplication: sending an identical request again can produce a duplicate message. If the connection closes before the response arrives, the outcome is ambiguous; this API does not provide a safe automatic-retry mechanism.
+`destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. These are the only accepted request fields, and request bodies are limited to 64 KiB. Each accepted POST creates a fresh outgoing message ID and performs one logical send operation. There is no application-level deduplication: sending an identical request again can produce a duplicate message. If Signal explicitly rejects the encrypted payload because the recipient device list changed, the daemon preserves unaffected sessions, repairs only missing, extra, stale, or registration-changed devices, and retransmits once inside the same POST. This bounded retry is safe because Signal rejected the first transmission before accepting it. A second device mismatch is returned as retryable HTTP 502. Other transport failures are never retried automatically: if the connection closes before the response arrives, the outcome is ambiguous.
 
 The API is bound to host loopback by Compose. To call it from another container, attach both services to a private Compose network with an override and use the service name; keep bearer authentication and do not publish the endpoint publicly without a separate TLS/authentication gateway and network controls.
 
@@ -300,6 +300,7 @@ Run them through `docker compose --profile tools run --rm state ...`; do not inv
 - Treat R2 read access as full access to the linked Signal Desktop profile. Keep the bucket private, scope credentials narrowly, and rotate credentials if they leak.
 - To roll back, stop all profile users, verify the chosen older UUID, `pull UUID --replace`, and start one runtime. Messages and protocol state newer than that snapshot are discarded locally and may not be replayable by Signal.
 - If daemon startup says the profile is unlinked, restore a known-good linked snapshot or relink through a fresh UI profile. Do not edit `config.json`, the SQLCipher database, or protocol sessions manually.
+- If readiness remains green but incoming webhooks stop, check `docker compose logs signal` for `HeadlessMessageReceiver: failed to process incoming Signal envelope`. Failed envelopes are rejected to Signal for retry rather than acknowledged; investigate the logged decrypt or persistence error. A recipient device-list mismatch during an API send is repaired selectively and must not reset unaffected inbound sessions.
 - If the profile lock is busy, find and stop the owning UI, daemon, or state container. Do not delete the lock file to bypass an active owner.
 - Never run `docker compose down -v` unless permanent deletion of the local profile is intended.
 

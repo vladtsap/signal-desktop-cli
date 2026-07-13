@@ -8,7 +8,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
+  Aci,
   type CiphertextMessage,
+  LibSignalErrorBase,
+  MismatchedDevicesEntry,
   SessionRecord,
 } from '@signalapp/libsignal-client';
 
@@ -99,8 +102,12 @@ async function createHarness() {
   );
   await recipient.initialPromise;
 
-  const calls = { archive: 0, encrypt: 0, establish: 0, fetch: 0, send: 0 };
+  const calls = { encrypt: 0, establish: 0, fetch: 0, repair: 0, send: 0 };
+  const repairs = new Array<
+    Parameters<HeadlessSendCrypto['repairSessions']>[0]
+  >();
   let sendError: Error | undefined;
+  let nextSendError: Error | undefined;
   let hasSessions = false;
   let pauseSend = false;
   let releaseSend: (() => void) | undefined;
@@ -126,6 +133,11 @@ async function createHarness() {
         pauseSend = false;
         releaseSend = undefined;
       }
+      if (nextSendError) {
+        const error = nextSendError;
+        nextSendError = undefined;
+        throw error;
+      }
       if (sendError) throw sendError;
     },
   };
@@ -147,15 +159,11 @@ async function createHarness() {
     async hasSessions() {
       return hasSessions;
     },
-  };
-  const originalArchiveAllSessions =
-    stores.signalProtocolStore.archiveAllSessions.bind(
-      stores.signalProtocolStore
-    );
-  stores.signalProtocolStore.archiveAllSessions = async destination => {
-    calls.archive += 1;
-    hasSessions = false;
-    await originalArchiveAllSessions(destination);
+    async repairSessions(options) {
+      calls.repair += 1;
+      repairs.push(options);
+      hasSessions = true;
+    },
   };
   return {
     calls,
@@ -178,9 +186,13 @@ async function createHarness() {
     setSendError(value?: Error) {
       sendError = value;
     },
+    setNextSendError(value: Error) {
+      nextSendError = value;
+    },
     releaseSend() {
       releaseSend?.();
     },
+    repairs,
     stores,
   };
 }
@@ -228,10 +240,10 @@ async function testRepeatedRequestsCreateDistinctDurableSends(): Promise<void> {
     const second = await harness.service.sendText(request);
     assert.notEqual(second.messageId, first.messageId);
     assert.deepEqual(harness.calls, {
-      archive: 0,
       encrypt: 2,
       establish: 1,
       fetch: 1,
+      repair: 0,
       send: 2,
     });
     const persisted = await harness.dataReader.getMessageById(first.messageId);
@@ -303,22 +315,66 @@ async function testRetryableFailure(): Promise<void> {
 async function testDeviceMismatchRecovery(): Promise<void> {
   const harness = await createHarness();
   try {
-    harness.setSendError(
-      new HeadlessSendError('device list changed', 'device-mismatch', true)
+    harness.setNextSendError(
+      new LibSignalErrorBase(
+        'device list changed',
+        'MismatchedDevices',
+        'test',
+        {
+          entries: [
+            new MismatchedDevicesEntry({
+              account: Aci.fromUuid(THEIR_ACI),
+              extraDevices: [3],
+              missingDevices: [2],
+              staleDevices: [4],
+            }),
+          ],
+        }
+      )
     );
     const request = {
       body: 'recover me',
       destination: THEIR_ACI,
     };
-    await assert.rejects(harness.service.sendText(request), {
-      code: 'device-mismatch',
-      retryable: true,
-    });
-    assert.equal(harness.calls.archive, 1);
-    harness.setSendError();
     await harness.service.sendText(request);
     assert.equal(harness.calls.fetch, 2);
-    assert.equal(harness.calls.establish, 2);
+    assert.equal(harness.calls.establish, 1);
+    assert.equal(harness.calls.repair, 1);
+    assert.equal(harness.calls.send, 2);
+    assert.deepEqual(harness.repairs[0]?.extraDevices, [3]);
+    assert.deepEqual(harness.repairs[0]?.staleDevices, [4]);
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testDeviceMismatchRetryIsBounded(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    const mismatch = new LibSignalErrorBase(
+      'device list changed again',
+      'MismatchedDevices',
+      'test',
+      {
+        entries: [
+          new MismatchedDevicesEntry({
+            account: Aci.fromUuid(THEIR_ACI),
+            missingDevices: [2],
+          }),
+        ],
+      }
+    );
+    harness.setNextSendError(mismatch);
+    harness.setSendError(mismatch);
+    await assert.rejects(
+      harness.service.sendText({
+        body: 'bounded repair',
+        destination: THEIR_ACI,
+      }),
+      { code: 'device-mismatch', retryable: true }
+    );
+    assert.equal(harness.calls.repair, 1);
+    assert.equal(harness.calls.send, 2);
   } finally {
     await harness.cleanup();
   }
@@ -365,6 +421,7 @@ async function main(): Promise<void> {
   await testE164Resolution();
   await testRetryableFailure();
   await testDeviceMismatchRecovery();
+  await testDeviceMismatchRetryIsBounded();
   await testTerminalFailure();
 }
 

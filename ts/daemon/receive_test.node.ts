@@ -10,7 +10,10 @@ import { SignalService as Proto } from '../protobuf/index.std.ts';
 import type { UnprocessedType } from '../textsecure/Types.d.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
-import { HeadlessMessageReceiver } from './receive.node.ts';
+import {
+  HeadlessMessageReceiver,
+  UnsupportedIncomingContentError,
+} from './receive.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
 import type {
   HeadlessIncomingRequest,
@@ -52,10 +55,12 @@ class FakeTransport implements HeadlessTransportRuntime {
   }
 }
 
-function makeEnvelope(): Uint8Array<ArrayBuffer> {
+function makeEnvelope(
+  content: Uint8Array<ArrayBuffer> = Uint8Array.from([1, 2, 3])
+): Uint8Array<ArrayBuffer> {
   return Proto.Envelope.encode({
     clientTimestamp: 1234n,
-    content: Uint8Array.from([1, 2, 3]),
+    content,
     destinationServiceId: OUR_ACI,
     serverGuid: 'server-guid',
     serverTimestamp: 1300n,
@@ -77,10 +82,12 @@ function makePlaintext(body?: string): Uint8Array<ArrayBuffer> {
 }
 
 function makeHarness({
+  decryptError,
   plaintext = makePlaintext('hello'),
   saveFailureCount = 0,
   wasEncrypted = true,
 }: Readonly<{
+  decryptError?: Error;
   plaintext?: Uint8Array<ArrayBuffer>;
   saveFailureCount?: number;
   wasEncrypted?: boolean;
@@ -140,6 +147,7 @@ function makeHarness({
   const receiver = new HeadlessMessageReceiver(transport, {
     decryptEnvelope: async envelope => {
       decryptCount += 1;
+      if (decryptError) throw decryptError;
       return {
         envelope: { ...envelope, sourceServiceId: SENDER_ACI },
         plaintext,
@@ -221,6 +229,42 @@ void test('acknowledges unsupported decrypted content and retains it for upgrade
   assert.deepEqual(statuses, [200]);
   assert.equal(harness.saved.length, 0);
   assert.equal(harness.staged.size, 1);
+  await harness.receiver.stop();
+});
+
+void test('acknowledges unsupported ciphertext and retains its envelope for upgrade', async () => {
+  const harness = makeHarness({
+    decryptError: new UnsupportedIncomingContentError(
+      'Unsupported Signal ciphertext type: undefined'
+    ),
+  });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(harness.saved.length, 0);
+  assert.equal(harness.staged.size, 1);
+  const [staged] = harness.staged.values();
+  assert.equal(staged?.isEncrypted, true);
+  assert.deepEqual(
+    Uint8Array.from(staged?.content ?? []),
+    Uint8Array.from([1, 2, 3])
+  );
+  await harness.receiver.stop();
+});
+
+void test('acknowledges unsupported empty control envelopes without staging null content', async () => {
+  const harness = makeHarness({
+    decryptError: new UnsupportedIncomingContentError(
+      'Unsupported Signal ciphertext type: undefined'
+    ),
+  });
+  await start(harness);
+  const { incoming, statuses } = request(makeEnvelope(new Uint8Array()));
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(harness.saved.length, 0);
+  assert.equal(harness.staged.size, 0);
   await harness.receiver.stop();
 });
 
