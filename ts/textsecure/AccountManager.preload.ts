@@ -94,6 +94,14 @@ import {
   isCleanStart as getIsCleanStart,
 } from '../util/isRelinkingToSameAccount.std.ts';
 import type { PhoneNumberDiscoverability } from '../util/phoneNumberDiscoverability.std.ts';
+import {
+  KYBER_KEY_ID_KEY,
+  SIGNED_PRE_KEY_ID_KEY,
+} from './ProtocolStorageKeys.std.ts';
+export {
+  KYBER_KEY_ID_KEY,
+  SIGNED_PRE_KEY_ID_KEY,
+} from './ProtocolStorageKeys.std.ts';
 
 const { isNumber, omit, orderBy } = lodash;
 
@@ -106,12 +114,6 @@ const DAY = 24 * 60 * 60 * 1000;
 const PROFILE_KEY_LENGTH = 32;
 const MASTER_KEY_LENGTH = 32;
 const KEY_TOO_OLD_THRESHOLD = 14 * DAY;
-
-export const KYBER_KEY_ID_KEY = {
-  [ServiceIdKind.ACI]: 'maxKyberPreKeyId',
-  [ServiceIdKind.Unknown]: 'maxKyberPreKeyId',
-  [ServiceIdKind.PNI]: 'maxKyberPreKeyIdPNI',
-} as const satisfies StorageKeyByServiceIdKind;
 
 const LAST_RESORT_KEY_ROTATION_AGE = DAY * 1.5;
 const LAST_RESORT_KEY_MINIMUM = 5;
@@ -132,12 +134,6 @@ const PRE_KEY_ID_KEY = {
   [ServiceIdKind.PNI]: 'maxPreKeyIdPNI',
 } as const satisfies StorageKeyByServiceIdKind;
 const PRE_KEY_MINIMUM = 10;
-
-export const SIGNED_PRE_KEY_ID_KEY = {
-  [ServiceIdKind.ACI]: 'signedKeyId',
-  [ServiceIdKind.Unknown]: 'signedKeyId',
-  [ServiceIdKind.PNI]: 'signedKeyIdPNI',
-} as const satisfies StorageKeyByServiceIdKind;
 
 const SIGNED_PRE_KEY_ROTATION_AGE = DAY * 1.5;
 const SIGNED_PRE_KEY_MINIMUM = 5;

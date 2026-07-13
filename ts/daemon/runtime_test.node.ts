@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import type { DaemonConfig } from './config.node.ts';
 import { DaemonRuntime, type RuntimeDependencies } from './runtime.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
+import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 
 const config: DaemonConfig = {
   connect: true,
@@ -52,6 +53,20 @@ function createHarness({ connect = true } = {}) {
       events.push('sql:open');
       return sql;
     },
+    async openProtocolStores() {
+      events.push('stores:open');
+      return {
+        itemStorage: {
+          getItemsState() {
+            return {
+              number_id: '+12025550123.2',
+              password: 'secret',
+            };
+          },
+        },
+        signalProtocolStore: {},
+      } as unknown as HeadlessProtocolStores;
+    },
     protocolRuntime,
   };
   return {
@@ -77,6 +92,7 @@ void test('DaemonRuntime starts and drains protocol before SQL', async () => {
   assert.deepEqual(events, [
     'profile:load',
     'sql:open',
+    'stores:open',
     'protocol:start',
     'protocol:stop',
     'sql:close',
@@ -89,7 +105,7 @@ void test('DaemonRuntime can validate a profile without network access', async (
   await runtime.start();
   assert.equal(runtime.getStatus().ready, true);
   assert.equal(runtime.getStatus().connected, false);
-  assert.deepEqual(events, ['profile:load', 'sql:open']);
+  assert.deepEqual(events, ['profile:load', 'sql:open', 'stores:open']);
   await runtime.stop();
 });
 

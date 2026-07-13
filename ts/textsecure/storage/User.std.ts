@@ -28,9 +28,11 @@ export type SetCredentialsOptions = {
 
 export class User {
   readonly #storage: StorageInterface;
+  readonly #onUserChanged?: () => void;
 
-  constructor(storage: StorageInterface) {
+  constructor(storage: StorageInterface, onUserChanged?: () => void) {
     this.#storage = storage;
+    this.#onUserChanged = onUserChanged;
   }
 
   public async setAciAndDeviceId(
@@ -61,7 +63,7 @@ export class User {
     ]);
 
     // Notify redux about phone number change
-    window.Whisper.events.emit('userChanged', true);
+    this.#onUserChanged?.();
   }
 
   public getNumber(): string | undefined {

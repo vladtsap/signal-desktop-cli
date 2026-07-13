@@ -4,6 +4,7 @@
 
 import type { DaemonConfig } from './config.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
+import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 
 export type DaemonPhase =
   | 'created'
@@ -30,7 +31,11 @@ export type DaemonStatus = Readonly<{
 export type ProtocolRuntime = Readonly<{
   connected: boolean;
   start: (
-    context: Readonly<{ items: Record<string, unknown>; sql: HeadlessSql }>
+    context: Readonly<{
+      items: Record<string, unknown>;
+      protocolStores: HeadlessProtocolStores;
+      sql: HeadlessSql;
+    }>
   ) => Promise<void> | void;
   stop: () => Promise<void> | void;
 }>;
@@ -48,6 +53,7 @@ export type RuntimeDependencies = Readonly<{
       storagePath: string;
     }>
   ) => HeadlessSql;
+  openProtocolStores: (sql: HeadlessSql) => Promise<HeadlessProtocolStores>;
   protocolRuntime?: ProtocolRuntime;
 }>;
 
@@ -58,6 +64,7 @@ export class DaemonRuntime {
   #linked = false;
   #reason: string | undefined;
   #sql: HeadlessSql | undefined;
+  #protocolStores: HeadlessProtocolStores | undefined;
 
   constructor(config: DaemonConfig, dependencies: RuntimeDependencies) {
     this.#config = config;
@@ -96,7 +103,11 @@ export class DaemonRuntime {
       });
       this.#phase = 'database-ready';
 
-      const items = (await this.#sql.read('getAllItems')) as Record<
+      this.#protocolStores = await this.#dependencies.openProtocolStores(
+        this.#sql
+      );
+
+      const items = this.#protocolStores.itemStorage.getItemsState() as Record<
         string,
         unknown
       >;
@@ -114,7 +125,11 @@ export class DaemonRuntime {
             'Headless protocol bootstrap is unavailable: upstream MessageReceiver and protocol stores still depend on the Electron preload global runtime'
           );
         }
-        await protocolRuntime.start({ items, sql: this.#sql });
+        await protocolRuntime.start({
+          items,
+          protocolStores: this.#protocolStores,
+          sql: this.#sql,
+        });
       }
 
       this.#phase = 'ready';
@@ -123,6 +138,7 @@ export class DaemonRuntime {
       this.#phase = 'failed';
       await this.#sql?.close();
       this.#sql = undefined;
+      this.#protocolStores = undefined;
       throw error;
     }
   }
@@ -136,6 +152,7 @@ export class DaemonRuntime {
       await this.#dependencies.protocolRuntime?.stop();
       await this.#sql?.close();
       this.#sql = undefined;
+      this.#protocolStores = undefined;
     } finally {
       this.#phase = 'stopped';
     }

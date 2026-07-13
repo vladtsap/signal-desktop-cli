@@ -13,6 +13,8 @@ async function main(): Promise<void> {
     appVersion: packageJson.version,
     loadProfile: (await import('./profile.node.ts')).loadPortableProfile,
     openSql: (await import('./sql.node.ts')).openHeadlessSql,
+    openProtocolStores: (await import('./protocol_stores.node.ts'))
+      .openHeadlessProtocolStores,
   });
 
   await runtime.start();

@@ -8,11 +8,16 @@ import { test } from 'node:test';
 
 const daemonModules = [
   'config.node.ts',
+  'client_sql.node.ts',
   'lifecycle.node.ts',
   'main.node.ts',
   'profile.node.ts',
+  'protocol_stores.node.ts',
   'runtime.node.ts',
   'sql.node.ts',
+  '../SignalProtocolStore.node.ts',
+  '../textsecure/Storage.node.ts',
+  '../textsecure/storage/User.std.ts',
 ];
 
 void test('daemon entry modules never import Electron or browser globals', async () => {
