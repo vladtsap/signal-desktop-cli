@@ -30,7 +30,10 @@ export type HeadlessConversationEvents = Readonly<{
 }>;
 
 export class HeadlessConversationController {
-  readonly #dataReader: Pick<ClientReadableInterface, 'getAllConversations'>;
+  readonly #dataReader: Pick<
+    ClientReadableInterface,
+    'getAllGroupConversationIds' | 'getAllPrivateConversations'
+  >;
   readonly #dataWriter: Pick<
     ClientWritableInterface,
     'saveConversation' | 'updateConversation'
@@ -47,6 +50,7 @@ export class HeadlessConversationController {
   readonly #byServiceId = new Map<string, HeadlessConversationModel>();
   readonly #byPni = new Map<string, HeadlessConversationModel>();
   readonly #byGroupId = new Map<string, HeadlessConversationModel>();
+  readonly #groupConversationIds = new Set<string>();
 
   public constructor({
     dataReader,
@@ -55,7 +59,10 @@ export class HeadlessConversationController {
     events = {},
     generateId = generateUuid,
   }: Readonly<{
-    dataReader: Pick<ClientReadableInterface, 'getAllConversations'>;
+    dataReader: Pick<
+      ClientReadableInterface,
+      'getAllGroupConversationIds' | 'getAllPrivateConversations'
+    >;
     dataWriter: Pick<
       ClientWritableInterface,
       'saveConversation' | 'updateConversation'
@@ -83,6 +90,7 @@ export class HeadlessConversationController {
     this.#loaded = false;
     this.#loadPromise = undefined;
     this.#conversations = [];
+    this.#groupConversationIds.clear();
     this.#clearLookups();
   }
 
@@ -104,6 +112,11 @@ export class HeadlessConversationController {
   public getAll(): Array<HeadlessConversationModel> {
     this.#assertLoaded();
     return [...this.#conversations];
+  }
+
+  public isGroupConversation(id: string): boolean {
+    this.#assertLoaded();
+    return this.#groupConversationIds.has(id);
   }
 
   public getConversationId(address: string | null): string | null {
@@ -288,7 +301,14 @@ export class HeadlessConversationController {
   }
 
   async #doLoad(): Promise<void> {
-    const records = await this.#dataReader.getAllConversations();
+    const [records, groupConversationIds] = await Promise.all([
+      this.#dataReader.getAllPrivateConversations(),
+      this.#dataReader.getAllGroupConversationIds(),
+    ]);
+    this.#groupConversationIds.clear();
+    for (const id of groupConversationIds) {
+      this.#groupConversationIds.add(id);
+    }
     this.#conversations = records
       .filter(record => !record.isTemporary)
       .map(record => this.#makeModel(record));

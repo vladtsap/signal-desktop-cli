@@ -89,6 +89,7 @@ export type WebhookOutboxOptions = Readonly<{
   beforePersist?: () => Promise<void> | void;
   fetch?: typeof fetch;
   maxPending: number;
+  isGroupConversation?: (conversationId: string) => boolean;
   now?: () => number;
   profileKey: string;
   secret?: string;
@@ -151,6 +152,9 @@ export class DurableWebhookOutbox {
   readonly #fetch: typeof fetch;
   readonly #key: Buffer<ArrayBuffer>;
   readonly #maxPending: number;
+  readonly #isGroupConversation:
+    | ((conversationId: string) => boolean)
+    | undefined;
   readonly #now: () => number;
   readonly #secret: string | undefined;
   readonly #sql: HeadlessSql;
@@ -178,6 +182,7 @@ export class DurableWebhookOutbox {
       )
     );
     this.#maxPending = options.maxPending;
+    this.#isGroupConversation = options.isGroupConversation;
     this.#now = options.now ?? Date.now;
     this.#secret = options.secret;
     this.#timeoutMs = options.timeoutMs;
@@ -268,11 +273,7 @@ export class DurableWebhookOutbox {
         return;
       }
       const update = toWebhookUpdate(message);
-      if (
-        !update ||
-        !this.#url ||
-        this.#groupConversationIds.has(message.conversationId)
-      ) {
+      if (!update || !this.#url || this.#isGroup(message.conversationId)) {
         await this.#commit({ ...this.#state, cursor });
         return;
       }
@@ -301,14 +302,14 @@ export class DurableWebhookOutbox {
   async #allMessages(): Promise<
     Array<{ cursor: Cursor; message: MessageAttributesType }>
   > {
-    const [records, conversations] = await Promise.all([
-      this.#sql.read('_getAllMessages'),
-      this.#sql.read('getAllConversations'),
-    ]);
-    this.#groupConversationIds.clear();
-    for (const conversation of conversations) {
-      if (conversation.type === 'group') {
-        this.#groupConversationIds.add(conversation.id);
+    const records = await this.#sql.read('_getAllMessages');
+    if (!this.#isGroupConversation) {
+      const conversations = await this.#sql.read('getAllConversations');
+      this.#groupConversationIds.clear();
+      for (const conversation of conversations) {
+        if (conversation.type === 'group') {
+          this.#groupConversationIds.add(conversation.id);
+        }
       }
     }
     return records
@@ -329,13 +330,13 @@ export class DurableWebhookOutbox {
       if (
         this.#url &&
         toWebhookUpdate(message) &&
-        !this.#groupConversationIds.has(message.conversationId) &&
+        !this.#isGroup(message.conversationId) &&
         nextState.entries.length >= this.#maxPending
       ) {
         break;
       }
       const update =
-        this.#url && !this.#groupConversationIds.has(message.conversationId)
+        this.#url && !this.#isGroup(message.conversationId)
           ? toWebhookUpdate(message)
           : undefined;
       nextState = {
@@ -350,6 +351,13 @@ export class DurableWebhookOutbox {
       };
     }
     await this.#commit(nextState);
+  }
+
+  #isGroup(conversationId: string): boolean {
+    return (
+      this.#isGroupConversation?.(conversationId) ??
+      this.#groupConversationIds.has(conversationId)
+    );
   }
 
   #schedule(delayMs: number): void {

@@ -882,6 +882,8 @@ type ReadableInterface = {
   _getAllSentProtoRecipients: () => Array<SentRecipientsDBType>;
   _getAllSentProtoMessageIds: () => Array<SentMessageDBType>;
 
+  getSessionById: (id: SessionIdType) => SessionType | undefined;
+  getSessionsByServiceId: (serviceId: ServiceIdString) => Array<SessionType>;
   getAllSessions: () => Array<SessionType>;
 
   getAllKyberTriples: () => Array<KyberPreKeyTripleType>;
@@ -890,6 +892,8 @@ type ReadableInterface = {
   getConversationById: (id: string) => ConversationType | undefined;
 
   getAllConversations: () => Array<ConversationType>;
+  getAllPrivateConversations: () => Array<ConversationType>;
+  getAllGroupConversationIds: () => Array<string>;
   getAllConversationIds: () => Array<string>;
   getGroupSendCombinedEndorsementExpiration: (groupId: string) => number | null;
   getGroupSendEndorsementsData: (

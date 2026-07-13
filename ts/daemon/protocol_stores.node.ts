@@ -45,6 +45,8 @@ export async function openHeadlessProtocolStores(
     // probabilistically archive non-PQ sessions.
     getRequirePqRatio: () => 0,
     itemStorage,
+    loadProtocolRecordsOnDemand: true,
+    protocolRecordCacheLimit: 256,
   });
   await signalProtocolStore.hydrateCaches();
 

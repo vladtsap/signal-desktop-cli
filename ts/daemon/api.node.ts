@@ -187,6 +187,10 @@ export class HeadlessControlService {
     this.#outbox = this.#createOutbox
       ? this.#createOutbox(context.sql, context)
       : new DurableWebhookOutbox(context.sql, {
+          isGroupConversation: conversationId =>
+            context.protocolStores.conversationController.isGroupConversation(
+              conversationId
+            ),
           maxPending: this.#config.webhookMaxPending,
           profileKey: context.profileSqlKey,
           ...(this.#config.webhookSecret

@@ -54,3 +54,16 @@ void test('daemon container uses the shared profile lease', async () => {
   assert.match(source, /flock --nonblock 9/);
   assert.match(source, /SIGNAL_PROFILE_LOCK_PATH/);
 });
+
+void test('daemon healthcheck does not launch a second Node runtime', async () => {
+  const source = await readFile(
+    join(import.meta.dirname, '../../compose.yaml'),
+    'utf8'
+  );
+  const healthcheck = source.match(
+    / {2}signal:\n[\s\S]*? {4}healthcheck:\n([\s\S]*?)\n\n {2}signal-ui:/
+  )?.[1];
+  assert.ok(healthcheck);
+  assert.match(healthcheck, /bash -c.*GET \/healthz/);
+  assert.doesNotMatch(healthcheck, /node -e/);
+});
