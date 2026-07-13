@@ -135,7 +135,7 @@ function padMessage(message: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
   return result;
 }
 
-export function createLibsignalSendCrypto(
+function createLibsignalSendCrypto(
   stores: HeadlessProtocolStores
 ): HeadlessSendCrypto {
   const ourAci = stores.itemStorage.user.getCheckedAci();

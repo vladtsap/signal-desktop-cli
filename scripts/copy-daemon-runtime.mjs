@@ -26,9 +26,12 @@ while (queue.length > 0) {
   ) {
     throw new Error(`Daemon bundle import escapes bundle root: ${source}`);
   }
+  // eslint-disable-next-line no-await-in-loop
   const contents = await readFile(source, 'utf8');
   const destination = join(destinationRoot, sourceRelative);
+  // eslint-disable-next-line no-await-in-loop
   await mkdir(dirname(destination), { recursive: true });
+  // eslint-disable-next-line no-await-in-loop
   await copyFile(source, destination);
   copied.add(source);
 
@@ -40,5 +43,4 @@ while (queue.length > 0) {
   }
 }
 
-// eslint-disable-next-line no-console
 console.log(`Copied ${copied.size} files in the daemon bundle closure`);

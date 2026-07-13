@@ -55,10 +55,13 @@ const config = {
         '!ts/test-mock/**/*.{ts,tsx}!',
         '!ts/test-node/**/*.{ts,tsx}!',
         '!ts/util/lint/**/*.{ts,tsx}!',
+        '!ts/daemon/**/*_fixture.node.ts!',
+        '!ts/daemon/**/*_test.node.ts!',
         'app/**/*.{ts,tsx}!',
 
         // Development
         'ts/**/*.d.ts',
+        'ts/daemon/**/*_test.node.ts',
         'ts/util/lint/**/*.{ts,tsx}',
         'test/**/*.mjs',
         'scripts/**/*.mjs',

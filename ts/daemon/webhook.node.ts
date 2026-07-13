@@ -124,7 +124,7 @@ function stableUpdateId(messageId: string): string {
   return (digest.readBigUInt64BE() % 0x8000_0000_0000_0000n).toString();
 }
 
-export function toWebhookUpdate(
+function toWebhookUpdate(
   message: MessageAttributesType
 ): WebhookUpdate | undefined {
   if (!isSupportedIncoming(message) || !message.sourceServiceId)

@@ -368,7 +368,7 @@ All state commands need R2 configuration. R2 operations use region `auto`, disab
 
 ## Published container image
 
-Every push to `main` automatically runs the daemon and state-tool tests, builds and smoke-tests the Linux `amd64` daemon target, and publishes it to GitHub Container Registry as `ghcr.io/vladtsap/signal-desktop-cli` only if every preceding step succeeds. The tested local image is pushed without rebuilding it. The moving `latest` tag and an immutable tag containing the full commit SHA are published together:
+Every push to `main` automatically runs the project linters plus the daemon and state-tool tests, builds and smoke-tests the Linux `amd64` daemon target, and publishes it to GitHub Container Registry as `ghcr.io/vladtsap/signal-desktop-cli` only if every preceding step succeeds. The tested local image is pushed without rebuilding it. The moving `latest` tag and an immutable tag containing the full commit SHA are published together:
 
 ```sh
 docker pull ghcr.io/vladtsap/signal-desktop-cli:latest

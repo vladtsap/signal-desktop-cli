@@ -98,10 +98,6 @@ import {
   KYBER_KEY_ID_KEY,
   SIGNED_PRE_KEY_ID_KEY,
 } from './ProtocolStorageKeys.std.ts';
-export {
-  KYBER_KEY_ID_KEY,
-  SIGNED_PRE_KEY_ID_KEY,
-} from './ProtocolStorageKeys.std.ts';
 
 const { isNumber, omit, orderBy } = lodash;
 

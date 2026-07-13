@@ -1043,10 +1043,10 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
           </p>
           <h3>Published daemon image</h3>
           <p>
-            Every push to <code>main</code> automatically runs the daemon and
-            state-tool tests, builds and smoke-tests the Linux
-            <code>amd64</code> daemon target, and publishes it to GitHub
-            Container Registry as
+            Every push to <code>main</code> automatically runs the project
+            linters plus the daemon and state-tool tests, builds and smoke-tests
+            the Linux <code>amd64</code> daemon target, and publishes it to
+            GitHub Container Registry as
             <code>ghcr.io/vladtsap/signal-desktop-cli</code> only if every
             preceding step succeeds. The tested local image is pushed without
             rebuilding it. The workflow publishes both the moving
