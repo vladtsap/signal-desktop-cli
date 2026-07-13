@@ -2,7 +2,7 @@
 # Copyright 2026 Signal Desktop CLI contributors
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Offline, encrypted snapshots of a Signal Desktop profile in Cloudflare R2."""
+"""Offline snapshots of a Signal Desktop profile in Cloudflare R2."""
 
 from __future__ import annotations
 
@@ -27,8 +27,8 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Iterator, Sequence
 
 
-FORMAT_VERSION = 1
-SNAPSHOT_SUFFIX = ".tar.zst.age"
+FORMAT_VERSION = 2
+SNAPSHOT_SUFFIX = ".tar.zst"
 DESCRIPTOR_SUFFIX = ".metadata.json"
 DEFAULT_PROFILE = Path("/var/lib/signal-state/profile")
 DEFAULT_LOCK = Path("/var/lib/signal-state/.signal-desktop-cli.lock")
@@ -152,7 +152,7 @@ def validate_profile(profile: Path, manifest: dict[str, Any]) -> None:
         raise StateError("Snapshot manifest has no file inventory")
     actual = profile_entries(profile)
     if actual != expected:
-        raise StateError("Restored profile does not match the encrypted manifest")
+        raise StateError("Restored profile does not match the snapshot manifest")
 
 
 def inspect_archive(path: Path, profile_name: str) -> None:
@@ -220,7 +220,7 @@ def load_build_metadata() -> dict[str, Any]:
 
 
 class Config:
-    def __init__(self, *, require_recipient: bool = False, require_identity: bool = False):
+    def __init__(self):
         self.profile = Path(os.getenv("SIGNAL_STORAGE_PATH", str(DEFAULT_PROFILE)))
         self.lock = Path(os.getenv("SIGNAL_PROFILE_LOCK_PATH", str(DEFAULT_LOCK)))
         self.bucket = require_env("R2_BUCKET")
@@ -233,15 +233,6 @@ class Config:
         self.access_key = require_env("R2_ACCESS_KEY_ID")
         self.secret_key = require_env("R2_SECRET_ACCESS_KEY")
         self.prefix = normalize_prefix(os.getenv("R2_PREFIX", "signal-state"))
-        self.recipient = os.getenv("AGE_RECIPIENT")
-        self.identity = os.getenv("AGE_IDENTITY_FILE")
-        if require_recipient and not self.recipient:
-            raise StateError("Set AGE_RECIPIENT for state push")
-        if require_identity:
-            if not self.identity:
-                raise StateError("Set AGE_IDENTITY_FILE for state pull or verify")
-            if not Path(self.identity).is_file():
-                raise StateError("AGE_IDENTITY_FILE is not readable")
 
     def aws_env(self) -> dict[str, str]:
         result = os.environ.copy()
@@ -332,9 +323,17 @@ def read_descriptors(config: Config) -> list[dict[str, Any]]:
                     "--only-show-errors",
                 ],
             )
-            descriptor = validate_descriptor(
-                json.loads(target.read_text(encoding="utf-8")), key
-            )
+            value = json.loads(target.read_text(encoding="utf-8"))
+            # Earlier snapshot formats are incompatible with format 2. Ignore
+            # their descriptors so old and new snapshots may coexist under the
+            # same R2 prefix.
+            if (
+                isinstance(value, dict)
+                and isinstance(value.get("formatVersion"), int)
+                and value["formatVersion"] != FORMAT_VERSION
+            ):
+                continue
+            descriptor = validate_descriptor(value, key)
             descriptor["descriptorKey"] = key
             descriptors.append(descriptor)
     return descriptors
@@ -348,8 +347,7 @@ def create_manifest(profile: Path, snapshot_id: str, created_at: dt.datetime) ->
         "app": load_build_metadata(),
         "files": profile_entries(profile),
     }
-    # Reject unsafe links before tar sees them. Since age authenticates the whole
-    # archive, a snapshot that passes this check cannot later be tampered with.
+    # Reject unsafe links before tar sees them.
     validate_profile(profile, manifest)
     return manifest
 
@@ -371,7 +369,7 @@ def command_push(config: Config) -> None:
             (metadata_dir / "manifest.json").write_text(
                 json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
             )
-            encrypted = temp / Path(key).name
+            snapshot = temp / Path(key).name
             tar = subprocess.Popen(
                 [
                     "tar",
@@ -380,7 +378,6 @@ def command_push(config: Config) -> None:
                     "--numeric-owner",
                     "--owner=0",
                     "--group=0",
-                    "--hard-dereference",
                     "-C",
                     str(config.profile.parent),
                     config.profile.name,
@@ -388,34 +385,28 @@ def command_push(config: Config) -> None:
                     str(temp),
                     ".signal-state",
                 ],
+                env={**os.environ, "COPYFILE_DISABLE": "1"},
                 stdout=subprocess.PIPE,
             )
-            zstd = subprocess.Popen(
-                ["zstd", "--quiet", "--threads=0", "--stdout"],
-                stdin=tar.stdout,
-                stdout=subprocess.PIPE,
-            )
-            assert tar.stdout is not None and zstd.stdout is not None
-            tar.stdout.close()
-            with encrypted.open("wb") as output:
-                age = subprocess.run(
-                    ["age", "--encrypt", "--recipient", config.recipient or "-"],
-                    stdin=zstd.stdout,
+            assert tar.stdout is not None
+            with snapshot.open("wb") as output:
+                zstd = subprocess.Popen(
+                    ["zstd", "--quiet", "--threads=0", "--stdout"],
+                    stdin=tar.stdout,
                     stdout=output,
-                    check=False,
                 )
-            zstd.stdout.close()
-            zstd_status = zstd.wait()
+                tar.stdout.close()
+                zstd_status = zstd.wait()
             tar_status = tar.wait()
-            if age.returncode or zstd_status or tar_status:
-                raise StateError("Failed to create encrypted snapshot")
+            if zstd_status or tar_status:
+                raise StateError("Failed to create snapshot")
             descriptor = {
                 "formatVersion": FORMAT_VERSION,
                 "snapshotId": snapshot_id,
                 "createdAt": manifest["createdAt"],
                 "objectKey": key,
-                "objectSize": encrypted.stat().st_size,
-                "objectSha256": sha256_file(encrypted),
+                "objectSize": snapshot.stat().st_size,
+                "objectSha256": sha256_file(snapshot),
                 "app": manifest["app"],
             }
             descriptor_path = temp / "metadata.json"
@@ -429,7 +420,7 @@ def command_push(config: Config) -> None:
                 [
                     "s3",
                     "cp",
-                    str(encrypted),
+                    str(snapshot),
                     f"s3://{config.bucket}/{key}",
                     "--only-show-errors",
                     "--no-progress",
@@ -471,22 +462,12 @@ def download_snapshot(config: Config, reference: str, destination: Path) -> dict
     return descriptor
 
 
-def extract_snapshot(config: Config, encrypted: Path, destination: Path) -> dict[str, Any]:
+def extract_snapshot(config: Config, snapshot: Path, destination: Path) -> dict[str, Any]:
     destination.mkdir(parents=True, mode=0o700)
     plain_tar = destination.parent / "snapshot.tar"
     with plain_tar.open("wb") as output:
         run(
-            [
-                "bash",
-                "-o",
-                "pipefail",
-                "-c",
-                'age --decrypt --identity "$1" "$2" '
-                "| zstd --decompress --quiet --stdout",
-                "signal-state-decrypt",
-                config.identity,
-                str(encrypted),
-            ],
+            ["zstd", "--decompress", "--quiet", "--stdout", str(snapshot)],
             config=config,
             stdout=output,
         )
@@ -507,7 +488,7 @@ def extract_snapshot(config: Config, encrypted: Path, destination: Path) -> dict
     manifest_path = destination / ".signal-state" / "manifest.json"
     restored_profile = destination / config.profile.name
     if not manifest_path.is_file() or not restored_profile.is_dir():
-        raise StateError("Snapshot is missing its profile or encrypted manifest")
+        raise StateError("Snapshot is missing its profile or manifest")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     validate_profile(restored_profile, manifest)
     return manifest
@@ -568,12 +549,12 @@ def command_pull(config: Config, reference: str, replace: bool) -> None:
             prefix=".signal-state-restore-", dir=config.profile.parent
         ) as temp_name:
             temp = Path(temp_name)
-            encrypted = temp / "snapshot.age"
-            descriptor = download_snapshot(config, reference, encrypted)
+            snapshot = temp / "snapshot.tar.zst"
+            descriptor = download_snapshot(config, reference, snapshot)
             extracted = temp / "extracted"
-            manifest = extract_snapshot(config, encrypted, extracted)
+            manifest = extract_snapshot(config, snapshot, extracted)
             if manifest["snapshotId"] != descriptor["snapshotId"]:
-                raise StateError("Encrypted manifest does not match snapshot metadata")
+                raise StateError("Snapshot manifest does not match snapshot metadata")
             activate_profile(config.profile, extracted / config.profile.name)
     print(manifest["snapshotId"])
 
@@ -585,11 +566,11 @@ def command_verify(config: Config, reference: str) -> None:
             prefix=".signal-state-verify-", dir=config.profile.parent
         ) as temp_name:
             temp = Path(temp_name)
-            encrypted = temp / "snapshot.age"
-            descriptor = download_snapshot(config, reference, encrypted)
-            manifest = extract_snapshot(config, encrypted, temp / "extracted")
+            snapshot = temp / "snapshot.tar.zst"
+            descriptor = download_snapshot(config, reference, snapshot)
+            manifest = extract_snapshot(config, snapshot, temp / "extracted")
             if manifest["snapshotId"] != descriptor["snapshotId"]:
-                raise StateError("Encrypted manifest does not match snapshot metadata")
+                raise StateError("Snapshot manifest does not match snapshot metadata")
     print(json.dumps(manifest, indent=2, sort_keys=True))
 
 
@@ -606,7 +587,7 @@ def command_list(config: Config) -> None:
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(prog="signal-state")
     commands = result.add_subparsers(dest="command", required=True)
-    commands.add_parser("push", help="encrypt and upload the offline profile")
+    commands.add_parser("push", help="upload the offline profile")
     commands.add_parser("list", help="list immutable snapshots in R2")
     pull = commands.add_parser("pull", help="download and restore a snapshot")
     pull.add_argument("snapshot", nargs="?", default="latest")
@@ -621,11 +602,11 @@ def main(arguments: Sequence[str] | None = None) -> int:
     args = parser().parse_args(arguments)
     try:
         if args.command == "push":
-            command_push(Config(require_recipient=True))
+            command_push(Config())
         elif args.command == "pull":
-            command_pull(Config(require_identity=True), args.snapshot, args.replace)
+            command_pull(Config(), args.snapshot, args.replace)
         elif args.command == "verify":
-            command_verify(Config(require_identity=True), args.snapshot)
+            command_verify(Config(), args.snapshot)
         elif args.command == "list":
             command_list(Config())
         return 0

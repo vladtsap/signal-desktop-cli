@@ -14,7 +14,7 @@ The initial feature set is intentionally narrow:
 - receive one-to-one text messages and deliver Telegram-like HTTP webhooks;
 - send one-to-one text messages through an authenticated HTTP endpoint;
 - store the complete profile in a named Docker volume; and
-- move an offline profile between machines using client-side encrypted Cloudflare R2 snapshots.
+- move an offline profile between machines using unencrypted Cloudflare R2 snapshots.
 
 This is not `signal-cli`, is not affiliated with that project, and is not an official Signal distribution. It remains a Signal Desktop fork and must be kept current with upstream.
 
@@ -31,7 +31,7 @@ Implemented:
 - automatic ACI/PNI prekey replenishment and signed/PQ key rotation;
 - direct encrypted text receive, SQLCipher persistence, and durable webhooks;
 - direct encrypted text send with durable idempotency and existing-session reuse;
-- encrypted, immutable, checksummed R2 snapshots with staged restore; and
+- unencrypted, immutable, checksummed R2 snapshots with staged restore; and
 - a 90-day reproducible build lifetime with expiration visible at `/readyz`.
 
 Not implemented:
@@ -69,7 +69,7 @@ While connected, the daemon checks ACI and PNI server prekey inventories at star
 - a Signal account on the Android or iOS mobile app;
 - enough CPU, memory, and disk to compile Signal Desktop for the first image build;
 - an `amd64` Docker host, or a Docker environment capable of `linux/amd64` emulation; and
-- for machine-to-machine state transfer, a Cloudflare R2 bucket, R2 S3 API credentials, and an age identity.
+- for machine-to-machine state transfer, a private Cloudflare R2 bucket and R2 S3 API credentials.
 
 Clone this repository on every machine that will use the profile. Commands below run from the repository root.
 
@@ -95,24 +95,14 @@ R2_BUCKET=your-private-bucket
 R2_ACCESS_KEY_ID=your-r2-access-key-id
 R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
 R2_PREFIX=signal-state
-
-AGE_RECIPIENT=age1...
 ```
 
 `SIGNAL_UI_PASSWORD` is limited by the VNC/RFB protocol to eight characters. The noVNC port is restricted to `127.0.0.1`, so access it locally or through an SSH tunnel; do not publish it directly to an untrusted network. For unattended use, prefer a Compose override that mounts a secret file and sets `SIGNAL_UI_PASSWORD_FILE` rather than retaining the password in `.env`.
 
-Generate the age identity once on a trusted machine (install the `age` command locally first):
+R2 may use either `R2_ACCOUNT_ID`, which derives `https://ACCOUNT_ID.r2.cloudflarestorage.com`, or an explicit `R2_ENDPOINT_URL`. The credentials should be scoped to the selected private bucket.
 
-```sh
-mkdir -p secrets
-age-keygen -o secrets/age-identity.txt
-age-keygen -y secrets/age-identity.txt
-chmod 600 secrets/age-identity.txt
-```
-
-Put the printed `age1...` public recipient in `AGE_RECIPIENT`. Copy `secrets/age-identity.txt` to each restore machine through a separate secure channel. The `secrets/` directory ignores its contents except `.gitignore`; never upload the identity to R2 or commit it.
-
-R2 may use either `R2_ACCOUNT_ID`, which derives `https://ACCOUNT_ID.r2.cloudflarestorage.com`, or an explicit `R2_ENDPOINT_URL`. The credentials should be scoped to the selected private bucket. Snapshot payloads are age-encrypted before upload; the adjacent descriptor exposes snapshot time, application/build metadata, encrypted object size, and checksum, but not profile contents or the encrypted manifest's file inventory.
+> [!WARNING]
+> Snapshot objects are intentionally **not encrypted by this tool**. A snapshot contains the complete portable Signal Desktop profile, including the material needed to open its SQLCipher database. Anyone who can read the R2 objects can read the profile. Use a private bucket, narrowly scoped credentials, and appropriate R2 access controls. SHA-256 and the file manifest detect corruption during normal transfer, but they are not authentication against an attacker who can replace both the snapshot and its descriptor.
 
 ## First setup: link locally
 
@@ -142,7 +132,7 @@ docker compose up --build -d signal
 docker compose logs -f signal
 ```
 
-No state-tool variables or age identity are required for this local-only flow. Stop the daemon before the next UI session:
+No state-tool variables are required for this local-only flow. Stop the daemon before the next UI session:
 
 ```sh
 docker compose stop --timeout 45 signal
@@ -151,13 +141,13 @@ docker compose --profile ui up signal-ui
 
 ### Option B: upload the offline profile to R2
 
-With both runtimes stopped and the R2/age variables configured:
+With both runtimes stopped and the R2 variables configured:
 
 ```sh
 docker compose --profile tools run --rm --build state push
 ```
 
-The command prints the new snapshot UUID. `push` inventories the profile, creates a tar+zstd stream, encrypts it to `AGE_RECIPIENT`, uploads the payload first, and publishes its descriptor last. Snapshots are immutable; a later push creates another object rather than overwriting the previous one. Upload is not tied to the original linking machine: whichever stopped machine currently owns the live profile can push it to R2. `push` needs the public `AGE_RECIPIENT`; `verify` and `pull` need the matching private age identity.
+The command prints the new snapshot UUID. `push` inventories the profile, creates an unencrypted `.tar.zst` archive, uploads it first, and publishes its descriptor last. Snapshots are immutable; a later push creates another object rather than overwriting the previous one. Upload is not tied to the original linking machine: whichever stopped machine currently owns the live profile can push it to R2.
 
 List and fully verify the uploaded snapshot before migration:
 
@@ -166,11 +156,13 @@ docker compose --profile tools run --rm state list
 docker compose --profile tools run --rm state verify latest
 ```
 
-`verify` downloads the encrypted payload, verifies its size and SHA-256, decrypts it in temporary storage, rejects unsafe archive entries, and compares every restored file with the encrypted manifest. It does not activate the profile.
+`verify` downloads the archive, verifies its size and SHA-256, decompresses it in temporary storage, rejects unsafe archive entries, and compares every restored file with the included manifest. It does not activate the profile.
+
+The unencrypted archive is snapshot format 2. Earlier format-1 descriptors under the same R2 prefix are ignored by `list`, `verify`, and `pull`; create a new snapshot with this version before relying on restore.
 
 ## First setup: restore remotely and start headless
 
-On the destination, clone the same revision, create its protected `.env`, securely install the same age identity at `secrets/age-identity.txt`, and keep the source stopped.
+On the destination, clone the same revision, create its protected `.env` with the same R2 configuration, and keep the source stopped.
 
 The state command can create the Compose volume without starting Signal. This is the preferred order—restore first, daemon second:
 
@@ -287,7 +279,7 @@ docker compose --profile tools run --rm state pull "$SNAPSHOT_ID" --replace
 docker compose up -d signal
 ```
 
-`pull` accepts `latest`, a snapshot UUID, or the full snapshot object key. Without `--replace`, it only restores into an empty profile. With `--replace`, the downloaded snapshot is fully verified in staging, then Linux `renameat2(RENAME_EXCHANGE)` atomically swaps it with the current profile and the parent directory is synced. Download, decrypt, inventory, or exchange failures leave the current profile active. The profile volume filesystem must support atomic exchange; the command fails closed when it does not.
+`pull` accepts `latest`, a snapshot UUID, or the full snapshot object key. Without `--replace`, it only restores into an empty profile. With `--replace`, the downloaded snapshot is fully verified in staging, then Linux `renameat2(RENAME_EXCHANGE)` atomically swaps it with the current profile and the parent directory is synced. Download, decompression, inventory, or exchange failures leave the current profile active. The profile volume filesystem must support atomic exchange; the command fails closed when it does not.
 
 Available state commands:
 
@@ -303,14 +295,14 @@ Run them through `docker compose --profile tools run --rm state ...`; do not inv
 ## Backup, rollback, and recovery
 
 - Keep several immutable snapshot UUIDs. R2 bucket versioning/lifecycle policy is separate from this tool; configure retention to match your recovery needs.
-- Run `verify` periodically and before deleting any older snapshot. Possessing the R2 object without the age identity is not a tested recovery plan.
-- Back up the age identity separately and securely. Losing it makes every existing snapshot unrecoverable; leaking it plus R2 access exposes the full Signal Desktop profile.
+- Run `verify` periodically and before deleting any older snapshot.
+- Treat R2 read access as full access to the linked Signal Desktop profile. Keep the bucket private, scope credentials narrowly, and rotate credentials if they leak.
 - To roll back, stop all profile users, verify the chosen older UUID, `pull UUID --replace`, and start one runtime. Messages and protocol state newer than that snapshot are discarded locally and may not be replayable by Signal.
 - If daemon startup says the profile is unlinked, restore a known-good linked snapshot or relink through a fresh UI profile. Do not edit `config.json`, the SQLCipher database, or protocol sessions manually.
 - If the profile lock is busy, find and stop the owning UI, daemon, or state container. Do not delete the lock file to bypass an active owner.
 - Never run `docker compose down -v` unless permanent deletion of the local profile is intended.
 
-Before every ownership transfer, verify: source stopped; snapshot UUID recorded; snapshot verified; destination stopped; correct R2 prefix and age identity selected; restore completed; only then destination started.
+Before every ownership transfer, verify: source stopped; snapshot UUID recorded; snapshot verified; destination stopped; correct R2 bucket and prefix selected; restore completed; only then destination started.
 
 ## Environment reference
 
@@ -359,21 +351,19 @@ The entrypoint also supports `SIGNAL_UI_PASSWORD_FILE`, but the stock Compose fi
 
 ### State transfer
 
-| Variable                    | Default                         | Constraints/effect                                                    |
-| --------------------------- | ------------------------------- | --------------------------------------------------------------------- |
-| `R2_BUCKET`                 | none                            | Required bucket name.                                                 |
-| `R2_ACCOUNT_ID`             | none                            | Derives the standard R2 S3 endpoint when no explicit endpoint is set. |
-| `R2_ENDPOINT_URL`           | derived                         | Explicit S3-compatible endpoint; takes precedence over account ID.    |
-| `R2_ACCESS_KEY_ID`          | none                            | Required R2 S3 access key ID.                                         |
-| `R2_SECRET_ACCESS_KEY`      | none                            | Required R2 S3 secret.                                                |
-| `R2_PREFIX`                 | `signal-state`                  | Object-key prefix; `.` and `..` path components are rejected.         |
-| `AGE_RECIPIENT`             | none                            | Required for `push`; public age recipient.                            |
-| `AGE_IDENTITY_FILE`         | `/run/secrets/age-identity.txt` | Required readable private identity for `pull` and `verify`.           |
-| `SIGNAL_STATE_CPU_LIMIT`    | `1.0`                           | Compose one-shot state-tool CPU limit.                                |
-| `SIGNAL_STATE_MEMORY_LIMIT` | `512m`                          | Compose state-tool memory limit.                                      |
-| `SIGNAL_STATE_PIDS_LIMIT`   | `128`                           | Compose state-tool process limit.                                     |
+| Variable                    | Default        | Constraints/effect                                                    |
+| --------------------------- | -------------- | --------------------------------------------------------------------- |
+| `R2_BUCKET`                 | none           | Required bucket name.                                                 |
+| `R2_ACCOUNT_ID`             | none           | Derives the standard R2 S3 endpoint when no explicit endpoint is set. |
+| `R2_ENDPOINT_URL`           | derived        | Explicit S3-compatible endpoint; takes precedence over account ID.    |
+| `R2_ACCESS_KEY_ID`          | none           | Required R2 S3 access key ID.                                         |
+| `R2_SECRET_ACCESS_KEY`      | none           | Required R2 S3 secret.                                                |
+| `R2_PREFIX`                 | `signal-state` | Object-key prefix; `.` and `..` path components are rejected.         |
+| `SIGNAL_STATE_CPU_LIMIT`    | `1.0`          | Compose one-shot state-tool CPU limit.                                |
+| `SIGNAL_STATE_MEMORY_LIMIT` | `512m`         | Compose state-tool memory limit.                                      |
+| `SIGNAL_STATE_PIDS_LIMIT`   | `128`          | Compose state-tool process limit.                                     |
 
-`list` needs R2 configuration but no age key. All R2 operations use region `auto`, disable EC2 metadata lookup, and use the AWS CLI against the selected endpoint.
+All state commands need R2 configuration. R2 operations use region `auto`, disable EC2 metadata lookup, and use the AWS CLI against the selected endpoint.
 
 ## Build expiration and upstream maintenance
 

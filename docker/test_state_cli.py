@@ -25,7 +25,7 @@ class StateCliTest(unittest.TestCase):
         created = state_cli.dt.datetime(2026, 7, 13, 12, 30, tzinfo=state_cli.dt.timezone.utc)
         key = state_cli.snapshot_key("profiles/main", created, "snapshot-id")
         self.assertEqual(
-            key, "profiles/main/20260713T123000Z-snapshot-id.tar.zst.age"
+            key, "profiles/main/20260713T123000Z-snapshot-id.tar.zst"
         )
         self.assertEqual(
             state_cli.snapshot_key_from_descriptor(state_cli.descriptor_key(key)), key
@@ -122,7 +122,7 @@ class StateCliTest(unittest.TestCase):
             "formatVersion": state_cli.FORMAT_VERSION,
             "snapshotId": "id",
             "createdAt": "2026-07-13T12:00:00Z",
-            "objectKey": "prefix/snapshot.tar.zst.age",
+            "objectKey": "prefix/snapshot.tar.zst",
             "objectSize": 12,
             "objectSha256": "a" * 64,
         }
@@ -205,7 +205,7 @@ class StateCliTest(unittest.TestCase):
             self.assertEqual((profile / "new").read_text(encoding="utf-8"), "new")
             self.assertFalse(restored.exists())
 
-    def test_config_does_not_require_age_for_list(self) -> None:
+    def test_config_requires_only_r2_credentials(self) -> None:
         environment = {
             "R2_ACCOUNT_ID": "account",
             "R2_BUCKET": "bucket",
@@ -217,10 +217,10 @@ class StateCliTest(unittest.TestCase):
         self.assertEqual(config.endpoint, "https://account.r2.cloudflarestorage.com")
 
     @unittest.skipUnless(
-        all(shutil.which(tool) for tool in ("age", "age-keygen", "tar", "zstd")),
+        all(shutil.which(tool) for tool in ("tar", "zstd")),
         "archive tools are installed in the state container",
     )
-    def test_encrypted_push_pull_round_trip_with_local_object_store(self) -> None:
+    def test_unencrypted_push_pull_round_trip_with_local_object_store(self) -> None:
         with tempfile.TemporaryDirectory() as name:
             root = Path(name)
             volume = root / "volume"
@@ -229,26 +229,11 @@ class StateCliTest(unittest.TestCase):
             profile.mkdir(parents=True)
             objects.mkdir()
             (profile / "config.json").write_text("linked-profile", encoding="utf-8")
-            identity = root / "identity.txt"
-            subprocess.run(
-                ["age-keygen", "--output", str(identity)],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            recipient = subprocess.run(
-                ["age-keygen", "--y", str(identity)],
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.strip()
             config = mock.Mock(
                 profile=profile,
                 lock=volume / ".lock",
                 bucket="bucket",
                 prefix="snapshots",
-                recipient=recipient,
-                identity=str(identity),
                 aws_env=lambda: os.environ.copy(),
             )
 
@@ -282,8 +267,8 @@ class StateCliTest(unittest.TestCase):
                 with mock.patch("builtins.print") as output:
                     state_cli.command_push(config)
                     snapshot_id = output.call_args.args[0]
-                shutil.rmtree(profile)
-                state_cli.command_pull(config, snapshot_id, False)
+                    shutil.rmtree(profile)
+                    state_cli.command_pull(config, snapshot_id, False)
             self.assertEqual(
                 (profile / "config.json").read_text(encoding="utf-8"),
                 "linked-profile",

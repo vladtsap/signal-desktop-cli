@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Setup and operations guide for Signal Desktop CLI: link with the GUI, run headless, send messages, receive webhooks, and transfer encrypted state through R2."
+      content="Setup and operations guide for Signal Desktop CLI: link with the GUI, run headless, send messages, receive webhooks, and transfer state through R2."
     />
     <title>Signal Desktop CLI — Setup &amp; Operations Guide</title>
     <style>
@@ -536,14 +536,14 @@
           <p class="lead">
             This guide takes you from an empty Docker volume to a linked Signal
             Desktop profile, a Node-only daemon, incoming webhooks, outgoing
-            messages, and encrypted machine-to-machine state transfer through
+            messages, and unencrypted machine-to-machine state transfer through
             Cloudflare R2.
           </p>
           <div class="badges" aria-label="Project capabilities">
             <span class="badge">Docker Compose</span>
             <span class="badge">Linux amd64</span>
             <span class="badge">Node-only daemon</span>
-            <span class="badge">Encrypted R2 snapshots</span>
+            <span class="badge">Unencrypted R2 snapshots</span>
             <span class="badge">Direct text messages</span>
             <span class="badge">90-day builds</span>
           </div>
@@ -601,7 +601,6 @@
             <li>
               For remote transfer: a private R2 bucket and S3 API credentials
             </li>
-            <li>For remote transfer: an age identity stored outside R2</li>
           </ul>
           <p>Clone the repository and enter it:</p>
           <div class="code-wrap">
@@ -632,9 +631,7 @@ R2_ACCOUNT_ID=your-cloudflare-account-id
 R2_BUCKET=your-private-bucket
 R2_ACCESS_KEY_ID=your-r2-access-key-id
 R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
-R2_PREFIX=signal-state
-
-AGE_RECIPIENT=age1replace-with-your-public-recipient</code></pre>
+R2_PREFIX=signal-state</code></pre>
           </div>
           <div class="notice warn">
             <strong>VNC limitation:</strong> the UI password must contain at
@@ -642,24 +639,14 @@ AGE_RECIPIENT=age1replace-with-your-public-recipient</code></pre>
             binding and SSH tunnelling are part of the security boundary.
           </div>
 
-          <h3>Generate the age identity</h3>
-          <p>
-            This is required only when you use R2. Generate it once on a trusted
-            machine. The private identity decrypts every snapshot made for its
-            recipient.
-          </p>
-          <div class="code-wrap">
-            <pre><code>mkdir -p secrets
-age-keygen -o secrets/age-identity.txt
-age-keygen -y secrets/age-identity.txt
-chmod 600 secrets/age-identity.txt</code></pre>
+          <div class="notice danger">
+            <strong>R2 snapshots are intentionally unencrypted.</strong> Anyone
+            who can read a snapshot can access the complete portable Signal
+            profile, including the material needed to open its database. Use a
+            private bucket, narrowly scoped credentials, and appropriate R2
+            access controls. Checksums detect ordinary corruption but do not
+            authenticate data against an attacker with R2 write access.
           </div>
-          <p>
-            Copy the printed <code>age1…</code> value into
-            <code>AGE_RECIPIENT</code>. Transfer
-            <code>secrets/age-identity.txt</code> to a remote machine through a
-            separate secure channel. Never store it in R2.
-          </p>
         </section>
 
         <section id="link">
@@ -757,12 +744,11 @@ docker compose --profile tools run --rm --build state push</code></pre>
           </div>
           <p>
             Record the printed snapshot UUID. The tool archives the complete
-            meaningful Signal profile, compresses it, encrypts it locally with
-            age, uploads an immutable object, and publishes metadata last.
-            Upload is not tied to the original linking machine: whichever
-            stopped machine currently owns the profile can push it. Push needs
-            the public age recipient; verify and pull need the matching private
-            identity.
+            meaningful Signal profile into an unencrypted
+            <code>.tar.zst</code> archive, uploads an immutable object, and
+            publishes metadata last. Upload is not tied to the original linking
+            machine: whichever stopped machine currently owns the profile can
+            push it.
           </p>
 
           <h3>List and verify</h3>
@@ -772,17 +758,20 @@ docker compose --profile tools run --rm state verify latest</code></pre>
           </div>
           <p>
             Verification downloads the snapshot, checks size and SHA-256,
-            decrypts it in temporary storage, validates safe archive paths, and
-            compares all files with the encrypted manifest. It does not activate
-            the snapshot.
+            decompresses it in temporary storage, validates safe archive paths,
+            and compares all files with the included manifest. It does not
+            activate the snapshot.
           </p>
+          <div class="notice warn">
+            This is snapshot format 2. Earlier format-1 snapshots are ignored;
+            create a new snapshot before relying on restore.
+          </div>
 
           <h3>Restore on the destination</h3>
           <p>
             Clone the same repository revision, create the destination
-            <code>.env</code>, install the same age identity under
-            <code>secrets/</code>, and run restore <em>before</em> starting the
-            daemon:
+            <code>.env</code> with the same R2 configuration, and run restore
+            <em>before</em> starting the daemon:
           </p>
           <div class="code-wrap">
             <pre><code>docker compose --profile tools run --rm --build state pull latest
@@ -1219,7 +1208,7 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
             </tbody>
           </table>
 
-          <h3>R2 and age</h3>
+          <h3>R2 state transfer</h3>
           <table>
             <thead>
               <tr>
@@ -1258,16 +1247,6 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
                 <td><code>R2_PREFIX</code></td>
                 <td>signal-state</td>
                 <td>Snapshot object-key prefix.</td>
-              </tr>
-              <tr>
-                <td><code>AGE_RECIPIENT</code></td>
-                <td>required for push</td>
-                <td>Public age recipient.</td>
-              </tr>
-              <tr>
-                <td><code>AGE_IDENTITY_FILE</code></td>
-                <td>/run/secrets/age-identity.txt</td>
-                <td>Private identity used by pull and verify.</td>
               </tr>
               <tr>
                 <td><code>SIGNAL_DATA_VOLUME</code></td>

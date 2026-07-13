@@ -92,8 +92,6 @@ services:
       context: .
       target: signal-state
     environment:
-      AGE_IDENTITY_FILE: ${AGE_IDENTITY_FILE:-/run/secrets/age-identity.txt}
-      AGE_RECIPIENT: ${AGE_RECIPIENT:-}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
       R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
       R2_BUCKET: ${R2_BUCKET:-}
@@ -115,7 +113,6 @@ services:
       - /tmp:rw,noexec,nosuid,nodev,size=256m,uid=10001,gid=10001,mode=1777
     volumes:
       - signal-data:/var/lib/signal-state
-      - ./secrets:/run/secrets:ro
 
 volumes:
   signal-data:

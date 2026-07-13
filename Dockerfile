@@ -104,7 +104,6 @@ ARG SIGNAL_GID=10001
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
-      age \
       awscli \
       ca-certificates \
       python3 \
