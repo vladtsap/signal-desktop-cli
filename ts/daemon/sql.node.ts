@@ -11,6 +11,7 @@ import {
   DataWriter as ServerDataWriter,
   initialize,
 } from '../sql/Server.node.ts';
+import { consoleLogger } from '../util/consoleLogger.std.ts';
 
 export type HeadlessSql = Readonly<{
   close: () => Promise<void>;
@@ -43,6 +44,7 @@ export function openHeadlessSql({
     configDir: storagePath,
     isPrimary: true,
     key,
+    logger: consoleLogger,
   });
   let tail = Promise.resolve<unknown>(undefined);
   let closed = false;

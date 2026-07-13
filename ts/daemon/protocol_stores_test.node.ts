@@ -12,7 +12,7 @@ void test('headless client adapter hydrates real SQLCipher protocol data', async
   );
   const exitCode = await new Promise<number | null>((resolve, reject) => {
     const child = spawn(process.execPath, ['--import=tsx', fixture], {
-      env: { ...process.env, NODE_ENV: 'test' },
+      env: { ...process.env, NODE_ENV: 'production' },
       stdio: 'ignore',
     });
     child.once('error', reject);

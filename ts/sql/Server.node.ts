@@ -293,6 +293,7 @@ import {
 import { INITIAL_EXPIRE_TIMER_VERSION } from '../util/expirationTimer.std.ts';
 import type { GifType } from '../components/fun/panels/FunPanelGifs.dom.tsx';
 import type { NotificationProfileType } from '../types/NotificationProfile.std.ts';
+import type { LoggerType } from '../types/Logging.std.ts';
 import * as durations from '../util/durations/index.std.ts';
 import type { AttachmentType } from '../types/Attachment.std.ts';
 import { isFile, isVisualMedia } from '../util/Attachment.std.ts';
@@ -999,12 +1000,16 @@ export function initialize({
   configDir,
   key,
   isPrimary,
+  logger: initializeLogger,
 }: {
   appVersion: string;
   configDir: string;
   key: string;
   isPrimary: boolean;
+  logger?: LoggerType;
 }): WritableDB {
+  logger = initializeLogger ?? sqlLogger;
+
   if (!isString(configDir)) {
     throw new Error('initialize: configDir is required!');
   }
