@@ -105,6 +105,7 @@ export type WebhookOutboxOptions = Readonly<{
   beforePersist?: () => Promise<void> | void;
   fetch?: typeof fetch;
   maxPending: number;
+  markRead?: (messageId: string) => Promise<void> | void;
   now?: () => number;
   profileKey: string;
   secret?: string;
@@ -178,6 +179,7 @@ export class DurableWebhookOutbox {
   readonly #fetch: typeof fetch;
   readonly #key: Buffer<ArrayBuffer>;
   readonly #maxPending: number;
+  readonly #markRead: ((messageId: string) => Promise<void> | void) | undefined;
   readonly #now: () => number;
   readonly #secret: string | undefined;
   readonly #sql: HeadlessSql;
@@ -205,6 +207,7 @@ export class DurableWebhookOutbox {
       )
     );
     this.#maxPending = options.maxPending;
+    this.#markRead = options.markRead;
     this.#now = options.now ?? Date.now;
     this.#secret = options.secret;
     this.#timeoutMs = options.timeoutMs;
@@ -435,6 +438,7 @@ export class DurableWebhookOutbox {
     }
     if (!this.#running) return;
     if (succeeded) {
+      await this.#markRead?.(entry.update.message.message_id);
       await this.#commit({
         ...this.#state,
         entries: this.#state.entries.slice(1),

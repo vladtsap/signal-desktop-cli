@@ -124,6 +124,7 @@ async function waitFor(check: () => boolean): Promise<void> {
 void test('outbox encrypts, signs, retries, and delivers in order', async () => {
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-webhook-'));
   const requests = new Array<{ body: string; signature?: string }>();
+  const markedRead = new Array<string>();
   let responseCount = 0;
   const server = createServer((request, response) => {
     const chunks = new Array<Buffer<ArrayBuffer>>();
@@ -145,6 +146,9 @@ void test('outbox encrypts, signs, retries, and delivers in order', async () => 
   const messages = new Array<MessageAttributesType>();
   const outbox = new DurableWebhookOutbox(fakeSql(messages), {
     maxPending: 10,
+    markRead: messageId => {
+      markedRead.push(messageId);
+    },
     profileKey: 'ab'.repeat(32),
     secret: 'webhook-secret-at-least-sixteen',
     storagePath,
@@ -159,6 +163,7 @@ void test('outbox encrypts, signs, retries, and delivers in order', async () => 
     outbox.start();
     await waitFor(() => requests.length === 2 && outbox.pendingCount === 0);
     assert.equal(requests[0]?.body, requests[1]?.body);
+    assert.deepEqual(markedRead, ['message-one']);
     assert.match(requests[0]?.signature ?? '', /^sha256=[0-9a-f]{64}$/);
     const update = JSON.parse(requests[1]?.body ?? '') as Record<
       string,

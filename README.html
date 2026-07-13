@@ -987,7 +987,16 @@ networks:
           <h3>Delivery contract</h3>
           <ul>
             <li>Ordered, at-least-once delivery.</li>
-            <li>Only HTTP 2xx removes the oldest queued update.</li>
+            <li>
+              Only HTTP 2xx marks the incoming message read locally and removes
+              the oldest queued update. Failed or retrying deliveries remain
+              unread. The read update is durable first, so a final outbox commit
+              failure can redeliver an already-read message.
+            </li>
+            <li>
+              The local read transition does not send a read receipt to the
+              contact or a read sync to another linked device.
+            </li>
             <li>Failures retry from one second up to five minutes.</li>
             <li>Default attempt timeout: ten seconds.</li>
             <li>

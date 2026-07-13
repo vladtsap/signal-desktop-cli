@@ -19,6 +19,9 @@ import type {
 } from './transport.node.ts';
 import { DAY } from '../util/durations/index.std.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
+import { ReadStatus } from '../messages/MessageReadStatus.std.ts';
+import { SeenStatus } from '../MessageSeenStatus.std.ts';
+import type { MessageAttributesType } from '../model-types.d.ts';
 
 const TOKEN = 'test-api-token-at-least-sixteen';
 
@@ -56,6 +59,7 @@ void test('control API exposes health and protects validated sends', async () =>
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-api-'));
   const apiPort = await availablePort();
   const webhookMethods = new Array<string>();
+  const readUpdates = new Array<Record<string, unknown>>();
   const webhookServer = createServer((request, response) => {
     webhookMethods.push(request.method ?? '');
     response.writeHead(200).end();
@@ -115,6 +119,13 @@ void test('control API exposes health and protects validated sends', async () =>
           getCheckedDeviceId: () => 1,
         },
       },
+      messageCache: {
+        getOrLoadById: async () => ({
+          get: (key: string) => (key === 'type' ? 'incoming' : undefined),
+          set: (update: Record<string, unknown>) => readUpdates.push(update),
+        }),
+        saveMessage: async () => 'incoming-message',
+      },
       signalProtocolStore: {},
     } as unknown as HeadlessProtocolStores,
     sql,
@@ -123,6 +134,28 @@ void test('control API exposes health and protects validated sends', async () =>
     await service.prepare(context);
     assert.deepEqual(webhookMethods, ['GET']);
     await service.start();
+    await service.handleIncoming({
+      attachments: [],
+      body: 'mark me read after delivery',
+      conversationId: 'direct-conversation',
+      id: 'incoming-message',
+      received_at: 1,
+      sent_at: 1_000,
+      sourceServiceId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' as AciString,
+      timestamp: 1_000,
+      type: 'incoming',
+    } as MessageAttributesType);
+    const deliveryDeadline = Date.now() + 2_000;
+    while (readUpdates.length === 0) {
+      if (Date.now() > deliveryDeadline) {
+        throw new Error('Timed out waiting for webhook read update');
+      }
+      // oxlint-disable-next-line eslint/no-await-in-loop -- waits for webhook worker
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    assert.deepEqual(readUpdates, [
+      { readStatus: ReadStatus.Read, seenStatus: SeenStatus.Seen },
+    ]);
     const base = `http://127.0.0.1:${apiPort}`;
     const health = await fetch(`${base}/healthz`);
     assert.equal(health.status, 200);
