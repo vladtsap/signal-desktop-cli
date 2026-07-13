@@ -125,3 +125,36 @@ ENV HOME=/home/signal \
 VOLUME ["/var/lib/signal-state"]
 USER signal
 ENTRYPOINT ["/usr/local/bin/signal-state"]
+
+FROM node:${NODE_VERSION}-bookworm-slim AS signal-daemon
+
+ARG SIGNAL_UID=10001
+ARG SIGNAL_GID=10001
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+      ca-certificates \
+      tini \
+      util-linux \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid "${SIGNAL_GID}" signal \
+    && useradd --uid "${SIGNAL_UID}" --gid signal --create-home --shell /bin/bash signal \
+    && install -d --owner signal --group signal --mode 0700 \
+      /var/lib/signal-state \
+      /var/lib/signal-state/profile \
+      /opt/signal-desktop
+
+COPY --from=ui-build /src/bundles /opt/signal-desktop/bundles
+COPY --from=ui-build /src/node_modules /opt/signal-desktop/node_modules
+COPY --chmod=0755 docker/daemon-entrypoint.sh /usr/local/bin/signal-daemon-entrypoint
+
+ENV HOME=/home/signal \
+    NODE_ENV=production \
+    SIGNAL_DAEMON_CONNECT=true \
+    SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS=30000 \
+    SIGNAL_PROFILE_LOCK_PATH=/var/lib/signal-state/.signal-desktop-cli.lock \
+    SIGNAL_STORAGE_PATH=/var/lib/signal-state/profile
+
+VOLUME ["/var/lib/signal-state"]
+USER signal
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/signal-daemon-entrypoint"]

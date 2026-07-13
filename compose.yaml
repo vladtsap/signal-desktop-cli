@@ -1,6 +1,27 @@
 name: signal-desktop-cli
 
 services:
+  signal:
+    platform: linux/amd64
+    build:
+      context: .
+      target: signal-daemon
+      args:
+        SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-1783615919}
+    environment:
+      SIGNAL_DAEMON_CONNECT: ${SIGNAL_DAEMON_CONNECT:-true}
+      SIGNAL_DAEMON_LOG_LEVEL: ${SIGNAL_DAEMON_LOG_LEVEL:-info}
+      SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS: ${SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS:-30000}
+      SIGNAL_PROFILE_LOCK_PATH: /var/lib/signal-state/.signal-desktop-cli.lock
+      SIGNAL_STORAGE_PATH: /var/lib/signal-state/profile
+      TZ: ${TZ:-UTC}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 45s
+    volumes:
+      - signal-data:/var/lib/signal-state
+
   signal-ui:
     profiles: [ui]
     platform: linux/amd64

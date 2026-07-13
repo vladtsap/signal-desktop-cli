@@ -176,6 +176,7 @@ export default defineConfig([
     input: {
       // Main
       main: 'app/main.main.ts',
+      daemon: 'ts/daemon/main.node.ts',
       config: 'app/config.main.js',
 
       // Preloads
