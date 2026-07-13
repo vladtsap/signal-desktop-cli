@@ -18,6 +18,7 @@ const daemonModules = [
   'protocol_stores.node.ts',
   'runtime.node.ts',
   'sql.node.ts',
+  'transport.node.ts',
   '../SignalProtocolStore.node.ts',
   '../textsecure/Storage.node.ts',
   '../textsecure/storage/User.std.ts',

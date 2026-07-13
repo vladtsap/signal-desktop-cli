@@ -9,12 +9,16 @@ import { DaemonRuntime } from './runtime.node.ts';
 
 async function main(): Promise<void> {
   const config = loadDaemonConfig();
+  const protocolRuntime = (
+    await import('./transport.node.ts')
+  ).createHeadlessTransportRuntime(packageJson.version);
   const runtime = new DaemonRuntime(config, {
     appVersion: packageJson.version,
     loadProfile: (await import('./profile.node.ts')).loadPortableProfile,
     openSql: (await import('./sql.node.ts')).openHeadlessSql,
     openProtocolStores: (await import('./protocol_stores.node.ts'))
       .openHeadlessProtocolStores,
+    protocolRuntime,
   });
 
   await runtime.start();
