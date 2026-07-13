@@ -3,8 +3,9 @@
 
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { createCipheriv, hkdfSync, randomBytes } from 'node:crypto';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -107,6 +108,91 @@ async function waitFor(check: () => boolean): Promise<void> {
   }
 }
 
+function encryptLegacyOutbox(profileKey: string): string {
+  const key = Buffer.from(
+    hkdfSync(
+      'sha256',
+      Buffer.from(profileKey, 'utf8'),
+      Buffer.alloc(0),
+      'signal-desktop-cli/webhook-outbox/v1',
+      32
+    )
+  );
+  const nonce = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, nonce);
+  const plaintext = JSON.stringify({
+    cursor: { id: 'legacy-message', receivedAt: 1 },
+    entries: [
+      {
+        attempts: 0,
+        nextAttemptAt: 0,
+        update: {
+          message: {
+            chat: { id: 'sender-aci', type: 'private' },
+            date: 1_000,
+            from: { id: 'sender-aci' },
+            message_id: 'legacy-message',
+            text: 'legacy text',
+          },
+          update_id: '1234',
+        },
+      },
+    ],
+    version: 1,
+  });
+  const ciphertext = Buffer.concat([
+    cipher.update(plaintext, 'utf8'),
+    cipher.final(),
+  ]);
+  return JSON.stringify({
+    ciphertext: ciphertext.toString('base64'),
+    nonce: nonce.toString('base64'),
+    tag: cipher.getAuthTag().toString('base64'),
+    version: 1,
+  });
+}
+
+void test('legacy outbox IDs migrate to webhook_update_id', async () => {
+  const storagePath = await mkdtemp(join(tmpdir(), 'signal-webhook-legacy-'));
+  const profileKey = '12'.repeat(32);
+  const bodies = new Array<string>();
+  await writeFile(
+    join(storagePath, 'headless-webhook-outbox.enc'),
+    encryptLegacyOutbox(profileKey)
+  );
+  const outbox = new DurableWebhookOutbox(fakeSql([]), {
+    fetch: async (_input, init) => {
+      assert.equal(typeof init?.body, 'string');
+      bodies.push(init.body);
+      return new Response(null, { status: 204 });
+    },
+    maxPending: 10,
+    profileKey,
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await outbox.prepare();
+    assert.equal(outbox.pendingCount, 1);
+    outbox.start();
+    await waitFor(() => bodies.length === 1 && outbox.pendingCount === 0);
+    assert.deepEqual(JSON.parse(bodies[0] ?? ''), {
+      message: {
+        chat: { id: 'sender-aci', type: 'private' },
+        date: 1_000,
+        from: { id: 'sender-aci' },
+        message_id: 'legacy-message',
+        text: 'legacy text',
+      },
+      webhook_update_id: '1234',
+    });
+  } finally {
+    await outbox.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
 void test('outbox encrypts, signs, retries, and delivers in order', async () => {
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-webhook-'));
   const requests = new Array<{ body: string; signature?: string }>();
@@ -150,7 +236,8 @@ void test('outbox encrypts, signs, retries, and delivers in order', async () => 
       string,
       unknown
     >;
-    assert.equal(typeof update.update_id, 'string');
+    assert.equal(typeof update.webhook_update_id, 'string');
+    assert.ok(!('update_id' in update));
     assert.equal(
       (update.message as { message_id: string }).message_id,
       'message-one'

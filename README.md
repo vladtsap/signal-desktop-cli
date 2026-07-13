@@ -225,7 +225,7 @@ After the startup check succeeds, each newly persisted, supported direct text me
 
 ```json
 {
-  "update_id": "7484932459384721",
+  "webhook_update_id": "7484932459384721",
   "message": {
     "message_id": "incoming-message-uuid",
     "date": 1783960000000,
@@ -236,7 +236,7 @@ After the startup check succeeds, each newly persisted, supported direct text me
 }
 ```
 
-The IDs are strings. `date` is Signal's exact sent time in Unix milliseconds, matching the timestamp shown by Signal Desktop. Because only direct messages are supported, `chat.id` and `from.id` are both the sender's stable Signal ACI; that ACI can also be used as the send API's `destination`. `update_id` is a separate value deterministically derived from `message_id`, so consumers can deduplicate retries without relying on timestamps, which are not guaranteed to be unique.
+The IDs are strings. `date` is Signal's exact sent time in Unix milliseconds, matching the timestamp shown by Signal Desktop. Because only direct messages are supported, `chat.id` and `from.id` are both the sender's stable Signal ACI; that ACI can also be used as the send API's `destination`. `webhook_update_id` is a separate value deterministically derived from `message_id`, so consumers can deduplicate retries without relying on timestamps, which are not guaranteed to be unique. Queued outbox entries that still use the former `update_id` name are migrated automatically when loaded.
 
 When `SIGNAL_WEBHOOK_SECRET` is set, the request includes:
 
@@ -250,7 +250,7 @@ Delivery is ordered and at least once. Only a 2xx response removes the oldest en
 
 The first daemon initialization creates a cursor at the newest existing incoming message, so linking/restoring historical messages does not flood a newly configured webhook. Subsequent startup reconciliation closes the crash window between SQL message persistence and outbox enqueue. If no webhook URL is configured, incoming text remains in Signal's encrypted database and the webhook cursor advances without accumulating deliveries. `SIGNAL_WEBHOOK_MAX_PENDING` is the maximum number of durable, undelivered webhook updates, not the number of messages retained in Signal's database. When the outbox reaches it, the daemon stops acknowledging newly received supported messages until space is available, causing Signal to retry them; startup reconciliation also pauses at the full queue. No queued update is silently evicted. The encrypted outbox file is additionally capped at 128 MiB.
 
-Consumers must still be idempotent: a crash after accepting a POST but before the daemon records the 2xx can cause the same `update_id` to be sent again.
+Consumers must still be idempotent: a crash after accepting a POST but before the daemon records the 2xx can cause the same `webhook_update_id` to be sent again.
 
 ## Moving the profile again
 

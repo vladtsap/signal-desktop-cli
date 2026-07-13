@@ -901,7 +901,7 @@ networks:
           </p>
           <div class="code-wrap">
             <pre><code>{
-  "update_id": "7484932459384721",
+  "webhook_update_id": "7484932459384721",
   "message": {
     "message_id": "incoming-message-uuid",
     "date": 1783960000000,
@@ -917,10 +917,11 @@ networks:
             messages are supported, <code>chat.id</code> and
             <code>from.id</code> are both the sender's stable Signal ACI; that
             ACI can also be used as the send API's <code>destination</code>.
-            <code>update_id</code> is separately derived from
+            <code>webhook_update_id</code> is separately derived from
             <code>message_id</code>, allowing consumers to deduplicate retries
             without relying on timestamps, which are not guaranteed to be
-            unique.
+            unique. Queued outbox entries that still use the former
+            <code>update_id</code> name are migrated automatically when loaded.
           </p>
 
           <h3>Verify webhook signatures</h3>
@@ -947,7 +948,7 @@ networks:
             </li>
             <li>
               Consumers must deduplicate by stable string
-              <code>update_id</code>.
+              <code>webhook_update_id</code>.
             </li>
             <li>
               <code>SIGNAL_WEBHOOK_MAX_PENDING</code> limits durable,
@@ -1131,7 +1132,7 @@ docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
             <div>
               This is expected under at-least-once delivery when the consumer
               accepts a request but the daemon does not durably observe its 2xx
-              response. Deduplicate using <code>update_id</code>.
+              response. Deduplicate using <code>webhook_update_id</code>.
             </div>
           </details>
 
