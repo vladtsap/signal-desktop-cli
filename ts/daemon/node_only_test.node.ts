@@ -9,8 +9,11 @@ import { test } from 'node:test';
 const daemonModules = [
   'config.node.ts',
   'client_sql.node.ts',
+  'conversations.node.ts',
   'lifecycle.node.ts',
   'main.node.ts',
+  'message_cache.node.ts',
+  'models.node.ts',
   'profile.node.ts',
   'protocol_stores.node.ts',
   'runtime.node.ts',

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { EventEmitter } from 'node:events';
 
 import type { Aci } from '@signalapp/libsignal-client';
-import type { ConversationController } from './ConversationController.preload.ts';
+import type { ConversationAttributesType } from './model-types.d.ts';
 import {
   Direction,
   IdentityChange,
@@ -242,16 +242,38 @@ type ZoneQueueEntryType = Readonly<{
   callback: () => void;
 }>;
 
-export type ProtocolConversationController = Pick<
-  ConversationController,
-  | 'get'
-  | 'getAll'
-  | 'getConversationId'
-  | 'getOrCreate'
-  | 'load'
-  | 'lookupOrCreate'
-  | 'reset'
->;
+export type ProtocolConversationModel = Readonly<{
+  id: string;
+  attributes: ConversationAttributesType;
+  get: <K extends keyof ConversationAttributesType>(
+    key: K
+  ) => ConversationAttributesType[K];
+  set: (attributes: Partial<ConversationAttributesType>) => void;
+}>;
+
+/**
+ * The protocol store deliberately depends on this small structural interface.
+ * Electron supplies ConversationController; the daemon supplies a Node-only
+ * repository backed by the same conversations table.
+ */
+export type ProtocolConversationController = Readonly<{
+  get: (id?: string | null) => ProtocolConversationModel | undefined;
+  getAll: () => Array<ProtocolConversationModel>;
+  getConversationId: (address: string | null) => string | null;
+  getOrCreate: (
+    identifier: string | null,
+    type: ConversationAttributesType['type']
+  ) => ProtocolConversationModel;
+  load: () => Promise<void>;
+  lookupOrCreate: (
+    options: Readonly<{
+      e164?: string | null;
+      serviceId?: ServiceIdString | null;
+      reason: string;
+    }>
+  ) => ProtocolConversationModel | undefined;
+  reset: () => void;
+}>;
 
 export class SignalProtocolStore extends EventEmitter {
   readonly #dataReader: ClientReadableInterface;

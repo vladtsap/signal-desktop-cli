@@ -47,6 +47,11 @@ async function main(): Promise<void> {
     );
     assert.equal(stores.signalProtocolStore.identityKeys?.size, 0);
     assert.equal(stores.signalProtocolStore.sessions?.size, 0);
+    assert.equal(
+      stores.conversationController.getOurConversation()?.get('e164'),
+      '+12025550123'
+    );
+    assert.equal(stores.conversationController.getAll().length, 1);
   } finally {
     await sql.close();
     await rm(storagePath, { force: true, recursive: true });
