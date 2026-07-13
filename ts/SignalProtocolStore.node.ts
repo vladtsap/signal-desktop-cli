@@ -281,6 +281,8 @@ export class SignalProtocolStore extends EventEmitter {
   readonly #itemStorage: Storage;
   readonly #conversationController: ProtocolConversationController;
   readonly #getRequirePqRatio: () => number;
+  readonly #loadProtocolRecordsOnDemand: boolean;
+  readonly #protocolRecordCacheLimit: number;
 
   constructor({
     conversationController,
@@ -288,12 +290,16 @@ export class SignalProtocolStore extends EventEmitter {
     dataWriter,
     getRequirePqRatio,
     itemStorage,
+    loadProtocolRecordsOnDemand = false,
+    protocolRecordCacheLimit = Number.POSITIVE_INFINITY,
   }: Readonly<{
     conversationController: ProtocolConversationController;
     dataReader: ClientReadableInterface;
     dataWriter: ClientWritableInterface;
     getRequirePqRatio: () => number;
     itemStorage: Storage;
+    loadProtocolRecordsOnDemand?: boolean;
+    protocolRecordCacheLimit?: number;
   }>) {
     super();
     this.#conversationController = conversationController;
@@ -301,6 +307,14 @@ export class SignalProtocolStore extends EventEmitter {
     this.#dataWriter = dataWriter;
     this.#getRequirePqRatio = getRequirePqRatio;
     this.#itemStorage = itemStorage;
+    this.#loadProtocolRecordsOnDemand = loadProtocolRecordsOnDemand;
+    strictAssert(
+      protocolRecordCacheLimit === Number.POSITIVE_INFINITY ||
+        (Number.isSafeInteger(protocolRecordCacheLimit) &&
+          protocolRecordCacheLimit > 0),
+      'Protocol record cache limit must be a positive integer'
+    );
+    this.#protocolRecordCacheLimit = protocolRecordCacheLimit;
   }
 
   // Enums used across the app
@@ -416,27 +430,36 @@ export class SignalProtocolStore extends EventEmitter {
         'kyberPreKeys',
         this.#dataReader.getAllKyberPreKeys()
       ),
-      _fillCaches<string, SessionType, SessionRecord>(
-        this,
-        'sessions',
-        this.#dataReader.getAllSessions()
-      ),
+      this.#loadProtocolRecordsOnDemand
+        ? this.#initializeEmptyCache('sessions')
+        : _fillCaches<string, SessionType, SessionRecord>(
+            this,
+            'sessions',
+            this.#dataReader.getAllSessions()
+          ),
       _fillCaches<string, PreKeyType, PreKeyRecord>(
         this,
         'preKeys',
         this.#dataReader.getAllPreKeys()
       ),
-      _fillCaches<string, SenderKeyType, SenderKeyRecord>(
-        this,
-        'senderKeys',
-        this.#dataReader.getAllSenderKeys()
-      ),
+      this.#loadProtocolRecordsOnDemand
+        ? this.#initializeEmptyCache('senderKeys')
+        : _fillCaches<string, SenderKeyType, SenderKeyRecord>(
+            this,
+            'senderKeys',
+            this.#dataReader.getAllSenderKeys()
+          ),
       _fillCaches<string, SignedPreKeyType, SignedPreKeyRecord>(
         this,
         'signedPreKeys',
         this.#dataReader.getAllSignedPreKeys()
       ),
     ]);
+  }
+
+  async #initializeEmptyCache(field: 'senderKeys' | 'sessions'): Promise<void> {
+    this[field] = new Map();
+    log.info(`Initialized on-demand ${field} cache`);
   }
 
   getIdentityKeyPair(ourServiceId: ServiceIdString): KeyPairType | undefined {
@@ -1072,7 +1095,15 @@ export class SignalProtocolStore extends EventEmitter {
         const map = this.#pendingSenderKeys.has(id)
           ? this.#pendingSenderKeys
           : this.senderKeys;
-        const entry = map.get(id);
+        let entry = map.get(id);
+
+        if (!entry && this.#loadProtocolRecordsOnDemand) {
+          const fromDB = await this.#dataReader.getSenderKeyById(id);
+          if (fromDB) {
+            entry = { hydrated: false, fromDB };
+            this.#cacheSenderKey(id, entry);
+          }
+        }
 
         if (!entry) {
           log.warn('No sender key:', id);
@@ -1085,7 +1116,7 @@ export class SignalProtocolStore extends EventEmitter {
         }
 
         const item = SenderKeyRecord.deserialize(entry.fromDB.data);
-        this.senderKeys.set(id, {
+        this.#cacheSenderKey(id, {
           hydrated: true,
           item,
           fromDB: entry.fromDB,
@@ -1364,7 +1395,7 @@ export class SignalProtocolStore extends EventEmitter {
       "Can't commit unhydrated sender key storage"
     );
     pendingSenderKeys.forEach((value, key) => {
-      senderKeys.set(key, value);
+      this.#cacheSenderKey(key, value);
     });
 
     const { sessions } = this;
@@ -1373,7 +1404,7 @@ export class SignalProtocolStore extends EventEmitter {
       "Can't commit unhydrated session storage"
     );
     pendingSessions.forEach((value, key) => {
-      sessions.set(key, value);
+      this.#cacheSession(key, value);
     });
   }
 
@@ -1473,7 +1504,15 @@ export class SignalProtocolStore extends EventEmitter {
         const map = this.#pendingSessions.has(id)
           ? this.#pendingSessions
           : this.sessions;
-        const entry = map.get(id);
+        let entry = map.get(id);
+
+        if (!entry && this.#loadProtocolRecordsOnDemand) {
+          const fromDB = await this.#dataReader.getSessionById(id);
+          if (fromDB) {
+            entry = { hydrated: false, fromDB };
+            this.#cacheSession(id, entry);
+          }
+        }
 
         if (!entry) {
           return undefined;
@@ -1578,9 +1617,8 @@ export class SignalProtocolStore extends EventEmitter {
         throw new Error('getOpenDevices: this.sessions not yet cached!');
       }
 
-      return this.#_getAllSessions().some(
-        ({ fromDB }) => fromDB.serviceId === serviceId
-      );
+      const sessions = await this.#getSessionsForServiceIds([serviceId]);
+      return sessions.some(({ fromDB }) => fromDB.serviceId === serviceId);
     });
   }
 
@@ -1603,7 +1641,7 @@ export class SignalProtocolStore extends EventEmitter {
       try {
         const serviceIdSet = new Set(serviceIds);
 
-        const allSessions = this.#_getAllSessions();
+        const allSessions = await this.#getSessionsForServiceIds(serviceIds);
         const entries = allSessions.filter(
           ({ fromDB }) =>
             fromDB.ourServiceId === ourServiceId &&
@@ -1796,7 +1834,14 @@ export class SignalProtocolStore extends EventEmitter {
 
       log.info(`archiveSession: session for ${id}`);
 
-      const entry = this.#pendingSessions.get(id) || this.sessions.get(id);
+      let entry = this.#pendingSessions.get(id) || this.sessions.get(id);
+      if (!entry && this.#loadProtocolRecordsOnDemand) {
+        const fromDB = await this.#dataReader.getSessionById(id);
+        if (fromDB) {
+          entry = { hydrated: false, fromDB };
+          this.#cacheSession(id, entry);
+        }
+      }
 
       await this.#_archiveSession(entry);
     });
@@ -1820,7 +1865,7 @@ export class SignalProtocolStore extends EventEmitter {
 
       const { serviceId, deviceId } = encodedAddress;
 
-      const allEntries = this.#_getAllSessions();
+      const allEntries = await this.#getSessionsForServiceIds([serviceId]);
       const entries = allEntries.filter(
         entry =>
           entry.fromDB.serviceId === serviceId &&
@@ -1843,7 +1888,7 @@ export class SignalProtocolStore extends EventEmitter {
 
       log.info('archiveAllSessions: archiving all sessions for', serviceId);
 
-      const allEntries = this.#_getAllSessions();
+      const allEntries = await this.#getSessionsForServiceIds([serviceId]);
       const entries = allEntries.filter(
         entry => entry.fromDB.serviceId === serviceId
       );
@@ -2849,6 +2894,60 @@ export class SignalProtocolStore extends EventEmitter {
     });
 
     return Array.from(union.values());
+  }
+
+  async #getSessionsForServiceIds(
+    serviceIds: ReadonlyArray<ServiceIdString>
+  ): Promise<Array<SessionCacheEntry>> {
+    if (!this.#loadProtocolRecordsOnDemand) {
+      return this.#_getAllSessions();
+    }
+
+    const sessions = this.sessions;
+    strictAssert(sessions, 'Session cache has not been initialized');
+    const records = (
+      await Promise.all(
+        serviceIds.map(serviceId =>
+          this.#dataReader.getSessionsByServiceId(serviceId)
+        )
+      )
+    ).flat();
+    for (const fromDB of records) {
+      if (!sessions.has(fromDB.id)) {
+        this.#cacheSession(fromDB.id, { hydrated: false, fromDB });
+      }
+    }
+
+    const requested = new Set(serviceIds);
+    return this.#_getAllSessions().filter(entry =>
+      requested.has(entry.fromDB.serviceId)
+    );
+  }
+
+  #cacheSenderKey(id: SenderKeyIdType, entry: SenderKeyCacheEntry): void {
+    const cache = this.senderKeys;
+    strictAssert(cache, 'Sender-key cache has not been initialized');
+    cache.delete(id);
+    cache.set(id, entry);
+    this.#trimProtocolRecordCache(cache);
+  }
+
+  #cacheSession(id: SessionIdType, entry: SessionCacheEntry): void {
+    const cache = this.sessions;
+    strictAssert(cache, 'Session cache has not been initialized');
+    cache.delete(id);
+    cache.set(id, entry);
+    this.#trimProtocolRecordCache(cache);
+  }
+
+  #trimProtocolRecordCache<Key, Value>(cache: Map<Key, Value>): void {
+    while (cache.size > this.#protocolRecordCacheLimit) {
+      const oldest = cache.keys().next().value;
+      if (oldest === undefined) {
+        return;
+      }
+      cache.delete(oldest);
+    }
   }
 
   #emitLowKeys(source: string) {

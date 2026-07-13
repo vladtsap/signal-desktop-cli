@@ -113,6 +113,9 @@ void test('control API exposes health and protects validated sends', async () =>
     items: {},
     profileSqlKey: 'ab'.repeat(32),
     protocolStores: {
+      conversationController: {
+        isGroupConversation: () => false,
+      },
       itemStorage: {
         user: {
           getCheckedAci: () => 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',

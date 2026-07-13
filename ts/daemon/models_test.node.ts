@@ -42,8 +42,12 @@ void test('conversation repository loads identifiers and establishes our convers
   };
   const controller = new HeadlessConversationController({
     dataReader: {
-      getAllConversations: async () => [existing],
-    } as Pick<ClientReadableInterface, 'getAllConversations'>,
+      getAllGroupConversationIds: async () => ['group-id'],
+      getAllPrivateConversations: async () => [existing],
+    } as Pick<
+      ClientReadableInterface,
+      'getAllGroupConversationIds' | 'getAllPrivateConversations'
+    >,
     dataWriter: {
       saveConversation: async () => undefined,
       updateConversation: async attributes => {
@@ -65,6 +69,7 @@ void test('conversation repository loads identifiers and establishes our convers
   assert.equal(controller.get(OUR_PNI), ours);
   assert.equal(controller.get('+12025550123'), ours);
   assert.equal(controller.getOurConversationIdOrThrow(), 'our-local-id');
+  assert.equal(controller.isGroupConversation('group-id'), true);
   assert.equal(updates.length, 1);
   assert.equal(updates[0]?.serviceId, OUR_ACI);
   assert.equal(updates[0]?.pni, OUR_PNI);
@@ -74,8 +79,12 @@ void test('conversation repository creates and persists protocol contacts', asyn
   const saved = new Array<ConversationAttributesType>();
   const controller = new HeadlessConversationController({
     dataReader: {
-      getAllConversations: async () => [],
-    } as Pick<ClientReadableInterface, 'getAllConversations'>,
+      getAllGroupConversationIds: async () => [],
+      getAllPrivateConversations: async () => [],
+    } as Pick<
+      ClientReadableInterface,
+      'getAllGroupConversationIds' | 'getAllPrivateConversations'
+    >,
     dataWriter: {
       saveConversation: async attributes => {
         saved.push(attributes);

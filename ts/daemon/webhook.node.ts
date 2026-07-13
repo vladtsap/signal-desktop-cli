@@ -37,7 +37,7 @@ export type WebhookUpdate = Readonly<{
     }>;
     text: string;
   }>;
-  update_id: string;
+  webhook_update_id: string;
 }>;
 
 type Entry = Readonly<{
@@ -66,6 +66,41 @@ const encryptedStateSchema = z.object({
   version: z.literal(FORMAT_VERSION),
 });
 
+const messageSchema = z.object({
+  chat: z.object({ id: z.string(), type: z.literal('private') }),
+  date: z.number().safe().int(),
+  from: z.object({ id: z.string() }),
+  message_id: z.string().min(1).max(256),
+  reply_to_message: z
+    .object({
+      chat: z.object({ id: z.string(), type: z.literal('private') }),
+      date: z.number().safe().int(),
+      from: z.object({ id: z.string() }),
+      message_id: z.string().min(1).max(256),
+      text: z.string().max(1024 * 1024),
+    })
+    .optional(),
+  text: z.string().max(1024 * 1024),
+});
+
+const updateIdSchema = z.string().regex(/^\d{1,20}$/);
+
+const webhookUpdateSchema = z.union([
+  z.object({
+    message: messageSchema,
+    webhook_update_id: updateIdSchema,
+  }),
+  z
+    .object({
+      message: messageSchema,
+      update_id: updateIdSchema,
+    })
+    .transform(({ message, update_id }) => ({
+      message,
+      webhook_update_id: update_id,
+    })),
+]);
+
 const stateSchema = z.object({
   cursor: z
     .object({
@@ -77,25 +112,7 @@ const stateSchema = z.object({
     z.object({
       attempts: z.number().safe().int().nonnegative(),
       nextAttemptAt: z.number().safe().int().nonnegative(),
-      update: z.object({
-        message: z.object({
-          chat: z.object({ id: z.string(), type: z.literal('private') }),
-          date: z.number().safe().int(),
-          from: z.object({ id: z.string() }),
-          message_id: z.string().min(1).max(256),
-          reply_to_message: z
-            .object({
-              chat: z.object({ id: z.string(), type: z.literal('private') }),
-              date: z.number().safe().int(),
-              from: z.object({ id: z.string() }),
-              message_id: z.string().min(1).max(256),
-              text: z.string().max(1024 * 1024),
-            })
-            .optional(),
-          text: z.string().max(1024 * 1024),
-        }),
-        update_id: z.string().regex(/^\d{1,20}$/),
-      }),
+      update: webhookUpdateSchema,
     })
   ),
   version: z.literal(FORMAT_VERSION),
@@ -105,6 +122,7 @@ export type WebhookOutboxOptions = Readonly<{
   beforePersist?: () => Promise<void> | void;
   fetch?: typeof fetch;
   maxPending: number;
+  isGroupConversation?: (conversationId: string) => boolean;
   markRead?: (messageId: string) => Promise<void> | void;
   now?: () => number;
   profileKey: string;
@@ -165,7 +183,7 @@ function toWebhookUpdate(
         : {}),
       text: message.body,
     },
-    update_id: stableUpdateId(message.id),
+    webhook_update_id: stableUpdateId(message.id),
   };
 }
 
@@ -179,6 +197,9 @@ export class DurableWebhookOutbox {
   readonly #fetch: typeof fetch;
   readonly #key: Buffer<ArrayBuffer>;
   readonly #maxPending: number;
+  readonly #isGroupConversation:
+    | ((conversationId: string) => boolean)
+    | undefined;
   readonly #markRead: ((messageId: string) => Promise<void> | void) | undefined;
   readonly #now: () => number;
   readonly #secret: string | undefined;
@@ -207,6 +228,7 @@ export class DurableWebhookOutbox {
       )
     );
     this.#maxPending = options.maxPending;
+    this.#isGroupConversation = options.isGroupConversation;
     this.#markRead = options.markRead;
     this.#now = options.now ?? Date.now;
     this.#secret = options.secret;
@@ -298,11 +320,7 @@ export class DurableWebhookOutbox {
         return;
       }
       const update = toWebhookUpdate(message);
-      if (
-        !update ||
-        !this.#url ||
-        this.#groupConversationIds.has(message.conversationId)
-      ) {
+      if (!update || !this.#url || this.#isGroup(message.conversationId)) {
         await this.#commit({ ...this.#state, cursor });
         return;
       }
@@ -331,14 +349,14 @@ export class DurableWebhookOutbox {
   async #allMessages(): Promise<
     Array<{ cursor: Cursor; message: MessageAttributesType }>
   > {
-    const [records, conversations] = await Promise.all([
-      this.#sql.read('_getAllMessages'),
-      this.#sql.read('getAllConversations'),
-    ]);
-    this.#groupConversationIds.clear();
-    for (const conversation of conversations) {
-      if (conversation.type === 'group') {
-        this.#groupConversationIds.add(conversation.id);
+    const records = await this.#sql.read('_getAllMessages');
+    if (!this.#isGroupConversation) {
+      const conversations = await this.#sql.read('getAllConversations');
+      this.#groupConversationIds.clear();
+      for (const conversation of conversations) {
+        if (conversation.type === 'group') {
+          this.#groupConversationIds.add(conversation.id);
+        }
       }
     }
     return records
@@ -359,13 +377,13 @@ export class DurableWebhookOutbox {
       if (
         this.#url &&
         toWebhookUpdate(message) &&
-        !this.#groupConversationIds.has(message.conversationId) &&
+        !this.#isGroup(message.conversationId) &&
         nextState.entries.length >= this.#maxPending
       ) {
         break;
       }
       const update =
-        this.#url && !this.#groupConversationIds.has(message.conversationId)
+        this.#url && !this.#isGroup(message.conversationId)
           ? toWebhookUpdate(message)
           : undefined;
       nextState = {
@@ -380,6 +398,13 @@ export class DurableWebhookOutbox {
       };
     }
     await this.#commit(nextState);
+  }
+
+  #isGroup(conversationId: string): boolean {
+    return (
+      this.#isGroupConversation?.(conversationId) ??
+      this.#groupConversationIds.has(conversationId)
+    );
   }
 
   #schedule(delayMs: number): void {

@@ -444,6 +444,8 @@ export const DataReader: ServerReadableInterface = {
   _getAllSentProtoMessageIds,
 
   getAllSessions,
+  getSessionById,
+  getSessionsByServiceId,
 
   getAllKyberTriples,
 
@@ -451,6 +453,8 @@ export const DataReader: ServerReadableInterface = {
   getConversationById,
 
   getAllConversations,
+  getAllPrivateConversations,
+  getAllGroupConversationIds,
   getAllConversationIds,
 
   getGroupSendCombinedEndorsementExpiration,
@@ -1896,6 +1900,22 @@ function removeAllSessions(db: WritableDB): number {
 function getAllSessions(db: ReadableDB): Array<SessionType> {
   return db.prepare('SELECT * FROM sessions').all();
 }
+function getSessionById(
+  db: ReadableDB,
+  id: SessionIdType
+): SessionType | undefined {
+  return db
+    .prepare('SELECT * FROM sessions WHERE id = $id')
+    .get<SessionType>({ id });
+}
+function getSessionsByServiceId(
+  db: ReadableDB,
+  serviceId: ServiceIdString
+): Array<SessionType> {
+  return db
+    .prepare('SELECT * FROM sessions WHERE serviceId = $serviceId')
+    .all<SessionType>({ serviceId });
+}
 function getAllKyberTriples(db: ReadableDB): Array<KyberPreKeyTripleType> {
   return db.prepare('SELECT * FROM kyberPreKey_triples').all();
 }
@@ -2111,6 +2131,35 @@ function getAllConversations(db: ReadableDB): Array<ConversationType> {
     .all();
 
   return rows.map(row => rowToConversation(row));
+}
+
+function getAllPrivateConversations(db: ReadableDB): Array<ConversationType> {
+  const rows: ConversationRows = db
+    .prepare(
+      `
+      SELECT json, profileLastFetchedAt, expireTimerVersion
+      FROM conversations
+      WHERE type = 'private'
+      ORDER BY id ASC;
+      `
+    )
+    .all();
+
+  return rows.map(row => rowToConversation(row));
+}
+
+function getAllGroupConversationIds(db: ReadableDB): Array<string> {
+  const rows = db
+    .prepare(
+      `
+      SELECT id
+      FROM conversations
+      WHERE type = 'group'
+      ORDER BY id ASC;
+      `
+    )
+    .all<{ id: string }>();
+  return rows.map(row => row.id);
 }
 
 function getAllConversationIds(db: ReadableDB): Array<string> {
