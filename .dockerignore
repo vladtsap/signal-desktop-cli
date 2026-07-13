@@ -5,6 +5,7 @@
 .cache
 node_modules
 release
+secrets
 storybook-static
 *.log
 .DS_Store
