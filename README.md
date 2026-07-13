@@ -314,13 +314,10 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 
 ### Shared and build settings
 
-| Variable                  | Default                             | Meaning                                                                                           |
-| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `SIGNAL_DATA_VOLUME`      | `signal-desktop-data`               | Docker named volume used by all three services. Use a unique name per independent linked profile. |
-| `TZ`                      | `UTC`                               | UI and daemon timezone.                                                                           |
-| `SOURCE_DATE_EPOCH`       | fork-pinned value in `compose.yaml` | Upstream commit time in Unix seconds; sets the UI and daemon build creation time.                 |
-| `SIGNAL_BUILD_CREATED_AT` | pinned ISO timestamp                | Metadata recorded by new state snapshots.                                                         |
-| `SIGNAL_GIT_REVISION`     | pinned commit                       | Revision metadata recorded by new state snapshots.                                                |
+| Variable             | Default               | Meaning                                                                                           |
+| -------------------- | --------------------- | ------------------------------------------------------------------------------------------------- |
+| `SIGNAL_DATA_VOLUME` | `signal-desktop-data` | Docker named volume used by all three services. Use a unique name per independent linked profile. |
+| `TZ`                 | `UTC`                 | UI and daemon timezone.                                                                           |
 
 `SIGNAL_STORAGE_PATH` and `SIGNAL_PROFILE_LOCK_PATH` are fixed by Compose to the shared volume paths. Do not give the services different values.
 
@@ -377,31 +374,27 @@ The entrypoint also supports `SIGNAL_UI_PASSWORD_FILE`, but the stock Compose fi
 
 ## Build expiration and upstream maintenance
 
-Both packaged runtimes are valid for exactly 90 days from `SOURCE_DATE_EPOCH`. The daemon reports `createdAt`, `expiresAt`, ISO timestamps, `daysRemaining`, and `expired` under `/readyz`. If it starts expired, it opens the profile and control API offline, returns readiness 503, and does not start Signal transport. If it expires while running, it stops Signal transport and keeps health/readiness available for diagnosis. Sending is gated on readiness.
+Both packaged runtimes are valid for exactly 90 days from the image build time. The build generates this timestamp automatically and shares it between the UI and daemon build stages; there is no timestamp, revision, or expiration field to update in `compose.yaml`, `.env`, or `.env.example`. The daemon reports `createdAt`, `expiresAt`, ISO timestamps, `daysRemaining`, and `expired` under `/readyz`. If it starts expired, it opens the profile and control API offline, returns readiness 503, and does not start Signal transport. If it expires while running, it stops Signal transport and keeps health/readiness available for diagnosis. Sending is gated on readiness.
 
 The GUI keeps Signal's remote expiration behavior, so Signal can shorten its effective lifetime. A rebuild is therefore required **at least** every 90 days and may be required sooner.
 
 This fork does not extend the lifetime to 128 days. Upstream contains a 91-day safety ceiling for update-enabled builds; the fork's explicit 90-day form fits below it. Supporting 128 days would require weakening that defense and would leave protocol/security compatibility stale for longer. The correct maintenance operation is to merge current upstream and rebuild.
 
-Configure an `upstream` remote for `signalapp/Signal-Desktop`, fetch it, select the exact reviewed upstream commit, and keep that SHA separate from the fork's post-merge `HEAD`:
+Configure an `upstream` remote for `signalapp/Signal-Desktop` once. The normal update workflow is only fetch, merge, resolve any conflicts, and rebuild:
 
 ```sh
 git remote add upstream https://github.com/signalapp/Signal-Desktop.git # once
 git fetch upstream
-UPSTREAM_COMMIT=$(git rev-parse upstream/main) # or an exact reviewed release tag
-git show -s --format=%ct "$UPSTREAM_COMMIT"
-git show -s --format=%cI "$UPSTREAM_COMMIT"
-```
-
-Merge that reviewed commit into the fork. Update the defaults in `compose.yaml` for `SOURCE_DATE_EPOCH`, `SIGNAL_BUILD_CREATED_AT`, and `SIGNAL_GIT_REVISION`, update `.env.example`, and set matching values in deployment `.env` files. `SOURCE_DATE_EPOCH` is mandatory for generation and must be the selected upstream commit time; the build never falls back to the fork's current commit. Then rebuild both runtime images and redeploy one owner at a time:
-
-```sh
-docker compose build --no-cache signal signal-ui
+git merge upstream/main
+# Resolve conflicts, if any, and complete the merge commit.
+docker compose build signal signal-ui state
 docker compose up -d signal
 curl --fail http://127.0.0.1:8080/readyz
 ```
 
-Changing only the timestamp without merging the corresponding upstream changes defeats the expiration safeguard and is unsupported.
+No metadata edits are required. Docker recalculates the build creation time when the merged source changes invalidate the source-build layer. For specialized reproducible-build pipelines only, `SOURCE_DATE_EPOCH` remains an optional Docker build argument; ordinary users and deployments should not set it.
+
+This automation cannot prove that an operator actually fetched upstream before rebuilding. Keeping the fork current remains an operational responsibility, but it requires no synchronized timestamp or revision bookkeeping.
 
 ## Development and verification
 
@@ -410,7 +403,6 @@ The upstream project uses Node.js and pnpm versions pinned by the repository. A 
 ```sh
 corepack enable
 pnpm install --frozen-lockfile
-export SOURCE_DATE_EPOCH=1783615919 # reviewed upstream SHA's commit time
 pnpm run generate
 pnpm run test-daemon
 python3 -m unittest discover -s docker -p 'test_state_cli.py'

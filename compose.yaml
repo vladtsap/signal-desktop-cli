@@ -6,8 +6,6 @@ services:
     build:
       context: .
       target: signal-daemon
-      args:
-        SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-1783615919}
     environment:
       SIGNAL_API_HOST: 0.0.0.0
       SIGNAL_API_PORT: ${SIGNAL_API_PORT:-8080}
@@ -55,10 +53,6 @@ services:
     build:
       context: .
       target: signal-ui
-      args:
-        # Timestamp of the upstream Signal commit this fork is based on. Update
-        # it when merging a newer upstream release; it controls build expiry.
-        SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-1783615919}
     environment:
       SIGNAL_STORAGE_PATH: /var/lib/signal-state/profile
       SIGNAL_PROFILE_LOCK_PATH: /var/lib/signal-state/.signal-desktop-cli.lock
@@ -98,9 +92,6 @@ services:
     build:
       context: .
       target: signal-state
-      args:
-        SIGNAL_BUILD_CREATED_AT: ${SIGNAL_BUILD_CREATED_AT:-2026-07-09T16:51:59Z}
-        SIGNAL_GIT_REVISION: ${SIGNAL_GIT_REVISION:-a3661965bc6e240dadb851f5c57472b25c8aa189}
     environment:
       AGE_IDENTITY_FILE: ${AGE_IDENTITY_FILE:-/run/secrets/age-identity.txt}
       AGE_RECIPIENT: ${AGE_RECIPIENT:-}

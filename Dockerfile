@@ -5,10 +5,11 @@ ARG NODE_VERSION=24.17.0
 FROM node:${NODE_VERSION}-bookworm AS source-build
 
 ARG TARGETARCH
-ARG SOURCE_DATE_EPOCH=1783615919
+ARG SOURCE_DATE_EPOCH
 ENV CI=true \
     SIGNAL_ENV=production \
-    SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+    SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} \
+    SIGNAL_BUILD_EPOCH_FILE=/tmp/signal-build-epoch
 
 RUN test "${TARGETARCH}" = "amd64"
 
@@ -29,6 +30,12 @@ RUN corepack enable \
 
 WORKDIR /src
 COPY . .
+
+RUN if [ -n "${SOURCE_DATE_EPOCH}" ]; then \
+      printf '%s\n' "${SOURCE_DATE_EPOCH}"; \
+    else \
+      date +%s; \
+    fi > "${SIGNAL_BUILD_EPOCH_FILE}"
 
 RUN pnpm install --frozen-lockfile
 
@@ -116,12 +123,7 @@ COPY --chmod=0755 docker/state_cli.py /usr/local/bin/signal-state
 COPY package.json /opt/signal-state/package.json
 COPY ts/sql/migrations/index.node.ts /opt/signal-state/ts/sql/migrations/index.node.ts
 
-ARG SIGNAL_BUILD_CREATED_AT=2026-07-09T16:51:59Z
-ARG SIGNAL_GIT_REVISION=a3661965bc6e240dadb851f5c57472b25c8aa189
-
 ENV HOME=/home/signal \
-    SIGNAL_BUILD_CREATED_AT=${SIGNAL_BUILD_CREATED_AT} \
-    SIGNAL_GIT_REVISION=${SIGNAL_GIT_REVISION} \
     SIGNAL_STORAGE_PATH=/var/lib/signal-state/profile \
     SIGNAL_PROFILE_LOCK_PATH=/var/lib/signal-state/.signal-desktop-cli.lock
 
