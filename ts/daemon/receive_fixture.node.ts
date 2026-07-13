@@ -69,7 +69,12 @@ async function main(): Promise<void> {
     const stores = await openHeadlessProtocolStores(sql);
     const transport = new FixtureTransport();
     const plaintext = Proto.Content.encode({
-      content: { dataMessage: { body: 'persisted through SQLCipher' } },
+      content: {
+        dataMessage: {
+          body: 'persisted through SQLCipher',
+          timestamp: 1234n,
+        },
+      },
     } as never);
     const receiver = new HeadlessMessageReceiver(transport, {
       decryptEnvelope: async envelope => ({

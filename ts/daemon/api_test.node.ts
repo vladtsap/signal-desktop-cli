@@ -18,6 +18,7 @@ import type {
   HeadlessTransportRuntime,
 } from './transport.node.ts';
 import { DAY } from '../util/durations/index.std.ts';
+import type { AciString } from '../types/ServiceId.std.ts';
 
 const TOKEN = 'test-api-token-at-least-sixteen';
 
@@ -180,4 +181,103 @@ void test('connected control service fails closed without an API token', async (
     service.prepare({} as RuntimeServiceContext),
     /SIGNAL_API_TOKEN/
   );
+});
+
+void test('control service aborts and drains an active send before stopping', async () => {
+  const storagePath = await mkdtemp(join(tmpdir(), 'signal-api-stop-'));
+  const apiPort = await availablePort();
+  const config: DaemonConfig = {
+    apiHost: '127.0.0.1',
+    apiPort,
+    apiToken: TOKEN,
+    connect: false,
+    logLevel: 'info',
+    profileLockPath: join(storagePath, '.lock'),
+    shutdownTimeoutMs: 30_000,
+    storagePath,
+    webhookMaxPending: 10,
+    webhookTimeoutMs: 1_000,
+  };
+  const sql = {
+    close: async () => undefined,
+    read: (async method => {
+      if (method === '_getAllMessages' || method === 'getAllConversations') {
+        return [];
+      }
+      throw new Error(`Unexpected SQL read: ${method}`);
+    }) as HeadlessSql['read'],
+    write: (async () => undefined) as HeadlessSql['write'],
+  } satisfies HeadlessSql;
+  const transport = {
+    connected: true,
+    pendingRequestCount: 0,
+    setRequestHandler: () => undefined,
+    state: 'connected',
+  } as unknown as HeadlessTransportRuntime & HeadlessSendTransport;
+  let enterSend: (() => void) | undefined;
+  const sendEntered = new Promise<void>(resolve => {
+    enterSend = resolve;
+  });
+  let releaseSend: (() => void) | undefined;
+  const sendReleased = new Promise<void>(resolve => {
+    releaseSend = resolve;
+  });
+  let sendSignal: AbortSignal | undefined;
+  const service = new HeadlessControlService(config, transport, {
+    createSendService: () => ({
+      async sendText(request, signal) {
+        sendSignal = signal;
+        enterSend?.();
+        await sendReleased;
+        return {
+          destination: request.destination as AciString,
+          messageId: 'paused-message',
+          status: 'sent',
+          timestamp: 1_700_000_000_000,
+        };
+      },
+    }),
+    getStatus: status,
+  });
+  const context: RuntimeServiceContext = {
+    items: {},
+    profileSqlKey: 'ab'.repeat(32),
+    protocolStores: {} as HeadlessProtocolStores,
+    sql,
+  };
+  try {
+    await service.prepare(context);
+    await service.start();
+    const request = fetch(`http://127.0.0.1:${apiPort}/v1/messages`, {
+      body: JSON.stringify({
+        body: 'pause while stopping',
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        idempotency_key: 'paused-request',
+      }),
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    });
+    await sendEntered;
+
+    let stopped = false;
+    const stopping = (async () => {
+      await service.stop();
+      stopped = true;
+    })();
+    await new Promise<void>(resolve => setImmediate(resolve));
+    assert.equal(sendSignal?.aborted, true);
+    assert.equal(stopped, false);
+
+    releaseSend?.();
+    await stopping;
+    await request.catch(() => undefined);
+    assert.equal(stopped, true);
+  } finally {
+    releaseSend?.();
+    await service.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
 });

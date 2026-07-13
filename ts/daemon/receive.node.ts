@@ -406,6 +406,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     return this.#transport.connected;
   }
 
+  public get failureReason(): string | undefined {
+    return this.#transport.failureReason;
+  }
+
   public get unsupportedReason(): string | undefined {
     return this.#unsupportedReason;
   }
@@ -558,6 +562,21 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     if (!message || typeof message.body !== 'string') {
       throw new UnsupportedIncomingContentError(
         'Incoming content is not a text data message'
+      );
+    }
+    if (message.timestamp == null) {
+      throw new UnsupportedIncomingContentError(
+        'Incoming data message has no timestamp'
+      );
+    }
+    if (message.timestamp !== BigInt(envelope.timestamp)) {
+      throw new UnsupportedIncomingContentError(
+        'Incoming data message timestamp does not match its envelope'
+      );
+    }
+    if (message.expireTimer != null && message.expireTimer > 0) {
+      throw new UnsupportedIncomingContentError(
+        'Disappearing incoming messages are not supported by the headless receiver yet'
       );
     }
     if (

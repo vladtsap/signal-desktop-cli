@@ -30,6 +30,7 @@ export type DaemonStatus = Readonly<{
 
 export type ProtocolRuntime = Readonly<{
   connected: boolean;
+  failureReason?: string;
   start: (
     context: Readonly<{
       items: Record<string, unknown>;
@@ -92,16 +93,27 @@ export class DaemonRuntime {
   public getStatus(): DaemonStatus {
     const protocol = this.#dependencies.protocolRuntime;
     const buildExpiration = this.#getBuildExpiration();
-    const ready = this.#phase === 'ready' && !buildExpiration.expired;
+    const transportReady =
+      !this.#config.connect || (protocol?.connected ?? false);
+    const ready =
+      this.#phase === 'ready' && !buildExpiration.expired && transportReady;
+    const reason =
+      this.#reason ??
+      (this.#phase === 'ready' && this.#config.connect && !transportReady
+        ? (protocol?.failureReason ?? 'Signal transport is not connected')
+        : undefined);
     return {
       buildExpiration,
       connected:
-        ready && this.#config.connect && (protocol?.connected ?? false),
+        this.#phase === 'ready' &&
+        !buildExpiration.expired &&
+        this.#config.connect &&
+        (protocol?.connected ?? false),
       databaseReady: this.#sql != null,
       linked: this.#linked,
       phase: this.#phase,
       ready,
-      ...(this.#reason ? { reason: this.#reason } : {}),
+      ...(reason ? { reason } : {}),
     };
   }
 

@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import ctypes
 import datetime as dt
+import errno
 import fcntl
 import hashlib
 import json
@@ -513,18 +515,48 @@ def extract_snapshot(config: Config, encrypted: Path, destination: Path) -> dict
 
 def activate_profile(profile: Path, restored: Path) -> None:
     profile.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    previous = profile.parent / f".{profile.name}.previous-{uuid.uuid4()}"
-    had_profile = profile.exists()
+    if profile.exists():
+        rename_exchange(profile, restored)
+        fsync_directory(profile.parent)
+        # The old profile now occupies the staged path. A crash after the
+        # exchange therefore leaves the fully verified profile active.
+        shutil.rmtree(restored)
+        fsync_directory(profile.parent)
+        return
+
+    restored.rename(profile)
+    fsync_directory(profile.parent)
+
+
+def rename_exchange(left: Path, right: Path) -> None:
+    """Atomically exchange paths on the Linux state-tool runtime."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    renameat2 = getattr(libc, "renameat2", None)
+    if renameat2 is None:
+        raise StateError("Atomic replacement requires Linux renameat2 support")
+    renameat2.argtypes = [
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    ]
+    renameat2.restype = ctypes.c_int
+    if renameat2(-100, os.fsencode(left), -100, os.fsencode(right), 2) != 0:
+        error = ctypes.get_errno()
+        if error in (errno.ENOSYS, errno.EINVAL, errno.EOPNOTSUPP):
+            raise StateError(
+                "The profile volume filesystem does not support atomic replacement"
+            )
+        raise OSError(error, os.strerror(error), str(left), str(right))
+
+
+def fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
     try:
-        if had_profile:
-            profile.rename(previous)
-        restored.rename(profile)
-    except BaseException:
-        if had_profile and previous.exists() and not profile.exists():
-            previous.rename(profile)
-        raise
-    if previous.exists():
-        shutil.rmtree(previous)
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
 
 
 def command_pull(config: Config, reference: str, replace: bool) -> None:

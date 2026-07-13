@@ -158,9 +158,52 @@ class StateCliTest(unittest.TestCase):
             profile = root / "profile"
             profile.mkdir()
             (profile / "old").write_text("old", encoding="utf-8")
-            with self.assertRaises(FileNotFoundError):
-                state_cli.activate_profile(profile, root / "missing-restored")
+            with mock.patch.object(
+                state_cli, "rename_exchange", side_effect=FileNotFoundError
+            ):
+                with self.assertRaises(FileNotFoundError):
+                    state_cli.activate_profile(profile, root / "missing-restored")
             self.assertEqual((profile / "old").read_text(encoding="utf-8"), "old")
+
+    def test_activate_profile_exchanges_before_removing_previous(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            profile = root / "profile"
+            restored = root / "restored"
+            profile.mkdir()
+            restored.mkdir()
+            (profile / "old").write_text("old", encoding="utf-8")
+            (restored / "new").write_text("new", encoding="utf-8")
+
+            def exchange(left, right):
+                temporary = root / "exchange-temporary"
+                left.rename(temporary)
+                right.rename(left)
+                temporary.rename(right)
+
+            with mock.patch.object(state_cli, "rename_exchange", side_effect=exchange):
+                with mock.patch.object(state_cli, "fsync_directory") as fsync:
+                    state_cli.activate_profile(profile, restored)
+
+            self.assertEqual((profile / "new").read_text(encoding="utf-8"), "new")
+            self.assertFalse(restored.exists())
+            self.assertEqual(fsync.call_count, 2)
+
+    @unittest.skipUnless(sys.platform.startswith("linux"), "renameat2 is Linux-only")
+    def test_activate_profile_atomically_replaces_on_linux(self) -> None:
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            profile = root / "profile"
+            restored = root / "restored"
+            profile.mkdir()
+            restored.mkdir()
+            (profile / "old").write_text("old", encoding="utf-8")
+            (restored / "new").write_text("new", encoding="utf-8")
+
+            state_cli.activate_profile(profile, restored)
+
+            self.assertEqual((profile / "new").read_text(encoding="utf-8"), "new")
+            self.assertFalse(restored.exists())
 
     def test_config_does_not_require_age_for_list(self) -> None:
         environment = {

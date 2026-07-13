@@ -16,6 +16,7 @@ const daemonModules = [
   'main.node.ts',
   'message_cache.node.ts',
   'models.node.ts',
+  'prekeys.node.ts',
   'profile.node.ts',
   'protocol_stores.node.ts',
   'receive.node.ts',

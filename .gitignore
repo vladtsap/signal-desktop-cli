@@ -9,6 +9,9 @@ build/emoji-data.json
 stylesheets/*.css.map
 /dist
 .DS_Store
+.env
+.env.*
+!.env.example
 config/local.json
 config/local-*
 *.provisionprofile

@@ -43,7 +43,12 @@ function createHarness({ connect = true } = {}) {
       throw new Error('Unexpected write');
     }) as HeadlessSql['write'],
   };
-  const protocolRuntime = {
+  const protocolRuntime: {
+    connected: boolean;
+    failureReason?: string;
+    start: () => Promise<void>;
+    stop: () => Promise<void>;
+  } = {
     connected: true,
     async start() {
       events.push('protocol:start');
@@ -85,6 +90,7 @@ function createHarness({ connect = true } = {}) {
     dependencies,
     events,
     runtime: new DaemonRuntime({ ...config, connect }, dependencies),
+    protocolRuntime,
   };
 }
 
@@ -156,6 +162,29 @@ void test('DaemonRuntime can validate a profile without network access', async (
   assert.equal(runtime.getStatus().ready, true);
   assert.equal(runtime.getStatus().connected, false);
   assert.deepEqual(events, ['profile:load', 'sql:open', 'stores:open']);
+  await runtime.stop();
+});
+
+void test('DaemonRuntime is not ready while its transport reconnects', async () => {
+  const { protocolRuntime, runtime } = createHarness();
+  await runtime.start();
+  protocolRuntime.connected = false;
+  const status = runtime.getStatus();
+  assert.equal(status.connected, false);
+  assert.equal(status.ready, false);
+  assert.equal(status.reason, 'Signal transport is not connected');
+  await runtime.stop();
+});
+
+void test('DaemonRuntime exposes a terminal transport failure reason', async () => {
+  const { protocolRuntime, runtime } = createHarness();
+  await runtime.start();
+  protocolRuntime.connected = false;
+  protocolRuntime.failureReason = 'device was delinked';
+  const status = runtime.getStatus();
+  assert.equal(status.ready, false);
+  assert.equal(status.connected, false);
+  assert.equal(status.reason, 'device was delinked');
   await runtime.stop();
 });
 

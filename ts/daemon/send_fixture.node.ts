@@ -2,18 +2,25 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import type { CiphertextMessage } from '@signalapp/libsignal-client';
+import {
+  type CiphertextMessage,
+  SessionRecord,
+} from '@signalapp/libsignal-client';
 
 import { SendStatus } from '../messages/MessageSendState.std.ts';
+import type { signal } from '../protobuf/compiled.std.js';
+import { sessionStructureToBytes } from '../util/sessionTranslation.node.ts';
 import { createHeadlessDataInterfaces } from './client_sql.node.ts';
 import { openHeadlessProtocolStores } from './protocol_stores.node.ts';
 import {
   HeadlessSendError,
   HeadlessSendService,
+  hasCurrentSendSession,
   type HeadlessSendCrypto,
 } from './send.node.ts';
 import { openHeadlessSql } from './sql.node.ts';
@@ -34,6 +41,41 @@ const KEYS_BODY = Buffer.from(
     identityKey: 'AA==',
   })
 );
+
+function randomPrivateKey(): Uint8Array<ArrayBuffer> {
+  return Uint8Array.from(randomBytes(32));
+}
+
+function randomPublicKey(): Uint8Array<ArrayBuffer> {
+  const key = Uint8Array.from(randomBytes(33));
+  key[0] = 5;
+  return key;
+}
+
+function createCurrentSessionRecord(): SessionRecord {
+  return SessionRecord.deserialize(
+    sessionStructureToBytes({
+      currentSession: {
+        aliceBaseKey: randomPublicKey(),
+        localIdentityPublic: randomPublicKey(),
+        localRegistrationId: 435,
+        previousCounter: 1,
+        receiverChains: null,
+        remoteIdentityPublic: randomPublicKey(),
+        remoteRegistrationId: 243,
+        rootKey: randomPrivateKey(),
+        senderChain: {
+          chainKey: null,
+          messageKeys: null,
+          senderRatchetKey: null,
+          senderRatchetKeyPrivate: null,
+        },
+        sessionVersion: 3,
+      } as signal.proto.storage.SessionStructure.Params,
+      previousSessions: [],
+    })
+  );
+}
 
 async function createHarness() {
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-send-sql-'));
@@ -60,7 +102,9 @@ async function createHarness() {
   const calls = { archive: 0, encrypt: 0, establish: 0, fetch: 0, send: 0 };
   let sendError: Error | undefined;
   let hasSessions = false;
+  let pauseSend = false;
   let releaseSend: (() => void) | undefined;
+  let sendEntered: (() => void) | undefined;
   const transport: HeadlessSendTransport = {
     connected: true,
     async fetchAuthenticated() {
@@ -74,8 +118,14 @@ async function createHarness() {
     },
     async sendMessage() {
       calls.send += 1;
-      if (releaseSend)
-        await new Promise<void>(resolve => (releaseSend = resolve));
+      if (pauseSend) {
+        sendEntered?.();
+        await new Promise<void>(resolve => {
+          releaseSend = resolve;
+        });
+        pauseSend = false;
+        releaseSend = undefined;
+      }
       if (sendError) throw sendError;
     },
   };
@@ -114,16 +164,62 @@ async function createHarness() {
       await rm(storagePath, { force: true, recursive: true });
     },
     dataReader,
+    pauseNextSend() {
+      pauseSend = true;
+      return new Promise<void>(resolve => {
+        sendEntered = resolve;
+      });
+    },
     recipient,
     service: new HeadlessSendService(transport, stores, crypto, {
-      maxPending: 1,
+      maxPending: 2,
       now: () => 1_700_000_000_000,
     }),
     setSendError(value?: Error) {
       sendError = value;
     },
+    releaseSend() {
+      releaseSend?.();
+    },
     stores,
   };
+}
+
+async function testArchivedSessionIsNotCurrent(): Promise<void> {
+  const record = createCurrentSessionRecord();
+  assert.equal(hasCurrentSendSession(record), true);
+  record.archiveCurrentState();
+  assert.equal(hasCurrentSendSession(record), false);
+}
+
+async function testConcurrentIdempotencyClaim(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    const entered = harness.pauseNextSend();
+    const first = harness.service.sendText({
+      body: 'first body',
+      destination: THEIR_ACI,
+      idempotencyKey: 'concurrent-key',
+    });
+    await entered;
+    const conflicting = harness.service.sendText({
+      body: 'conflicting body',
+      destination: '+12025550124',
+      idempotencyKey: 'concurrent-key',
+    });
+    await new Promise<void>(resolve => setImmediate(resolve));
+    assert.equal(harness.calls.send, 1);
+    harness.releaseSend();
+    await first;
+    await assert.rejects(conflicting, {
+      code: 'invalid-request',
+      retryable: false,
+    });
+    assert.equal(harness.calls.send, 1);
+  } finally {
+    harness.releaseSend();
+    await harness.cleanup();
+  }
 }
 
 async function testDurableIdempotentSend(): Promise<void> {
@@ -270,6 +366,8 @@ async function testTerminalFailure(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  await testArchivedSessionIsNotCurrent();
+  await testConcurrentIdempotencyClaim();
   await testDurableIdempotentSend();
   await testE164Resolution();
   await testRetryableFailure();

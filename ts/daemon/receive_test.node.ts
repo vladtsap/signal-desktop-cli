@@ -69,7 +69,9 @@ function makePlaintext(body?: string): Uint8Array<ArrayBuffer> {
   return Proto.Content.encode({
     content: {
       dataMessage:
-        body === undefined ? { attachments: [{ cdnNumber: 1 }] } : { body },
+        body === undefined
+          ? { attachments: [{ cdnNumber: 1 }], timestamp: 1234n }
+          : { body, timestamp: 1234n },
     },
   } as never);
 }
@@ -221,6 +223,54 @@ void test('acknowledges unsupported decrypted content and retains it for upgrade
   assert.equal(harness.staged.size, 1);
   await harness.receiver.stop();
 });
+
+void test('retains disappearing messages without normal persistence or webhook delivery', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: { body: 'temporary', expireTimer: 60, timestamp: 1234n },
+    },
+  } as never);
+  let webhookCount = 0;
+  const harness = makeHarness({ plaintext });
+  // Recreate the receiver to exercise the callback that feeds the webhook.
+  harness.receiver = new HeadlessMessageReceiver(harness.transport, {
+    decryptEnvelope: async envelope => ({
+      envelope: { ...envelope, sourceServiceId: SENDER_ACI },
+      plaintext,
+      wasEncrypted: true,
+    }),
+    onPersistedMessage: () => {
+      webhookCount += 1;
+    },
+    serverTrustRoots: [],
+  });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(harness.saved.length, 0);
+  assert.equal(webhookCount, 0);
+  assert.equal(harness.staged.size, 1);
+  await harness.receiver.stop();
+});
+
+for (const [name, dataMessage] of [
+  ['missing', { body: 'hello' }],
+  ['mismatched', { body: 'hello', timestamp: 1235n }],
+] as const) {
+  void test(`retains a data message with a ${name} inner timestamp`, async () => {
+    const harness = makeHarness({
+      plaintext: Proto.Content.encode({ content: { dataMessage } } as never),
+    });
+    await start(harness);
+    const { incoming, statuses } = request();
+    await harness.transport.emit(incoming);
+    assert.deepEqual(statuses, [200]);
+    assert.equal(harness.saved.length, 0);
+    assert.equal(harness.staged.size, 1);
+    await harness.receiver.stop();
+  });
+}
 
 void test('does not materialize plaintext content as a normal data message', async () => {
   const harness = makeHarness({ wasEncrypted: false });

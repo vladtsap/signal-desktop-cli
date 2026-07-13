@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 import type { DaemonConfig } from './config.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
+import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import type { DaemonStatus, RuntimeServiceContext } from './runtime.node.ts';
 import { HeadlessSendError, HeadlessSendService } from './send.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
@@ -42,6 +43,10 @@ export type ControlServiceOptions = Readonly<{
     sql: HeadlessSql,
     context: RuntimeServiceContext
   ) => DurableWebhookOutbox;
+  createSendService?: (
+    transport: HeadlessSendTransport,
+    stores: HeadlessProtocolStores
+  ) => Pick<HeadlessSendService, 'sendText'>;
   getStatus: () => DaemonStatus;
 }>;
 
@@ -156,9 +161,11 @@ export class HeadlessControlService {
   readonly #getStatus: () => DaemonStatus;
   readonly #transport: HeadlessTransportRuntime & HeadlessSendTransport;
   readonly #createOutbox: ControlServiceOptions['createOutbox'];
+  readonly #createSendService: ControlServiceOptions['createSendService'];
+  readonly #activeHandlers = new Set<Promise<void>>();
   readonly #controllers = new Set<AbortController>();
   #outbox: DurableWebhookOutbox | undefined;
-  #sendService: HeadlessSendService | undefined;
+  #sendService: Pick<HeadlessSendService, 'sendText'> | undefined;
   #server: Server | undefined;
 
   public constructor(
@@ -170,6 +177,7 @@ export class HeadlessControlService {
     this.#transport = transport;
     this.#getStatus = options.getStatus;
     this.#createOutbox = options.createOutbox;
+    this.#createSendService = options.createSendService;
   }
 
   public async prepare(context: RuntimeServiceContext): Promise<void> {
@@ -178,10 +186,9 @@ export class HeadlessControlService {
         'SIGNAL_API_TOKEN (at least 16 characters) is required when SIGNAL_DAEMON_CONNECT=true'
       );
     }
-    this.#sendService = new HeadlessSendService(
-      this.#transport,
-      context.protocolStores
-    );
+    this.#sendService = this.#createSendService
+      ? this.#createSendService(this.#transport, context.protocolStores)
+      : new HeadlessSendService(this.#transport, context.protocolStores);
     this.#outbox = this.#createOutbox
       ? this.#createOutbox(context.sql, context)
       : new DurableWebhookOutbox(context.sql, {
@@ -202,7 +209,7 @@ export class HeadlessControlService {
       throw new Error('Control service was not prepared');
     }
     const server = createServer((request, response) => {
-      void this.#handle(request, response);
+      this.#trackHandler(request, response);
     });
     server.requestTimeout = 15_000;
     server.headersTimeout = 10_000;
@@ -227,17 +234,35 @@ export class HeadlessControlService {
   public async stop(): Promise<void> {
     const server = this.#server;
     this.#server = undefined;
+    for (const controller of this.#controllers) controller.abort();
     if (server) {
       server.closeIdleConnections();
-      for (const controller of this.#controllers) controller.abort();
       await new Promise<void>(resolve => {
         server.close(() => resolve());
         server.closeAllConnections();
       });
     }
+    await Promise.allSettled([...this.#activeHandlers]);
     await this.#outbox?.stop();
     this.#outbox = undefined;
     this.#sendService = undefined;
+  }
+
+  #trackHandler(request: IncomingMessage, response: ServerResponse): void {
+    const handler = this.#handle(request, response);
+    this.#activeHandlers.add(handler);
+    void this.#settleHandler(handler);
+  }
+
+  async #settleHandler(handler: Promise<void>): Promise<void> {
+    try {
+      await handler;
+    } catch {
+      // The request handler normally converts failures to JSON. A socket can
+      // still disappear while writing that response during shutdown.
+    } finally {
+      this.#activeHandlers.delete(handler);
+    }
   }
 
   async #handle(

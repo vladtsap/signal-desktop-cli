@@ -26,6 +26,7 @@ Implemented:
 - Linux `amd64` Docker images;
 - the upstream Signal Desktop linking UI in Xvfb/fluxbox/noVNC;
 - a headless authenticated Signal transport with reconnect handling;
+- automatic ACI/PNI prekey replenishment and signed/PQ key rotation;
 - direct encrypted text receive, SQLCipher persistence, and durable webhooks;
 - direct encrypted text send with durable idempotency and existing-session reuse;
 - encrypted, immutable, checksummed R2 snapshots with staged restore; and
@@ -42,6 +43,8 @@ Not implemented:
 
 E164 destinations can only be used when the restored profile already maps the number to a Signal ACI. A lowercase ACI can be supplied directly. Unsupported incoming content is not exposed as a normal message or webhook. When a supported envelope decrypts but its data message contains unsupported fields, that decrypted record is retained in the encrypted profile's `unprocessed` store for future support.
 
+Incoming disappearing messages are deliberately treated as unsupported: they remain in encrypted staging and are acknowledged, but are never persisted as ordinary messages or sent to the webhook. This prevents the headless subset from silently retaining time-limited content forever.
+
 The automated daemon, state, build, and static checks pass, but a real mobile-device link and live Signal interoperability test have deliberately not been performed yet. Treat the first end-to-end linked-device run as a controlled acceptance test before depending on this fork in production.
 
 ## Architecture
@@ -56,6 +59,8 @@ All three services mount the same named volume at `/var/lib/signal-state`. The p
 
 The daemon image contains only the recursively reachable daemon bundles and required native Signal/SQLCipher runtime packages. It runs as UID/GID `10001`, drops all Linux capabilities, uses a read-only root filesystem and `no-new-privileges`, and writes only to the profile volume and bounded `/tmp` tmpfs. The API and UI ports bind to host loopback by default.
 
+While connected, the daemon checks ACI and PNI server prekey inventories at startup and every two days, coalesces low-key notifications, and rotates signed and post-quantum last-resort keys using Signal's 14-day stale-key boundary. Failed maintenance retries after five minutes; shutdown cancels and drains it before closing the Signal transport.
+
 ## Prerequisites
 
 - Docker Engine with Docker Compose v2;
@@ -68,12 +73,11 @@ Clone this repository on every machine that will use the profile. Commands below
 
 ## Configuration
 
-Create a local `.env`. This repository does **not** ignore `.env` in Git, so protect it explicitly and never commit it:
+Create a local `.env` from the tracked, sanitized template. `.env` and its variants are ignored by Git, while `.env.example` remains tracked:
 
 ```sh
-touch .env
+cp .env.example .env
 chmod 600 .env
-printf '%s\n' '.env' >> .git/info/exclude
 ```
 
 For a linked daemon with R2 transfer, the minimum useful file is:
@@ -173,7 +177,7 @@ docker compose --profile tools run --rm --build state pull latest
 docker compose up --build -d signal
 ```
 
-An explicit `docker volume create` or an initial empty daemon start is unnecessary. On a fresh volume, `pull` stages and validates the complete snapshot before atomically activating it. It refuses to overwrite a non-empty profile unless `--replace` is supplied.
+An explicit `docker volume create` or an initial empty daemon start is unnecessary. On a fresh volume, `pull` stages and validates the complete snapshot before renaming it into place and syncing the volume directory. It refuses to overwrite a non-empty profile unless `--replace` is supplied.
 
 Follow startup and check liveness/readiness:
 
@@ -281,7 +285,7 @@ docker compose --profile tools run --rm state pull "$SNAPSHOT_ID" --replace
 docker compose up -d signal
 ```
 
-`pull` accepts `latest`, a snapshot UUID, or the full snapshot object key. Without `--replace`, it only restores into an empty profile. With `--replace`, the downloaded snapshot is still fully verified in staging before the current profile is renamed and replaced. Download, decrypt, and inventory failures happen before activation and leave the current profile intact; a rename failure attempts to roll the previous profile back into place.
+`pull` accepts `latest`, a snapshot UUID, or the full snapshot object key. Without `--replace`, it only restores into an empty profile. With `--replace`, the downloaded snapshot is fully verified in staging, then Linux `renameat2(RENAME_EXCHANGE)` atomically swaps it with the current profile and the parent directory is synced. Download, decrypt, inventory, or exchange failures leave the current profile active. The profile volume filesystem must support atomic exchange; the command fails closed when it does not.
 
 Available state commands:
 
@@ -379,15 +383,17 @@ The GUI keeps Signal's remote expiration behavior, so Signal can shorten its eff
 
 This fork does not extend the lifetime to 128 days. Upstream contains a 91-day safety ceiling for update-enabled builds; the fork's explicit 90-day form fits below it. Supporting 128 days would require weakening that defense and would leave protocol/security compatibility stale for longer. The correct maintenance operation is to merge current upstream and rebuild.
 
-After merging a reviewed upstream Signal Desktop commit, derive—not invent—the new build timestamp:
+Configure an `upstream` remote for `signalapp/Signal-Desktop`, fetch it, select the exact reviewed upstream commit, and keep that SHA separate from the fork's post-merge `HEAD`:
 
 ```sh
-UPSTREAM_COMMIT=$(git rev-parse HEAD)
+git remote add upstream https://github.com/signalapp/Signal-Desktop.git # once
+git fetch upstream
+UPSTREAM_COMMIT=$(git rev-parse upstream/main) # or an exact reviewed release tag
 git show -s --format=%ct "$UPSTREAM_COMMIT"
 git show -s --format=%cI "$UPSTREAM_COMMIT"
 ```
 
-Update the defaults in `compose.yaml` for `SOURCE_DATE_EPOCH`, `SIGNAL_BUILD_CREATED_AT`, and `SIGNAL_GIT_REVISION`, and set matching values in deployment `.env` files. Then rebuild both runtime images and redeploy one owner at a time:
+Merge that reviewed commit into the fork. Update the defaults in `compose.yaml` for `SOURCE_DATE_EPOCH`, `SIGNAL_BUILD_CREATED_AT`, and `SIGNAL_GIT_REVISION`, update `.env.example`, and set matching values in deployment `.env` files. `SOURCE_DATE_EPOCH` is mandatory for generation and must be the selected upstream commit time; the build never falls back to the fork's current commit. Then rebuild both runtime images and redeploy one owner at a time:
 
 ```sh
 docker compose build --no-cache signal signal-ui
@@ -404,6 +410,8 @@ The upstream project uses Node.js and pnpm versions pinned by the repository. A 
 ```sh
 corepack enable
 pnpm install --frozen-lockfile
+export SOURCE_DATE_EPOCH=1783615919 # reviewed upstream SHA's commit time
+pnpm run generate
 pnpm run test-daemon
 python3 -m unittest discover -s docker -p 'test_state_cli.py'
 pnpm run check:types

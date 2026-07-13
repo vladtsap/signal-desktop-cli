@@ -28,6 +28,16 @@ async function main(): Promise<void> {
     },
     serverTrustRoots: productionConfig.serverTrustRoots,
   });
+  const prekeys = await import('./prekeys.node.ts');
+  const maintainedProtocolRuntime = new prekeys.PreKeyMaintainedProtocolRuntime(
+    protocolRuntime,
+    context =>
+      new prekeys.LibsignalPreKeyUpdater(
+        context.protocolStores.itemStorage,
+        context.protocolStores.signalProtocolStore,
+        transport
+      )
+  );
   const controlService = new HeadlessControlService(config, transport, {
     getStatus: () => {
       if (!services.runtime) throw new Error('Daemon runtime is unavailable');
@@ -43,7 +53,7 @@ async function main(): Promise<void> {
     openProtocolStores: (await import('./protocol_stores.node.ts'))
       .openHeadlessProtocolStores,
     controlService,
-    protocolRuntime,
+    protocolRuntime: maintainedProtocolRuntime,
   });
   services.control = controlService;
   services.runtime = runtime;
