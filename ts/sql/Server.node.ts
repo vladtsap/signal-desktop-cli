@@ -733,6 +733,7 @@ export const DataWriter: ServerWritableInterface = {
   createOrUpdateStickerPacks,
   updateStickerPackStatusAndPosition,
   updateStickerPackInfo,
+  updateStickerPacksPositions,
   createOrUpdateSticker,
   createOrUpdateStickers,
   updateStickerLastUsed,
@@ -7142,6 +7143,25 @@ function updateStickerPackInfo(
     });
   }
 }
+
+function updateStickerPacksPositions(
+  db: WritableDB,
+  packIdsAndPositions: ReadonlyArray<{ id: string; position: number }>
+): void {
+  return db.transaction(() => {
+    for (const packIdsAndPosition of packIdsAndPositions) {
+      const [query, params] = sql`
+        UPDATE sticker_packs
+        SET
+          position = ${packIdsAndPosition.position},
+          storageNeedsSync = 1
+        WHERE id = ${packIdsAndPosition.id}
+      `;
+      db.prepare(query).run(params);
+    }
+  })();
+}
+
 function clearAllErrorStickerPackAttempts(db: WritableDB): void {
   db.prepare(
     `

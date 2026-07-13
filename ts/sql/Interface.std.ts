@@ -1389,6 +1389,9 @@ type WritableInterface = {
     options?: { timestamp?: number; position?: number }
   ) => StickerPackStatusType | null;
   updateStickerPackInfo: (info: StickerPackInfoType) => void;
+  updateStickerPacksPositions: (
+    packIdsAndPositions: ReadonlyArray<{ id: string; position: number }>
+  ) => void;
   createOrUpdateSticker: (sticker: StickerType) => void;
   createOrUpdateStickers: (sticker: ReadonlyArray<StickerType>) => void;
   updateStickerLastUsed: (

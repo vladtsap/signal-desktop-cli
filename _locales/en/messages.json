@@ -3762,6 +3762,22 @@
     "messageformat": "Remove",
     "description": "Context menu item to remove a sticker pack. Shown in the sticker pack manager when right clicking a sticker pack."
   },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack",
+    "description": "Sticker Manager > Installed Sticker Packs > Sticker Pack row > Drag Handle > Accessibility Label"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs",
+    "description": "Sticker Manager > Received Sticker Packs List > Accessibility Label"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs",
+    "description": "Sticker Manager > Received Sticker Packs List > Accessibility Label"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs",
+    "description": "Sticker Manager > Installed Sticker Packs List > Accessibility Label"
+  },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "Sticker Pack",
     "description": "The title that appears in the sticker pack preview modal."

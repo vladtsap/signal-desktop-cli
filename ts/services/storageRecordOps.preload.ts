@@ -2354,6 +2354,15 @@ export async function mergeStickerPackRecord(
         })
       );
     }
+  } else if (
+    localStickerPack &&
+    !isUninstalled &&
+    newPosition &&
+    newPosition !== localStickerPack?.position
+  ) {
+    window.reduxActions.stickers.stickerPackUpdated(localStickerPack.id, {
+      position: newPosition,
+    });
   }
 
   await DataWriter.updateStickerPackInfo(stickerPack);

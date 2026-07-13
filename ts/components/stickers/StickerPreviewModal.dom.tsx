@@ -16,6 +16,7 @@ import { artAddStickersRoute } from '../../util/signalRoutes.std.ts';
 import { drop } from '../../util/drop.std.ts';
 import { ToastType } from '../../types/Toast.dom.tsx';
 import { fromBase64PackKeyToHex } from '../../util/Stickers.std.ts';
+import { useRestoreFocus } from '../../hooks/useRestoreFocus.dom.ts';
 
 export type Props = Readonly<{
   onClose?: () => void;
@@ -177,6 +178,9 @@ export const StickerPreviewModal = memo(function StickerPreviewModalInner({
 }: Props) {
   const [confirmingUninstall, setConfirmingUninstall] = useState(false);
 
+  // Restore focus on teardown
+  const [focusRef] = useRestoreFocus();
+
   useEffect(() => {
     if (pack && pack.status === 'known') {
       downloadStickerPack(pack.id, pack.key, { actionSource: 'ui' });
@@ -265,6 +269,7 @@ export const StickerPreviewModal = memo(function StickerPreviewModalInner({
             <AxoDialog.Close />
           </AxoDialog.Header>
           <AxoDialog.Body>
+            <div ref={focusRef} />
             {renderBody({ pack, i18n, handleCopyLink, handleStartUninstall })}
           </AxoDialog.Body>
           <AxoDialog.Footer>

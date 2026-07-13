@@ -10,7 +10,12 @@ import {
   useMemo,
   type JSX,
 } from 'react';
-import { StickerManagerPackRow } from './StickerManagerPackRow.dom.tsx';
+import { isEqual, partition } from 'lodash';
+
+import {
+  StickerManagerPackRow,
+  type StickerManagerPackRowControlType,
+} from './StickerManagerPackRow.dom.tsx';
 import { StickerPreviewModal } from './StickerPreviewModal.dom.tsx';
 import type { LocalizerType } from '../../types/Util.std.ts';
 import type { StickerPackType } from '../../state/ducks/stickers.preload.ts';
@@ -18,6 +23,7 @@ import type { ShowToastAction } from '../../state/ducks/toast.preload.ts';
 import type { StickerManagerTabType } from '../../types/Stickers.preload.ts';
 import { tw } from '../../axo/tw.dom.tsx';
 import { AxoButton } from '../../axo/AxoButton.dom.tsx';
+import { ListBox, useDragAndDrop } from 'react-aria-components';
 
 export type OwnProps = {
   readonly blessedPacks: ReadonlyArray<StickerPackType>;
@@ -44,6 +50,9 @@ export type OwnProps = {
     packKey: string,
     options: { actionSource: 'ui' }
   ) => unknown;
+  readonly updateStickerPacksPositions: (
+    orderedPackids: ReadonlyArray<string>
+  ) => void;
 };
 
 export type Props = OwnProps;
@@ -61,6 +70,7 @@ export const StickerManager = memo(function StickerManagerInner({
   setTab,
   showToast,
   uninstallStickerPack,
+  updateStickerPacksPositions,
 }: Props) {
   const focusRef = createRef<HTMLDivElement>();
   const [packIdToPreview, setPackIdToPreview] = useState<string | null>(null);
@@ -93,11 +103,15 @@ export const StickerManager = memo(function StickerManagerInner({
   }, []);
 
   const renderStickerPackRow = useCallback(
-    (pack: StickerPackType): JSX.Element => (
+    (
+      pack: StickerPackType,
+      controlType: StickerManagerPackRowControlType
+    ): JSX.Element => (
       <StickerManagerPackRow
+        controlType={controlType}
         key={pack.id}
-        pack={pack}
         i18n={i18n}
+        pack={pack}
         onClickPreview={previewPack}
         installStickerPack={installStickerPack}
         uninstallStickerPack={uninstallStickerPack}
@@ -126,12 +140,60 @@ export const StickerManager = memo(function StickerManagerInner({
     return packsMap;
   }, [blessedPacks, installedPacks, knownPacks, receivedPacks]);
 
+  const [installedPacksReordered, setInstalledPacksReordered] =
+    useState(installedPacks);
+
+  useEffect(() => {
+    setInstalledPacksReordered(installedPacks);
+  }, [installedPacks]);
+
+  const { dragAndDropHooks } = useDragAndDrop({
+    getItems: () => {
+      return installedPacks.map(pack => {
+        return { 'signal-sticker-pack-id': pack.id };
+      });
+    },
+    getAllowedDropOperations() {
+      return ['move'];
+    },
+    acceptedDragTypes: ['signal-sticker-pack-id'],
+    getDropOperation: () => 'move',
+    onDragEnd: () => {
+      if (!hasPacksOrderChanged(installedPacks, installedPacksReordered)) {
+        return;
+      }
+
+      updateStickerPacksPositions(installedPacksReordered.map(pack => pack.id));
+    },
+    onReorder: event => {
+      const target = event.target.key as string;
+      const moving = event.keys as Set<string>;
+      const position = event.target.dropPosition;
+
+      if (position !== 'before' && position !== 'after') {
+        return;
+      }
+
+      setInstalledPacksReordered(prevPacks => {
+        return movePacks(prevPacks, target, moving, position);
+      });
+    },
+    renderDropIndicator: () => {
+      return <div className={tw('-my-px h-0.5 rounded-full bg-inverted')} />;
+    },
+  });
+
   const packToPreview = useMemo(() => {
     return packIdToPreview ? allPacks.get(packIdToPreview) : undefined;
   }, [allPacks, packIdToPreview]);
 
   return (
-    <>
+    <div
+      className={tw('m-auto max-w-152 px-4 py-0 outline-none')}
+      data-testid="StickerManager"
+      tabIndex={-1}
+      ref={focusRef}
+    >
       {packIdToPreview ? (
         <StickerPreviewModal
           closeStickerPackPreview={closeStickerPackPreview}
@@ -144,75 +206,136 @@ export const StickerManager = memo(function StickerManagerInner({
           showToast={showToast}
         />
       ) : null}
-      <div
-        className={tw('m-auto max-w-152 px-4 py-0 outline-none')}
-        data-testid="StickerManager"
-        tabIndex={-1}
-        ref={focusRef}
-      >
-        {tab === 'all' && (
-          <>
-            <h2
-              className={tw(
-                'mx-2 my-1 type-body-medium font-semibold text-primary'
+      {tab === 'all' && (
+        <>
+          <h2
+            className={tw(
+              'mx-2 my-1 type-body-medium font-semibold text-primary'
+            )}
+          >
+            {i18n('icu:stickers--StickerManager--BlessedPacks')}
+          </h2>
+          {blessedPacks.length > 0 ? (
+            <ListBox
+              aria-label={i18n(
+                'icu:stickers--StickerManagerBlessedPacksList--Label'
               )}
+              data-testid="StickerManagerBlessedPacks"
+              items={blessedPacks}
             >
-              {i18n('icu:stickers--StickerManager--BlessedPacks')}
-            </h2>
-            {blessedPacks.length > 0 ? (
-              blessedPacks.map(pack => renderStickerPackRow(pack))
-            ) : (
-              <p className={tw('mx-2 mb-1 type-body-small text-secondary')}>
-                {i18n('icu:stickers--StickerManager--BlessedPacks--Empty')}
-              </p>
-            )}
-            <div className={tw('mb-4')} />
-
-            {receivedPacks.length > 0 && (
-              <>
-                <h2
-                  className={tw(
-                    'mx-2 mt-2 mb-0.5 type-body-medium font-semibold text-primary'
-                  )}
-                >
-                  {i18n('icu:stickers--StickerManager--ReceivedPacks2')}
-                </h2>
-                <p className={tw('mx-2 mb-1 type-body-small text-secondary')}>
-                  {i18n(
-                    'icu:stickers--StickerManager--ReceivedPacksDescription'
-                  )}
-                </p>
-                {receivedPacks.map(pack => renderStickerPackRow(pack))}
-              </>
-            )}
-          </>
-        )}
-        {tab === 'my-stickers' &&
-          (installedPacks.length > 0 ? (
-            installedPacks.map(pack => renderStickerPackRow(pack))
+              {pack => renderStickerPackRow(pack, 'install-button')}
+            </ListBox>
           ) : (
-            <div
-              className={tw(
-                'm-auto grid min-h-screen place-items-center text-center'
-              )}
-            >
-              <div className={tw('max-w-60')}>
-                <div className={tw('mb-4 type-body-medium text-secondary')}>
-                  {i18n('icu:stickers--StickerManager--MyStickers--None')}
-                </div>
-                <div>
-                  <AxoButton.Root
-                    variant="strong-secondary"
-                    size="md"
-                    onClick={setTabAll}
-                  >
-                    {i18n('icu:stickers--StickerManager--AddStickers')}
-                  </AxoButton.Root>
-                </div>
-              </div>
-            </div>
-          ))}
-      </div>
-    </>
+            <p className={tw('mx-2 mb-1 type-body-small text-secondary')}>
+              {i18n('icu:stickers--StickerManager--BlessedPacks--Empty')}
+            </p>
+          )}
+          <div className={tw('mb-4')} />
+
+          {receivedPacks.length > 0 && (
+            <>
+              <h2
+                className={tw(
+                  'mx-2 mt-2 mb-0.5 type-body-medium font-semibold text-primary'
+                )}
+              >
+                {i18n('icu:stickers--StickerManager--ReceivedPacks2')}
+              </h2>
+              <p className={tw('mx-2 mb-1 type-body-small text-secondary')}>
+                {i18n('icu:stickers--StickerManager--ReceivedPacksDescription')}
+              </p>
+              <ListBox
+                aria-label={i18n(
+                  'icu:stickers--StickerManagerReceivedPacksList--Label'
+                )}
+                data-testid="StickerManagerReceivedPacks"
+                items={receivedPacks}
+              >
+                {pack => renderStickerPackRow(pack, 'install-button')}
+              </ListBox>
+            </>
+          )}
+        </>
+      )}
+      {tab === 'my-stickers' &&
+        (installedPacks.length > 0 ? (
+          <ListBox
+            aria-label={i18n(
+              'icu:stickers--StickerManagerInstalledPacksList--Label'
+            )}
+            data-testid="StickerManagerInstalledPacks"
+            items={installedPacksReordered}
+            dragAndDropHooks={dragAndDropHooks}
+            autoFocus
+            selectionMode="single"
+            selectionBehavior="replace"
+            disallowEmptySelection
+          >
+            {pack => renderStickerPackRow(pack, 'drag-handle')}
+          </ListBox>
+        ) : (
+          <MyStickersEmpty i18n={i18n} setTabAll={setTabAll} />
+        ))}
+    </div>
   );
 });
+
+function MyStickersEmpty(props: {
+  i18n: LocalizerType;
+  setTabAll: () => void;
+}): JSX.Element {
+  const { i18n, setTabAll } = props;
+
+  return (
+    <div
+      className={tw('m-auto grid min-h-screen place-items-center text-center')}
+    >
+      <div className={tw('max-w-60')}>
+        <div className={tw('mb-4 type-body-medium text-secondary')}>
+          {i18n('icu:stickers--StickerManager--MyStickers--None')}
+        </div>
+        <div>
+          <AxoButton.Root
+            variant="strong-secondary"
+            size="md"
+            onClick={setTabAll}
+          >
+            {i18n('icu:stickers--StickerManager--AddStickers')}
+          </AxoButton.Root>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function movePacks(
+  packs: ReadonlyArray<StickerPackType>,
+  target: string,
+  moving: Set<string>,
+  position: 'before' | 'after'
+): ReadonlyArray<StickerPackType> {
+  const [toSplice, toInsert] = partition(packs, pack => {
+    return !moving.has(pack.id);
+  });
+
+  const targetIndex = toSplice.findIndex(pack => {
+    return pack.id === target;
+  });
+
+  if (targetIndex === -1) {
+    return packs;
+  }
+
+  const spliceIndex = position === 'before' ? targetIndex : targetIndex + 1;
+
+  return toSplice.toSpliced(spliceIndex, 0, ...toInsert);
+}
+
+function hasPacksOrderChanged(
+  packs: ReadonlyArray<StickerPackType>,
+  packsReordered: ReadonlyArray<StickerPackType>
+): boolean {
+  const a = packs.map(pack => pack.id);
+  const b = packsReordered.map(pack => pack.id);
+  return !isEqual(a, b);
+}
