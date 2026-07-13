@@ -8,10 +8,9 @@ import { SECOND } from './durations.mjs';
  * @returns {number}
  */
 export function getBuildCreationTimestamp() {
-  let value = process.env.SOURCE_DATE_EPOCH;
-  if (!value && process.env.SIGNAL_BUILD_EPOCH_FILE) {
-    value = readFileSync(process.env.SIGNAL_BUILD_EPOCH_FILE, 'utf8').trim();
-  }
+  let value = process.env.SIGNAL_BUILD_EPOCH_FILE
+    ? readFileSync(process.env.SIGNAL_BUILD_EPOCH_FILE, 'utf8').trim()
+    : undefined;
   if (!value) {
     value = String(Math.floor(Date.now() / SECOND));
   }

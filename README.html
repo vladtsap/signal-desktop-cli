@@ -1036,8 +1036,10 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
           </div>
           <p>
             Docker automatically generates one build timestamp shared by the GUI
-            and daemon. <code>SOURCE_DATE_EPOCH</code> exists only as an
-            optional reproducible-build argument and is not part of normal use.
+            and daemon. There is no timestamp environment variable or build
+            argument to provide. The separate reproducible-build script derives
+            its timestamp from the latest Git commit and fails instead of
+            guessing when Git metadata is unavailable.
           </p>
         </section>
 

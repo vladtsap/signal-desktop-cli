@@ -33,6 +33,8 @@ echo "BUILD_TYPE: ${BUILD_TYPE}"
 # package on linux) to make their build timestamps determistic. Otherwise, a fresh
 # UNIX timestamp will be generated at the time of the build, and is non-deterministic.
 echo "SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}"
+export SIGNAL_BUILD_EPOCH_FILE=/tmp/signal-build-epoch
+printf '%s\n' "${SOURCE_DATE_EPOCH}" > "${SIGNAL_BUILD_EPOCH_FILE}"
 
 pnpm install --frozen-lockfile
 pnpm run clean-transpile

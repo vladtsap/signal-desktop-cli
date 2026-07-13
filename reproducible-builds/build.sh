@@ -5,20 +5,18 @@
 # Usage:
 # ./build.sh [ dev (default) | public (prod and beta builds) | alpha | test | staging ]
 # Env vars:
-# SOURCE_DATE_EPOCH: Build timestamp override. Defaults to latest git commit or 1.
 # SKIP_DOCKER_BUILD: To support docker build cache during actions.
 # BUILD_TARGETS: Override build targets. Empty default results in deb. Comma separated list.
 # BUILD_ARCH: Override build architectures. Empty default results in x64. Comma separated list.
 
 # Examples:
 # ./build.sh public
-# SOURCE_DATE_EPOCH=123 ./build.sh test
 
 # First we prepare the docker container in which our build scripts will run. This container includes
 # all build dependencies at specific versions.
 # We set SOURCE_DATE_EPOCH to make system build timestamps deterministic.
 if [ -z "${SKIP_DOCKER_BUILD}" ]; then
-  docker build -t signal-desktop --build-arg SOURCE_DATE_EPOCH=1 --build-arg NODE_VERSION=$(cat ../.nvmrc) .
+  docker build -t signal-desktop --build-arg NODE_VERSION=$(cat ../.nvmrc) .
 else
   echo "Skipping docker build step because SKIP_DOCKER_BUILD was set"
 fi
@@ -27,21 +25,19 @@ fi
 cd ..
 
 # Prepare the timestamp of the actual build based on the latest git commit.
-source_date_epoch=1
-if [ -n "${SOURCE_DATE_EPOCH}" ]; then
-  echo "Using override timestamp for SOURCE_DATE_EPOCH."
-  source_date_epoch="${SOURCE_DATE_EPOCH}"
-else
-  git_timestamp=$(git log -1 --pretty=%ct)
-  if [ "${git_timestamp}" != "" ]; then
-    echo "At commit: $(git log -1 --oneline)"
-    echo "Setting SOURCE_DATE_EPOCH to latest commit's timestamp."
-    source_date_epoch=$((git_timestamp))
-  else
-    echo "Can't get latest commit timestamp. Defaulting to 1."
-    source_date_epoch=1
-  fi
+if ! git_timestamp=$(git log -1 --pretty=%ct) || [ -z "${git_timestamp}" ]; then
+  echo "Cannot get the latest Git commit timestamp; refusing to build." >&2
+  exit 1
 fi
+case "${git_timestamp}" in
+  *[!0-9]* | 0)
+    echo "Latest Git commit timestamp is invalid; refusing to build." >&2
+    exit 1
+    ;;
+esac
+echo "At commit: $(git log -1 --oneline)"
+echo "Setting SOURCE_DATE_EPOCH to latest commit's timestamp."
+source_date_epoch="${git_timestamp}"
 
 # Perform the build by mounting the project into the container and passing in the 1st command line
 # arg to select the build type (e.g. "public"). The container runs docker-entrypoint.sh.

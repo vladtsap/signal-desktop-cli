@@ -384,7 +384,7 @@ docker compose up -d signal
 curl --fail http://127.0.0.1:8080/readyz
 ```
 
-No metadata edits are required. Docker recalculates the build creation time when the merged source changes invalidate the source-build layer. For specialized reproducible-build pipelines only, `SOURCE_DATE_EPOCH` remains an optional Docker build argument; ordinary users and deployments should not set it.
+No metadata edits or timestamp arguments are required. Docker automatically recalculates the build creation time when the merged source changes invalidate the source-build layer. The separate upstream reproducible-build script derives its timestamp from the latest Git commit, accepts no timestamp override, and fails instead of guessing when Git metadata is unavailable.
 
 This automation cannot prove that an operator actually fetched upstream before rebuilding. Keeping the fork current remains an operational responsibility, but it requires no synchronized timestamp or revision bookkeeping.
 

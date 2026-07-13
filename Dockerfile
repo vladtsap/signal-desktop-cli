@@ -5,10 +5,8 @@ ARG NODE_VERSION=24.17.0
 FROM node:${NODE_VERSION}-bookworm AS source-build
 
 ARG TARGETARCH
-ARG SOURCE_DATE_EPOCH
 ENV CI=true \
     SIGNAL_ENV=production \
-    SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} \
     SIGNAL_BUILD_EPOCH_FILE=/tmp/signal-build-epoch
 
 RUN test "${TARGETARCH}" = "amd64"
@@ -31,11 +29,7 @@ RUN corepack enable \
 WORKDIR /src
 COPY . .
 
-RUN if [ -n "${SOURCE_DATE_EPOCH}" ]; then \
-      printf '%s\n' "${SOURCE_DATE_EPOCH}"; \
-    else \
-      date +%s; \
-    fi > "${SIGNAL_BUILD_EPOCH_FILE}"
+RUN date +%s > "${SIGNAL_BUILD_EPOCH_FILE}"
 
 RUN pnpm install --frozen-lockfile
 
