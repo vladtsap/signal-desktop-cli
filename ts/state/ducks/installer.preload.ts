@@ -434,6 +434,11 @@ function finishInstall({
       );
       window.IPC.removeSetupMenuItems();
     } catch (error) {
+      log.error(
+        'finishInstall: linked-device registration failed',
+        Errors.toLogFormat(error)
+      );
+
       if (error instanceof HTTPError) {
         switch (error.code) {
           case 409:

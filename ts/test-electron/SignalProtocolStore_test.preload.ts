@@ -1750,4 +1750,14 @@ describe('SignalProtocolStore', () => {
       });
     });
   });
+
+  describe('removeAllData', () => {
+    it('reloads storage and the conversation controller', async () => {
+      await store.removeAllData();
+
+      assert.deepEqual(await DataReader.getAllItems(), {});
+      assert.isUndefined(window.ConversationController.get(generateUuid()));
+      assert.deepEqual(window.ConversationController.getAll(), []);
+    });
+  });
 });
