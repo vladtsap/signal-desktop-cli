@@ -6,6 +6,7 @@ import EventEmitter from 'node:events';
 import {
   hasBuildExpired,
   getBuildExpirationTimestamp,
+  isNinetyDayForkBuild,
 } from '../util/buildExpiration.std.ts';
 import { LongTimeout } from '../util/timeout.std.ts';
 import { createLogger } from '../logging/log.std.ts';
@@ -22,7 +23,7 @@ export class BuildExpirationService extends EventEmitter {
   }
 
   hasBuildExpired(): boolean {
-    const autoDownloadUpdate = itemStorage.get('auto-download-update', true);
+    const autoDownloadUpdate = this.#useNinetyDaySafetyCeiling();
 
     return hasBuildExpired({
       buildExpirationTimestamp: this.#getBuildExpirationTimestamp(),
@@ -35,7 +36,7 @@ export class BuildExpirationService extends EventEmitter {
   // Private
 
   #getBuildExpirationTimestamp(): number {
-    const autoDownloadUpdate = itemStorage.get('auto-download-update', true);
+    const autoDownloadUpdate = this.#useNinetyDaySafetyCeiling();
 
     return getBuildExpirationTimestamp({
       version: window.getVersion(),
@@ -44,6 +45,15 @@ export class BuildExpirationService extends EventEmitter {
       autoDownloadUpdate,
       logger: log,
     });
+  }
+
+  #useNinetyDaySafetyCeiling(): boolean {
+    const usesForkExpiration = isNinetyDayForkBuild({
+      buildCreation: window.getBuildCreation(),
+      buildExpiration: window.getBuildExpiration(),
+      updatesEnabled: window.getUpdatesEnabled(),
+    });
+    return usesForkExpiration || itemStorage.get('auto-download-update', true);
   }
 
   #startTimer(): void {

@@ -78,6 +78,7 @@ export const rendererConfigSchema = z.object({
   stripePublishableKey: configRequiredStringSchema,
   theme: themeSettingSchema,
   updatesUrl: configRequiredStringSchema,
+  updatesEnabled: z.boolean(),
   resourcesUrl: configRequiredStringSchema,
   userDataPath: configRequiredStringSchema,
   version: configRequiredStringSchema,

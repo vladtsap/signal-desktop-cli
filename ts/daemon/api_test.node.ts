@@ -17,6 +17,7 @@ import type {
   HeadlessSendTransport,
   HeadlessTransportRuntime,
 } from './transport.node.ts';
+import { DAY } from '../util/durations/index.std.ts';
 
 const TOKEN = 'test-api-token-at-least-sixteen';
 
@@ -30,8 +31,18 @@ async function availablePort(): Promise<number> {
 }
 
 function status(): DaemonStatus {
+  const createdAt = Date.UTC(2026, 6, 1);
+  const expiresAt = createdAt + 90 * DAY;
   return {
-    buildExpiration: { days: 90, managedExternally: true },
+    buildExpiration: {
+      createdAt,
+      createdAtIso: new Date(createdAt).toISOString(),
+      daysRemaining: 45,
+      expired: false,
+      expiresAt,
+      expiresAtIso: new Date(expiresAt).toISOString(),
+      validityDays: 90,
+    },
     connected: false,
     databaseReady: true,
     linked: true,

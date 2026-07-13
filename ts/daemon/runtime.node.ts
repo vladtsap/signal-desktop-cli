@@ -1,25 +1,25 @@
 // Copyright 2026 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
-// oxlint-disable signal-desktop/enforce-file-suffix -- Node daemon lifecycle boundary
-
 import type { DaemonConfig } from './config.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import {
+  getBuildExpirationStatus,
+  type BuildExpirationStatus,
+} from './build_expiration.node.ts';
 
 export type DaemonPhase =
   | 'created'
   | 'opening-profile'
   | 'database-ready'
   | 'ready'
+  | 'expired'
   | 'stopping'
   | 'stopped'
   | 'failed';
 
 export type DaemonStatus = Readonly<{
-  buildExpiration: Readonly<{
-    days: 90;
-    managedExternally: true;
-  }>;
+  buildExpiration: BuildExpirationStatus;
   connected: boolean;
   databaseReady: boolean;
   linked: boolean;
@@ -69,6 +69,9 @@ export type RuntimeDependencies = Readonly<{
   openProtocolStores: (sql: HeadlessSql) => Promise<HeadlessProtocolStores>;
   controlService?: RuntimeService;
   protocolRuntime?: ProtocolRuntime;
+  buildCreation: number;
+  buildExpiration: number;
+  now?: () => number;
 }>;
 
 export class DaemonRuntime {
@@ -79,6 +82,7 @@ export class DaemonRuntime {
   #reason: string | undefined;
   #sql: HeadlessSql | undefined;
   #protocolStores: HeadlessProtocolStores | undefined;
+  #expirationTimer: NodeJS.Timeout | undefined;
 
   constructor(config: DaemonConfig, dependencies: RuntimeDependencies) {
     this.#config = config;
@@ -87,9 +91,10 @@ export class DaemonRuntime {
 
   public getStatus(): DaemonStatus {
     const protocol = this.#dependencies.protocolRuntime;
-    const ready = this.#phase === 'ready';
+    const buildExpiration = this.#getBuildExpiration();
+    const ready = this.#phase === 'ready' && !buildExpiration.expired;
     return {
-      buildExpiration: { days: 90, managedExternally: true },
+      buildExpiration,
       connected:
         ready && this.#config.connect && (protocol?.connected ?? false),
       databaseReady: this.#sql != null,
@@ -140,6 +145,14 @@ export class DaemonRuntime {
       };
       await this.#dependencies.controlService?.prepare(serviceContext);
 
+      if (this.#getBuildExpiration().expired) {
+        this.#reason =
+          'This daemon build has expired; rebuild from current upstream Signal Desktop';
+        await this.#dependencies.controlService?.start();
+        this.#phase = 'expired';
+        return;
+      }
+
       if (this.#config.connect) {
         const protocolRuntime = this.#dependencies.protocolRuntime;
         if (!protocolRuntime) {
@@ -153,6 +166,7 @@ export class DaemonRuntime {
       await this.#dependencies.controlService?.start();
 
       this.#phase = 'ready';
+      this.#scheduleExpiration();
     } catch (error) {
       this.#reason = error instanceof Error ? error.message : String(error);
       this.#phase = 'failed';
@@ -181,6 +195,10 @@ export class DaemonRuntime {
   }
 
   async #cleanup(): Promise<void> {
+    if (this.#expirationTimer) {
+      clearTimeout(this.#expirationTimer);
+      this.#expirationTimer = undefined;
+    }
     const errors = new Array<unknown>();
     for (const operation of [
       () => this.#dependencies.controlService?.stop(),
@@ -202,6 +220,43 @@ export class DaemonRuntime {
         errors,
         'Multiple daemon services failed to stop'
       );
+    }
+  }
+
+  #getBuildExpiration(): BuildExpirationStatus {
+    return getBuildExpirationStatus(
+      this.#dependencies.buildCreation,
+      this.#dependencies.buildExpiration,
+      (this.#dependencies.now ?? Date.now)()
+    );
+  }
+
+  #scheduleExpiration(): void {
+    const remaining =
+      this.#dependencies.buildExpiration -
+      (this.#dependencies.now ?? Date.now)();
+    const delay = Math.max(1, Math.min(remaining, 2_147_483_647));
+    this.#expirationTimer = setTimeout(() => {
+      this.#expirationTimer = undefined;
+      if (!this.#getBuildExpiration().expired) {
+        this.#scheduleExpiration();
+        return;
+      }
+      this.#reason =
+        'This daemon build has expired; rebuild from current upstream Signal Desktop';
+      this.#phase = 'expired';
+      void this.#stopExpiredTransport();
+    }, delay);
+    this.#expirationTimer.unref();
+  }
+
+  async #stopExpiredTransport(): Promise<void> {
+    try {
+      await this.#dependencies.protocolRuntime?.stop();
+    } catch (error) {
+      this.#reason = `Build expired and Signal transport shutdown failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
     }
   }
 }

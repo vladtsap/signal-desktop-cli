@@ -8,6 +8,11 @@ import type { DaemonConfig } from './config.node.ts';
 import { DaemonRuntime, type RuntimeDependencies } from './runtime.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { DAY } from '../util/durations/index.std.ts';
+
+const BUILD_CREATED_AT = Date.UTC(2026, 6, 1);
+const BUILD_EXPIRES_AT = BUILD_CREATED_AT + 90 * DAY;
+const NOW = BUILD_CREATED_AT + 45 * DAY;
 
 const config: DaemonConfig = {
   apiHost: '127.0.0.1',
@@ -49,6 +54,9 @@ function createHarness({ connect = true } = {}) {
   };
   const dependencies: RuntimeDependencies = {
     appVersion: '8.21.0-alpha.1',
+    buildCreation: BUILD_CREATED_AT,
+    buildExpiration: BUILD_EXPIRES_AT,
+    now: () => NOW,
     async loadProfile(storagePath) {
       events.push('profile:load');
       return { sqlKey: 'ab'.repeat(32), storagePath };
@@ -84,7 +92,15 @@ void test('DaemonRuntime starts and drains protocol before SQL', async () => {
   const { events, runtime } = createHarness();
   await runtime.start();
   assert.deepEqual(runtime.getStatus(), {
-    buildExpiration: { days: 90, managedExternally: true },
+    buildExpiration: {
+      createdAt: BUILD_CREATED_AT,
+      createdAtIso: new Date(BUILD_CREATED_AT).toISOString(),
+      daysRemaining: 45,
+      expired: false,
+      expiresAt: BUILD_EXPIRES_AT,
+      expiresAtIso: new Date(BUILD_EXPIRES_AT).toISOString(),
+      validityDays: 90,
+    },
     connected: true,
     databaseReady: true,
     linked: true,
@@ -102,6 +118,36 @@ void test('DaemonRuntime starts and drains protocol before SQL', async () => {
     'sql:close',
   ]);
   assert.equal(runtime.getStatus().phase, 'stopped');
+});
+
+void test('DaemonRuntime stays offline and exposes readiness after build expiry', async () => {
+  const { dependencies, events } = createHarness();
+  const runtime = new DaemonRuntime(config, {
+    ...dependencies,
+    now: () => BUILD_EXPIRES_AT,
+    controlService: {
+      prepare() {
+        events.push('control:prepare');
+      },
+      start() {
+        events.push('control:start');
+      },
+      stop() {
+        events.push('control:stop');
+      },
+    },
+  });
+
+  await runtime.start();
+  const status = runtime.getStatus();
+  assert.equal(status.phase, 'expired');
+  assert.equal(status.ready, false);
+  assert.equal(status.connected, false);
+  assert.equal(status.buildExpiration.expired, true);
+  assert.match(status.reason ?? '', /build has expired/);
+  assert.equal(events.includes('protocol:start'), false);
+  assert.equal(events.includes('control:start'), true);
+  await runtime.stop();
 });
 
 void test('DaemonRuntime can validate a profile without network access', async () => {

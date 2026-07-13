@@ -8,6 +8,7 @@ import { test } from 'node:test';
 
 const daemonModules = [
   'api.node.ts',
+  'build_expiration.node.ts',
   'config.node.ts',
   'client_sql.node.ts',
   'conversations.node.ts',

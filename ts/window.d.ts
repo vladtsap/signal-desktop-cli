@@ -151,6 +151,7 @@ declare global {
     getAppInstance: () => string | undefined;
     getBuildCreation: () => number;
     getBuildExpiration: () => number;
+    getUpdatesEnabled: () => boolean;
     getHostName: () => string;
     getInteractionMode: () => 'mouse' | 'keyboard';
     getServerPublicParams: () => string;

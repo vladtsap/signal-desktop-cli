@@ -2910,6 +2910,7 @@ ipc.on('get-config', async event => {
     version: app.getVersion(),
     buildCreation: config.get<number>('buildCreation'),
     buildExpiration: config.get<number>('buildExpiration'),
+    updatesEnabled: config.get<boolean>('updatesEnabled'),
     challengeUrl: config.get<string>('challengeUrl'),
     serverUrl: config.get<string>('serverUrl'),
     storageUrl: config.get<string>('storageUrl'),

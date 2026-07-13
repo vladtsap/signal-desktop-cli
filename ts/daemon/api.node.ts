@@ -275,6 +275,13 @@ export class HeadlessControlService {
           false
         );
       }
+      if (!this.#getStatus().ready) {
+        throw new HeadlessSendError(
+          'Signal service is not ready',
+          'not-connected',
+          true
+        );
+      }
       const controller = new AbortController();
       this.#controllers.add(controller);
       request.once('aborted', () => controller.abort());

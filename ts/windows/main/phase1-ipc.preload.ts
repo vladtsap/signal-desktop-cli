@@ -65,6 +65,7 @@ window.getAppInstance = () => config.appInstance;
 window.getVersion = () => config.version;
 window.getBuildCreation = () => parseIntWithFallback(config.buildCreation, 0);
 window.getBuildExpiration = () => config.buildExpiration;
+window.getUpdatesEnabled = () => config.updatesEnabled;
 window.getHostName = () => config.hostname;
 window.getServerTrustRoots = () => config.serverTrustRoots;
 window.getServerPublicParams = () => config.serverPublicParams;

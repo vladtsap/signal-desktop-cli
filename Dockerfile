@@ -2,7 +2,7 @@
 
 ARG NODE_VERSION=24.17.0
 
-FROM node:${NODE_VERSION}-bookworm AS ui-build
+FROM node:${NODE_VERSION}-bookworm AS source-build
 
 ARG TARGETARCH
 ARG SOURCE_DATE_EPOCH=1783615919
@@ -31,6 +31,9 @@ WORKDIR /src
 COPY . .
 
 RUN pnpm install --frozen-lockfile
+
+FROM source-build AS ui-build
+
 RUN pnpm run build-linux
 
 FROM debian:bookworm-slim AS signal-ui
@@ -126,6 +129,34 @@ VOLUME ["/var/lib/signal-state"]
 USER signal
 ENTRYPOINT ["/usr/local/bin/signal-state"]
 
+FROM source-build AS daemon-runtime
+
+RUN pnpm run build:protobuf \
+    && pnpm run build:emoji-data \
+    && pnpm run get-expire-time \
+    && pnpm run build:rolldown:prod
+
+RUN node scripts/copy-daemon-runtime.mjs bundles /daemon-runtime/bundles \
+    && install -d /daemon-runtime/node_modules/@signalapp \
+    && cp -aL node_modules/@signalapp/libsignal-client \
+      /daemon-runtime/node_modules/@signalapp/libsignal-client \
+    && cp -aL node_modules/@signalapp/sqlcipher \
+      /daemon-runtime/node_modules/@signalapp/sqlcipher \
+    && cp -aL node_modules/@signalapp/ringrtc \
+      /daemon-runtime/node_modules/@signalapp/ringrtc \
+    && cp -aL node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build \
+      /daemon-runtime/node_modules/node-gyp-build \
+    && find /daemon-runtime/node_modules/@signalapp/libsignal-client/prebuilds \
+      -mindepth 1 -maxdepth 1 -type d ! -name linux-x64 -exec rm -rf {} + \
+    && find /daemon-runtime/node_modules/@signalapp/sqlcipher/prebuilds \
+      -mindepth 1 -maxdepth 1 -type d ! -name linux-x64 -exec rm -rf {} + \
+    && find /daemon-runtime/node_modules/@signalapp/ringrtc/build \
+      -mindepth 1 -maxdepth 1 -type d ! -name linux -exec rm -rf {} + \
+    && find /daemon-runtime/node_modules/@signalapp/ringrtc/build/linux \
+      -type f ! -name 'libringrtc-x64.node' -delete \
+    && rm -rf /daemon-runtime/node_modules/@signalapp/ringrtc/scripts \
+    && find /daemon-runtime -type f \( -name '*.d.ts' -o -name '*.map' \) -delete
+
 FROM node:${NODE_VERSION}-bookworm-slim AS signal-daemon
 
 ARG SIGNAL_UID=10001
@@ -134,6 +165,7 @@ ARG SIGNAL_GID=10001
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
       ca-certificates \
+      libpulse0 \
       tini \
       util-linux \
     && rm -rf /var/lib/apt/lists/* \
@@ -144,8 +176,7 @@ RUN apt-get update \
       /var/lib/signal-state/profile \
       /opt/signal-desktop
 
-COPY --from=ui-build /src/bundles /opt/signal-desktop/bundles
-COPY --from=ui-build /src/node_modules /opt/signal-desktop/node_modules
+COPY --from=daemon-runtime /daemon-runtime/ /opt/signal-desktop/
 COPY --chmod=0755 docker/daemon-entrypoint.sh /usr/local/bin/signal-daemon-entrypoint
 
 ENV HOME=/home/signal \

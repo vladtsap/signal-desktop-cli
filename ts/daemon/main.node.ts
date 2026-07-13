@@ -3,6 +3,7 @@
 
 import packageJson from '../../package.json' with { type: 'json' };
 import productionConfig from '../../config/production.json' with { type: 'json' };
+import localProductionConfig from '../../config/local-production.json' with { type: 'json' };
 
 import { loadDaemonConfig } from './config.node.ts';
 import { HeadlessControlService } from './api.node.ts';
@@ -35,6 +36,8 @@ async function main(): Promise<void> {
   });
   const runtime = new DaemonRuntime(config, {
     appVersion: packageJson.version,
+    buildCreation: localProductionConfig.buildCreation,
+    buildExpiration: localProductionConfig.buildExpiration,
     loadProfile: (await import('./profile.node.ts')).loadPortableProfile,
     openSql: (await import('./sql.node.ts')).openHeadlessSql,
     openProtocolStores: (await import('./protocol_stores.node.ts'))
