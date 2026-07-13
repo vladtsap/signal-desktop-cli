@@ -228,15 +228,15 @@ After the startup check succeeds, each newly persisted, supported direct text me
   "update_id": "7484932459384721",
   "message": {
     "message_id": "incoming-message-uuid",
-    "date": 1783960000,
+    "date": 1783960000000,
     "text": "hello",
     "from": { "id": "sender-aci" },
-    "chat": { "id": "local-conversation-uuid", "type": "private" }
+    "chat": { "id": "sender-aci", "type": "private" }
   }
 }
 ```
 
-The IDs are strings. `date` is the Signal sent time in Unix seconds. `update_id` is deterministically derived from `message_id`, so consumers can deduplicate it.
+The IDs are strings. `date` is Signal's exact sent time in Unix milliseconds, matching the timestamp shown by Signal Desktop. Because only direct messages are supported, `chat.id` and `from.id` are both the sender's stable Signal ACI; that ACI can also be used as the send API's `destination`. `update_id` is a separate value deterministically derived from `message_id`, so consumers can deduplicate retries without relying on timestamps, which are not guaranteed to be unique.
 
 When `SIGNAL_WEBHOOK_SECRET` is set, the request includes:
 

@@ -155,6 +155,16 @@ void test('outbox encrypts, signs, retries, and delivers in order', async () => 
       (update.message as { message_id: string }).message_id,
       'message-one'
     );
+    assert.deepEqual(update.message, {
+      chat: {
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        type: 'private',
+      },
+      date: 1_000,
+      from: { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' },
+      message_id: 'message-one',
+      text: 'text-message-one',
+    });
     const encrypted = await readFile(
       join(storagePath, 'headless-webhook-outbox.enc'),
       'utf8'

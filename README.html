@@ -891,13 +891,24 @@ networks:
   "update_id": "7484932459384721",
   "message": {
     "message_id": "incoming-message-uuid",
-    "date": 1783960000,
+    "date": 1783960000000,
     "text": "hello",
     "from": { "id": "sender-aci" },
-    "chat": { "id": "local-conversation-uuid", "type": "private" }
+    "chat": { "id": "sender-aci", "type": "private" }
   }
 }</code></pre>
           </div>
+          <p>
+            IDs are strings. <code>date</code> is Signal's exact sent time in
+            Unix milliseconds, matching Signal Desktop. Because only direct
+            messages are supported, <code>chat.id</code> and
+            <code>from.id</code> are both the sender's stable Signal ACI; that
+            ACI can also be used as the send API's <code>destination</code>.
+            <code>update_id</code> is separately derived from
+            <code>message_id</code>, allowing consumers to deduplicate retries
+            without relying on timestamps, which are not guaranteed to be
+            unique.
+          </p>
 
           <h3>Verify webhook signatures</h3>
           <p>

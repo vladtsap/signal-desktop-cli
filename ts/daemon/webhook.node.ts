@@ -131,8 +131,8 @@ function toWebhookUpdate(
     return undefined;
   return {
     message: {
-      chat: { id: message.conversationId, type: 'private' },
-      date: Math.floor(message.sent_at / 1_000),
+      chat: { id: message.sourceServiceId, type: 'private' },
+      date: message.sent_at,
       from: { id: message.sourceServiceId },
       message_id: message.id,
       text: message.body,
