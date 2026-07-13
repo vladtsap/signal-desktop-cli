@@ -188,6 +188,32 @@ export class DurableWebhookOutbox {
     return this.#state.entries.length;
   }
 
+  public async checkEndpoint(): Promise<void> {
+    if (!this.#url) return;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.#timeoutMs);
+    try {
+      let response: Response;
+      try {
+        response = await this.#fetch(this.#url, {
+          method: 'GET',
+          redirect: 'manual',
+          signal: controller.signal,
+        });
+      } catch (error) {
+        throw new Error('Webhook startup check failed', { cause: error });
+      }
+      await response.body?.cancel().catch(() => undefined);
+      if (response.status !== 200) {
+        throw new Error(
+          `Webhook startup check returned HTTP ${response.status}; expected 200`
+        );
+      }
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   public async prepare(): Promise<void> {
     let exists = true;
     try {

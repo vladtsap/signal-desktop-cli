@@ -197,6 +197,7 @@ export class HeadlessControlService {
           ...(this.#config.webhookUrl ? { url: this.#config.webhookUrl } : {}),
         });
     await this.#outbox.prepare();
+    await this.#outbox.checkEndpoint();
   }
 
   public async start(): Promise<void> {

@@ -45,6 +45,59 @@ function fakeSql(messages: Array<MessageAttributesType>): HeadlessSql {
   };
 }
 
+void test('startup endpoint check requires an exact HTTP 200 GET', async () => {
+  const storagePath = await mkdtemp(join(tmpdir(), 'signal-webhook-check-'));
+  const requests = new Array<RequestInit>();
+  let status = 200;
+  const outbox = new DurableWebhookOutbox(fakeSql([]), {
+    fetch: async (_input, init) => {
+      requests.push(init ?? {});
+      return new Response(null, { status });
+    },
+    maxPending: 10,
+    profileKey: 'ab'.repeat(32),
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await outbox.checkEndpoint();
+    assert.equal(requests[0]?.method, 'GET');
+    assert.equal(requests[0]?.redirect, 'manual');
+
+    status = 204;
+    await assert.rejects(outbox.checkEndpoint(), /HTTP 204; expected 200/);
+  } finally {
+    await outbox.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
+void test('startup endpoint check fails on network errors', async () => {
+  const storagePath = await mkdtemp(
+    join(tmpdir(), 'signal-webhook-check-error-')
+  );
+  const outbox = new DurableWebhookOutbox(fakeSql([]), {
+    fetch: async () => {
+      throw new Error('offline');
+    },
+    maxPending: 10,
+    profileKey: 'ab'.repeat(32),
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await assert.rejects(
+      outbox.checkEndpoint(),
+      /Webhook startup check failed/
+    );
+  } finally {
+    await outbox.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
 async function waitFor(check: () => boolean): Promise<void> {
   const deadline = Date.now() + 4_000;
   while (!check()) {

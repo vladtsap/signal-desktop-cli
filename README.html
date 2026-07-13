@@ -873,8 +873,18 @@ networks:
         <section id="webhooks">
           <h2>6. Receive incoming webhooks</h2>
           <p>
-            Set <code>SIGNAL_WEBHOOK_URL</code> before starting the daemon. Each
-            newly persisted supported direct text becomes one JSON POST:
+            Set <code>SIGNAL_WEBHOOK_URL</code> before starting the daemon.
+            During every startup, before Signal and the control API become
+            ready, the daemon sends a bodyless GET to that exact URL. Only an
+            exact HTTP 200 succeeds. Redirects are not followed; timeouts,
+            network errors, and all other statuses fail startup. The GET has no
+            webhook HMAC signature. With Compose's restart policy, Docker keeps
+            restarting the daemon until the endpoint returns 200. No check runs
+            when the URL is unset.
+          </p>
+          <p>
+            After the startup check succeeds, each newly persisted supported
+            direct text becomes one JSON POST:
           </p>
           <div class="code-wrap">
             <pre><code>{
@@ -1126,7 +1136,9 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
               <tr>
                 <td><code>SIGNAL_WEBHOOK_URL</code></td>
                 <td>unset</td>
-                <td>HTTP(S) endpoint for incoming text updates.</td>
+                <td>
+                  HTTP(S) endpoint; exact GET 200 required during startup.
+                </td>
               </tr>
               <tr>
                 <td><code>SIGNAL_WEBHOOK_SECRET</code></td>
@@ -1136,7 +1148,7 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
               <tr>
                 <td><code>SIGNAL_WEBHOOK_TIMEOUT_MS</code></td>
                 <td>10000</td>
-                <td>Webhook attempt timeout.</td>
+                <td>Startup GET and delivery POST timeout.</td>
               </tr>
               <tr>
                 <td><code>SIGNAL_WEBHOOK_MAX_PENDING</code></td>

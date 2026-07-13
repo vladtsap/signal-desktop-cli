@@ -55,6 +55,16 @@ function status(): DaemonStatus {
 void test('control API exposes health and protects validated sends', async () => {
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-api-'));
   const apiPort = await availablePort();
+  const webhookMethods = new Array<string>();
+  const webhookServer = createServer((request, response) => {
+    webhookMethods.push(request.method ?? '');
+    response.writeHead(200).end();
+  });
+  await new Promise<void>(resolve =>
+    webhookServer.listen(0, '127.0.0.1', resolve)
+  );
+  const webhookAddress = webhookServer.address();
+  assert.ok(webhookAddress && typeof webhookAddress !== 'string');
   const config: DaemonConfig = {
     apiHost: '127.0.0.1',
     apiPort,
@@ -66,6 +76,7 @@ void test('control API exposes health and protects validated sends', async () =>
     storagePath,
     webhookMaxPending: 10,
     webhookTimeoutMs: 1_000,
+    webhookUrl: `http://127.0.0.1:${webhookAddress.port}/hook`,
   };
   const sql = {
     close: async () => undefined,
@@ -110,6 +121,7 @@ void test('control API exposes health and protects validated sends', async () =>
   };
   try {
     await service.prepare(context);
+    assert.deepEqual(webhookMethods, ['GET']);
     await service.start();
     const base = `http://127.0.0.1:${apiPort}`;
     const health = await fetch(`${base}/healthz`);
@@ -171,6 +183,7 @@ void test('control API exposes health and protects validated sends', async () =>
     });
   } finally {
     await service.stop();
+    await new Promise<void>(resolve => webhookServer.close(() => resolve()));
     await rm(storagePath, { force: true, recursive: true });
   }
 });

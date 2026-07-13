@@ -219,7 +219,9 @@ The API is bound to host loopback by Compose. To call it from another container,
 
 ## Incoming webhooks
 
-Set `SIGNAL_WEBHOOK_URL` to an HTTP or HTTPS endpoint. Each newly persisted, supported direct text message is delivered as one JSON POST:
+Set `SIGNAL_WEBHOOK_URL` to an HTTP or HTTPS endpoint. During every daemon startup, before the Signal transport and control API become ready, the daemon sends a bodyless GET request to that exact URL. Startup continues only for an exact HTTP 200 response. Redirects are not followed; timeouts, network errors, and every other status fail startup. The GET carries no webhook HMAC signature. With Compose's `restart: unless-stopped`, Docker keeps restarting a failed daemon until the endpoint returns 200. No startup check is made when `SIGNAL_WEBHOOK_URL` is unset.
+
+After the startup check succeeds, each newly persisted, supported direct text message is delivered as one JSON POST:
 
 ```json
 {
@@ -323,9 +325,9 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 | `SIGNAL_DAEMON_CONNECT`             | `true`  | `true`/`false` or `1`/`0`; controls Signal network connection.                       |
 | `SIGNAL_DAEMON_LOG_LEVEL`           | `info`  | Parsed values: `debug`, `info`, `warn`, `error`. Reserved for daemon logging policy. |
 | `SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS` | `30000` | Graceful internal shutdown deadline, 1,000–120,000 ms.                               |
-| `SIGNAL_WEBHOOK_URL`                | unset   | HTTP(S) destination; unset disables delivery.                                        |
+| `SIGNAL_WEBHOOK_URL`                | unset   | HTTP(S) destination; exact GET 200 required at startup when set.                     |
 | `SIGNAL_WEBHOOK_SECRET`             | unset   | HMAC secret, minimum 16 characters.                                                  |
-| `SIGNAL_WEBHOOK_TIMEOUT_MS`         | `10000` | Per-attempt timeout, 1,000–120,000 ms.                                               |
+| `SIGNAL_WEBHOOK_TIMEOUT_MS`         | `10000` | Startup GET and POST attempt timeout, 1,000–120,000 ms.                              |
 | `SIGNAL_WEBHOOK_MAX_PENDING`        | `1000`  | Durable undelivered updates, 1–10,000; a full queue applies receive backpressure.    |
 | `SIGNAL_MEMORY_LIMIT`               | `512m`  | Hard Compose daemon memory limit.                                                    |
 | `SIGNAL_PIDS_LIMIT`                 | `128`   | Compose daemon process limit.                                                        |
