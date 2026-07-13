@@ -10,11 +10,15 @@ import type { HeadlessSql } from './sql.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 
 const config: DaemonConfig = {
+  apiHost: '127.0.0.1',
+  apiPort: 8080,
   connect: true,
   logLevel: 'info',
   profileLockPath: '/state/lock',
   shutdownTimeoutMs: 30_000,
   storagePath: '/state/profile',
+  webhookMaxPending: 1_000,
+  webhookTimeoutMs: 10_000,
 };
 
 function createHarness({ connect = true } = {}) {
@@ -123,4 +127,32 @@ void test('DaemonRuntime refuses an online start without a protocol adapter', as
   assert.equal(withoutProtocol.getStatus().phase, 'failed');
   assert.equal(withoutProtocol.getStatus().databaseReady, false);
   assert.equal(runtime.getStatus().phase, 'created');
+});
+
+void test('DaemonRuntime closes SQL when an earlier service fails to stop', async () => {
+  const { dependencies, events } = createHarness();
+  const runtime = new DaemonRuntime(config, {
+    ...dependencies,
+    controlService: {
+      prepare() {
+        events.push('control:prepare');
+      },
+      start() {
+        events.push('control:start');
+      },
+      stop() {
+        events.push('control:stop');
+        throw new Error('control stop failed');
+      },
+    },
+  });
+  await runtime.start();
+  await assert.rejects(runtime.stop(), /control stop failed/);
+  assert.deepEqual(events.slice(-3), [
+    'control:stop',
+    'protocol:stop',
+    'sql:close',
+  ]);
+  assert.equal(runtime.getStatus().phase, 'stopped');
+  assert.equal(runtime.getStatus().databaseReady, false);
 });

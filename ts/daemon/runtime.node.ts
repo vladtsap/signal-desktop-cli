@@ -40,6 +40,19 @@ export type ProtocolRuntime = Readonly<{
   stop: () => Promise<void> | void;
 }>;
 
+export type RuntimeServiceContext = Readonly<{
+  items: Record<string, unknown>;
+  profileSqlKey: string;
+  protocolStores: HeadlessProtocolStores;
+  sql: HeadlessSql;
+}>;
+
+export type RuntimeService = Readonly<{
+  prepare: (context: RuntimeServiceContext) => Promise<void> | void;
+  start: () => Promise<void> | void;
+  stop: () => Promise<void> | void;
+}>;
+
 export type RuntimeDependencies = Readonly<{
   appVersion: string;
   loadProfile: (storagePath: string) => Promise<{
@@ -54,6 +67,7 @@ export type RuntimeDependencies = Readonly<{
     }>
   ) => HeadlessSql;
   openProtocolStores: (sql: HeadlessSql) => Promise<HeadlessProtocolStores>;
+  controlService?: RuntimeService;
   protocolRuntime?: ProtocolRuntime;
 }>;
 
@@ -118,6 +132,14 @@ export class DaemonRuntime {
         throw new Error('Signal profile exists but is not a linked device');
       }
 
+      const serviceContext = {
+        items,
+        profileSqlKey: profile.sqlKey,
+        protocolStores: this.#protocolStores,
+        sql: this.#sql,
+      };
+      await this.#dependencies.controlService?.prepare(serviceContext);
+
       if (this.#config.connect) {
         const protocolRuntime = this.#dependencies.protocolRuntime;
         if (!protocolRuntime) {
@@ -125,20 +147,23 @@ export class DaemonRuntime {
             'Headless protocol bootstrap is unavailable: upstream MessageReceiver and protocol stores still depend on the Electron preload global runtime'
           );
         }
-        await protocolRuntime.start({
-          items,
-          protocolStores: this.#protocolStores,
-          sql: this.#sql,
-        });
+        await protocolRuntime.start(serviceContext);
       }
+
+      await this.#dependencies.controlService?.start();
 
       this.#phase = 'ready';
     } catch (error) {
       this.#reason = error instanceof Error ? error.message : String(error);
       this.#phase = 'failed';
-      await this.#sql?.close();
-      this.#sql = undefined;
-      this.#protocolStores = undefined;
+      try {
+        await this.#cleanup();
+      } catch (cleanupError) {
+        throw new AggregateError(
+          [error, cleanupError],
+          'Daemon startup and cleanup both failed'
+        );
+      }
       throw error;
     }
   }
@@ -149,12 +174,34 @@ export class DaemonRuntime {
     }
     this.#phase = 'stopping';
     try {
-      await this.#dependencies.protocolRuntime?.stop();
-      await this.#sql?.close();
-      this.#sql = undefined;
-      this.#protocolStores = undefined;
+      await this.#cleanup();
     } finally {
       this.#phase = 'stopped';
+    }
+  }
+
+  async #cleanup(): Promise<void> {
+    const errors = new Array<unknown>();
+    for (const operation of [
+      () => this.#dependencies.controlService?.stop(),
+      () => this.#dependencies.protocolRuntime?.stop(),
+      () => this.#sql?.close(),
+    ]) {
+      try {
+        // oxlint-disable-next-line eslint/no-await-in-loop -- shutdown order is security-sensitive
+        await operation();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    this.#sql = undefined;
+    this.#protocolStores = undefined;
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1) {
+      throw new AggregateError(
+        errors,
+        'Multiple daemon services failed to stop'
+      );
     }
   }
 }

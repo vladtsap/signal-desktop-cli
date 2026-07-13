@@ -5,6 +5,7 @@ import packageJson from '../../package.json' with { type: 'json' };
 import productionConfig from '../../config/production.json' with { type: 'json' };
 
 import { loadDaemonConfig } from './config.node.ts';
+import { HeadlessControlService } from './api.node.ts';
 import { waitForTermination } from './lifecycle.node.ts';
 import { DaemonRuntime } from './runtime.node.ts';
 
@@ -13,10 +14,24 @@ async function main(): Promise<void> {
   const transport = (
     await import('./transport.node.ts')
   ).createHeadlessTransportRuntime(packageJson.version);
+  const services: {
+    control?: HeadlessControlService;
+    runtime?: DaemonRuntime;
+  } = {};
   const protocolRuntime = (
     await import('./receive.node.ts')
   ).createHeadlessReceiveRuntime(transport, {
+    onPersistedMessage: message => {
+      if (!services.control) throw new Error('Control service is unavailable');
+      return services.control.handleIncoming(message);
+    },
     serverTrustRoots: productionConfig.serverTrustRoots,
+  });
+  const controlService = new HeadlessControlService(config, transport, {
+    getStatus: () => {
+      if (!services.runtime) throw new Error('Daemon runtime is unavailable');
+      return services.runtime.getStatus();
+    },
   });
   const runtime = new DaemonRuntime(config, {
     appVersion: packageJson.version,
@@ -24,8 +39,11 @@ async function main(): Promise<void> {
     openSql: (await import('./sql.node.ts')).openHeadlessSql,
     openProtocolStores: (await import('./protocol_stores.node.ts'))
       .openHeadlessProtocolStores,
+    controlService,
     protocolRuntime,
   });
+  services.control = controlService;
+  services.runtime = runtime;
 
   await runtime.start();
   // oxlint-disable-next-line no-console

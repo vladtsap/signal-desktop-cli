@@ -10,7 +10,13 @@ const booleanValue = z
   .default('true')
   .transform(value => value === '1' || value === 'true');
 
+const emptyAsUndefined = <Schema extends z.ZodType>(schema: Schema) =>
+  z.preprocess(value => (value === '' ? undefined : value), schema.optional());
+
 const environmentSchema = z.object({
+  SIGNAL_API_HOST: z.string().min(1).default('127.0.0.1'),
+  SIGNAL_API_PORT: z.coerce.number().int().min(1).max(65_535).default(8080),
+  SIGNAL_API_TOKEN: emptyAsUndefined(z.string().min(16)),
   SIGNAL_DAEMON_CONNECT: booleanValue,
   SIGNAL_DAEMON_LOG_LEVEL: z
     .enum(['debug', 'info', 'warn', 'error'])
@@ -26,14 +32,42 @@ const environmentSchema = z.object({
     .string()
     .min(1)
     .default('/var/lib/signal-state/profile'),
+  SIGNAL_WEBHOOK_MAX_PENDING: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(10_000)
+    .default(1_000),
+  SIGNAL_WEBHOOK_SECRET: emptyAsUndefined(z.string().min(16)),
+  SIGNAL_WEBHOOK_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(120_000)
+    .default(10_000),
+  SIGNAL_WEBHOOK_URL: emptyAsUndefined(
+    z
+      .string()
+      .url()
+      .refine(value => ['http:', 'https:'].includes(new URL(value).protocol), {
+        message: 'SIGNAL_WEBHOOK_URL must use http or https',
+      })
+  ),
 });
 
 export type DaemonConfig = Readonly<{
+  apiHost: string;
+  apiPort: number;
+  apiToken?: string;
   connect: boolean;
   logLevel: 'debug' | 'info' | 'warn' | 'error';
   profileLockPath: string;
   shutdownTimeoutMs: number;
   storagePath: string;
+  webhookMaxPending: number;
+  webhookSecret?: string;
+  webhookTimeoutMs: number;
+  webhookUrl?: string;
 }>;
 
 export function loadDaemonConfig(
@@ -57,10 +91,21 @@ export function loadDaemonConfig(
   }
 
   return {
+    apiHost: parsed.SIGNAL_API_HOST,
+    apiPort: parsed.SIGNAL_API_PORT,
+    ...(parsed.SIGNAL_API_TOKEN ? { apiToken: parsed.SIGNAL_API_TOKEN } : {}),
     connect: parsed.SIGNAL_DAEMON_CONNECT,
     logLevel: parsed.SIGNAL_DAEMON_LOG_LEVEL,
     profileLockPath,
     shutdownTimeoutMs: parsed.SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS,
     storagePath,
+    webhookMaxPending: parsed.SIGNAL_WEBHOOK_MAX_PENDING,
+    ...(parsed.SIGNAL_WEBHOOK_SECRET
+      ? { webhookSecret: parsed.SIGNAL_WEBHOOK_SECRET }
+      : {}),
+    webhookTimeoutMs: parsed.SIGNAL_WEBHOOK_TIMEOUT_MS,
+    ...(parsed.SIGNAL_WEBHOOK_URL
+      ? { webhookUrl: parsed.SIGNAL_WEBHOOK_URL }
+      : {}),
   };
 }

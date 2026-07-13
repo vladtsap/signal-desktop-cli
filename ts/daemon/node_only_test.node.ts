@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 
 const daemonModules = [
+  'api.node.ts',
   'config.node.ts',
   'client_sql.node.ts',
   'conversations.node.ts',
@@ -21,6 +22,7 @@ const daemonModules = [
   'runtime.node.ts',
   'sql.node.ts',
   'transport.node.ts',
+  'webhook.node.ts',
   '../SignalProtocolStore.node.ts',
   '../LibSignalStores.node.ts',
   '../textsecure/Storage.node.ts',

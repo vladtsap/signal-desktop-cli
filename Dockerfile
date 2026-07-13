@@ -150,11 +150,14 @@ COPY --chmod=0755 docker/daemon-entrypoint.sh /usr/local/bin/signal-daemon-entry
 
 ENV HOME=/home/signal \
     NODE_ENV=production \
+    SIGNAL_API_HOST=127.0.0.1 \
+    SIGNAL_API_PORT=8080 \
     SIGNAL_DAEMON_CONNECT=true \
     SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS=30000 \
     SIGNAL_PROFILE_LOCK_PATH=/var/lib/signal-state/.signal-desktop-cli.lock \
     SIGNAL_STORAGE_PATH=/var/lib/signal-state/profile
 
+EXPOSE 8080
 VOLUME ["/var/lib/signal-state"]
 USER signal
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/signal-daemon-entrypoint"]

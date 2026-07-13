@@ -9,18 +9,37 @@ services:
       args:
         SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-1783615919}
     environment:
+      SIGNAL_API_HOST: 0.0.0.0
+      SIGNAL_API_PORT: ${SIGNAL_API_PORT:-8080}
+      SIGNAL_API_TOKEN: ${SIGNAL_API_TOKEN:-}
       SIGNAL_DAEMON_CONNECT: ${SIGNAL_DAEMON_CONNECT:-true}
       SIGNAL_DAEMON_LOG_LEVEL: ${SIGNAL_DAEMON_LOG_LEVEL:-info}
       SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS: ${SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS:-30000}
       SIGNAL_PROFILE_LOCK_PATH: /var/lib/signal-state/.signal-desktop-cli.lock
       SIGNAL_STORAGE_PATH: /var/lib/signal-state/profile
+      SIGNAL_WEBHOOK_MAX_PENDING: ${SIGNAL_WEBHOOK_MAX_PENDING:-1000}
+      SIGNAL_WEBHOOK_SECRET: ${SIGNAL_WEBHOOK_SECRET:-}
+      SIGNAL_WEBHOOK_TIMEOUT_MS: ${SIGNAL_WEBHOOK_TIMEOUT_MS:-10000}
+      SIGNAL_WEBHOOK_URL: ${SIGNAL_WEBHOOK_URL:-}
       TZ: ${TZ:-UTC}
+    ports:
+      - '127.0.0.1:${SIGNAL_API_PORT:-8080}:${SIGNAL_API_PORT:-8080}'
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     stop_grace_period: 45s
     volumes:
       - signal-data:/var/lib/signal-state
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          'node -e "fetch(''http://127.0.0.1:'' + process.env.SIGNAL_API_PORT + ''/healthz'').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
 
   signal-ui:
     profiles: [ui]

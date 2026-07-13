@@ -82,6 +82,7 @@ export type HeadlessEnvelopeDecryptor = (
 export type HeadlessReceiveOptions = Readonly<{
   decryptEnvelope?: HeadlessEnvelopeDecryptor;
   maxPendingRequests?: number;
+  onPersistedMessage?: (message: MessageAttributesType) => Promise<void> | void;
   serverTrustRoots: ReadonlyArray<string>;
 }>;
 
@@ -372,6 +373,9 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
   readonly #transport: HeadlessTransportRuntime;
   readonly #decryptEnvelope: HeadlessEnvelopeDecryptor;
   readonly #maxPendingRequests: number;
+  readonly #onPersistedMessage:
+    | ((message: MessageAttributesType) => Promise<void> | void)
+    | undefined;
   #stores: HeadlessProtocolStores | undefined;
   #tail = Promise.resolve();
   #pending = 0;
@@ -386,6 +390,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     this.#transport = transport;
     this.#maxPendingRequests =
       options.maxPendingRequests ?? DEFAULT_MAX_PENDING;
+    this.#onPersistedMessage = options.onPersistedMessage;
     if (
       !Number.isSafeInteger(this.#maxPendingRequests) ||
       this.#maxPendingRequests < 1
@@ -574,7 +579,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         candidate.get('sourceServiceId') === envelope.sourceServiceId &&
         candidate.get('sourceDevice') === envelope.sourceDevice
     );
-    if (duplicate) return;
+    if (duplicate) {
+      await this.#onPersistedMessage?.(duplicate.attributes);
+      return;
+    }
 
     const conversation = stores.conversationController.lookupOrCreate({
       reason: `HeadlessMessageReceiver(${envelope.id})`,
@@ -603,6 +611,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       stores.messageCache.create(attributes)
     );
     await stores.messageCache.saveMessage(model, { forceSave: true });
+    await this.#onPersistedMessage?.(model.attributes);
   }
 }
 
