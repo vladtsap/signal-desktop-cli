@@ -30,6 +30,7 @@ const sendSchema = z
   .object({
     body: z.string().min(1).max(32_768),
     destination: destinationSchema,
+    quote_message_id: z.string().min(1).max(256).optional(),
   })
   .strict();
 
@@ -319,6 +320,9 @@ export class HeadlessControlService {
           {
             body: parsed.data.body,
             destination: parsed.data.destination,
+            ...(parsed.data.quote_message_id
+              ? { quoteMessageId: parsed.data.quote_message_id }
+              : {}),
           },
           controller.signal
         );

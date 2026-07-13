@@ -222,8 +222,9 @@ void test('webhook includes quoted reply context', async () => {
   let delivered: WebhookUpdate | undefined;
   const outbox = new DurableWebhookOutbox(fakeSql(messages), {
     fetch: async (_input, init) => {
-      assert.equal(typeof init?.body, 'string');
-      delivered = JSON.parse(init.body) as WebhookUpdate;
+      const body = init?.body;
+      if (typeof body !== 'string') throw new Error('Expected string body');
+      delivered = JSON.parse(body) as WebhookUpdate;
       return new Response(null, { status: 204 });
     },
     maxPending: 10,

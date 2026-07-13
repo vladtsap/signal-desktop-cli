@@ -812,7 +812,8 @@ curl --fail-with-body \
   -H 'Content-Type: application/json' \
   --data '{
     "destination": "+12025550123",
-    "body": "hello from the headless client"
+    "body": "hello from the headless client",
+    "quote_message_id": "incoming-message-uuid"
   }' \
   http://127.0.0.1:8080/v1/messages</code></pre>
           </div>
@@ -831,10 +832,16 @@ curl --fail-with-body \
               restored profile.
             </li>
             <li>Body: 1–32,768 characters.</li>
+            <li>
+              Optional quoted reply: set <code>quote_message_id</code> to the
+              opaque ID from an earlier webhook's
+              <code>message.message_id</code>. The referenced message must still
+              exist locally and belong to the destination conversation.
+            </li>
             <li>Request body limit: 64 KiB.</li>
             <li>
-              These are the only accepted fields. Every POST creates a fresh
-              message ID; repeating the same request can send a duplicate.
+              No other fields are accepted. Every POST creates a fresh message
+              ID; repeating the same request can send a duplicate.
             </li>
             <li>
               If Signal explicitly rejects the encrypted payload because the

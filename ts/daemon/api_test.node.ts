@@ -306,3 +306,77 @@ void test('control service aborts and drains an active send before stopping', as
     await rm(storagePath, { force: true, recursive: true });
   }
 });
+
+void test('control API forwards a quoted message id', async () => {
+  const storagePath = await mkdtemp(join(tmpdir(), 'signal-api-quote-'));
+  const apiPort = await availablePort();
+  const requests = new Array<Record<string, unknown>>();
+  const config: DaemonConfig = {
+    apiHost: '127.0.0.1',
+    apiPort,
+    apiToken: TOKEN,
+    connect: false,
+    logLevel: 'info',
+    profileLockPath: join(storagePath, '.lock'),
+    shutdownTimeoutMs: 30_000,
+    storagePath,
+    webhookMaxPending: 10,
+    webhookTimeoutMs: 1_000,
+  };
+  const sql = {
+    close: async () => undefined,
+    read: (async method => {
+      if (method === '_getAllMessages' || method === 'getAllConversations') {
+        return [];
+      }
+      throw new Error(`Unexpected SQL read: ${method}`);
+    }) as HeadlessSql['read'],
+    write: (async () => undefined) as HeadlessSql['write'],
+  } satisfies HeadlessSql;
+  const service = new HeadlessControlService({ ...config }, {} as never, {
+    createSendService: () => ({
+      async sendText(request) {
+        requests.push(request);
+        return {
+          destination: request.destination as AciString,
+          messageId: 'outgoing-id',
+          status: 'sent',
+          timestamp: 1,
+        };
+      },
+    }),
+    getStatus: status,
+  });
+  try {
+    await service.prepare({
+      items: {},
+      profileSqlKey: 'ab'.repeat(32),
+      protocolStores: {} as HeadlessProtocolStores,
+      sql,
+    });
+    await service.start();
+    const response = await fetch(`http://127.0.0.1:${apiPort}/v1/messages`, {
+      body: JSON.stringify({
+        body: 'quoted reply',
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        quote_message_id: '11111111-1111-4111-8111-111111111111',
+      }),
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(requests, [
+      {
+        body: 'quoted reply',
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        quoteMessageId: '11111111-1111-4111-8111-111111111111',
+      },
+    ]);
+  } finally {
+    await service.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});

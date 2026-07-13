@@ -16,6 +16,9 @@ import {
 } from '@signalapp/libsignal-client';
 
 import { SendStatus } from '../messages/MessageSendState.std.ts';
+import type { MessageAttributesType } from '../model-types.d.ts';
+import { SignalService as Proto } from '../protobuf/index.std.ts';
+import type { AciString } from '../types/ServiceId.std.ts';
 import type { signal } from '../protobuf/compiled.std.js';
 import { sessionStructureToBytes } from '../util/sessionTranslation.node.ts';
 import { createHeadlessDataInterfaces } from './client_sql.node.ts';
@@ -30,7 +33,7 @@ import { openHeadlessSql } from './sql.node.ts';
 import type { HeadlessSendTransport } from './transport.node.ts';
 
 const OUR_ACI = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-const THEIR_ACI = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const THEIR_ACI = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' as AciString;
 const KEYS_BODY = Buffer.from(
   JSON.stringify({
     devices: [
@@ -106,6 +109,7 @@ async function createHarness() {
   const repairs = new Array<
     Parameters<HeadlessSendCrypto['repairSessions']>[0]
   >();
+  const plaintexts = new Array<Uint8Array<ArrayBuffer>>();
   let sendError: Error | undefined;
   let nextSendError: Error | undefined;
   let hasSessions = false;
@@ -146,8 +150,9 @@ async function createHarness() {
       calls.establish += 1;
       hasSessions = true;
     },
-    async encrypt() {
+    async encrypt({ plaintext }) {
       calls.encrypt += 1;
+      plaintexts.push(plaintext);
       return [
         {
           contents: {} as CiphertextMessage,
@@ -179,6 +184,7 @@ async function createHarness() {
       });
     },
     recipient,
+    plaintexts,
     service: new HeadlessSendService(transport, stores, crypto, {
       maxPending: 2,
       now: () => 1_700_000_000_000,
@@ -195,6 +201,13 @@ async function createHarness() {
     repairs,
     stores,
   };
+}
+
+function decodeContent(plaintext: Uint8Array<ArrayBuffer>): Proto.Content {
+  let paddingStart = plaintext.length - 1;
+  while (paddingStart >= 0 && plaintext[paddingStart] === 0) paddingStart -= 1;
+  assert.equal(plaintext[paddingStart], 0x80);
+  return Proto.Content.decode(plaintext.slice(0, paddingStart));
 }
 
 async function testArchivedSessionIsNotCurrent(): Promise<void> {
@@ -278,6 +291,50 @@ async function testE164Resolution(): Promise<void> {
         error instanceof HeadlessSendError &&
         error.code === 'recipient-not-found'
     );
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testQuotedReply(): Promise<void> {
+  const harness = await createHarness();
+  const quotedMessageId = '11111111-1111-4111-8111-111111111111';
+  try {
+    const quoted: MessageAttributesType = {
+      body: 'the original message',
+      conversationId: harness.recipient.id,
+      id: quotedMessageId,
+      received_at: 1_699_999_999_000,
+      sent_at: 1_699_999_999_000,
+      sourceServiceId: THEIR_ACI,
+      timestamp: 1_699_999_999_000,
+      type: 'incoming',
+    };
+    const model = harness.stores.messageCache.register(
+      harness.stores.messageCache.create(quoted)
+    );
+    await harness.stores.messageCache.saveMessage(model, { forceSave: true });
+
+    const result = await harness.service.sendText({
+      body: 'reply body',
+      destination: THEIR_ACI,
+      quoteMessageId: quotedMessageId,
+    });
+    const persisted = await harness.dataReader.getMessageById(result.messageId);
+    assert.deepEqual(persisted?.quote, {
+      attachments: [],
+      authorAci: THEIR_ACI,
+      id: 1_699_999_999_000,
+      isViewOnce: false,
+      messageId: quotedMessageId,
+      referencedMessageNotFound: false,
+      text: 'the original message',
+    });
+    const dataMessage = decodeContent(harness.plaintexts[0] ?? new Uint8Array())
+      .content?.dataMessage;
+    assert.equal(dataMessage?.quote?.id, 1_699_999_999_000n);
+    assert.equal(dataMessage?.quote?.authorAci, THEIR_ACI);
+    assert.equal(dataMessage?.quote?.text, 'the original message');
   } finally {
     await harness.cleanup();
   }
@@ -419,6 +476,7 @@ async function main(): Promise<void> {
   await testConcurrentSendsAreSerialized();
   await testRepeatedRequestsCreateDistinctDurableSends();
   await testE164Resolution();
+  await testQuotedReply();
   await testRetryableFailure();
   await testDeviceMismatchRecovery();
   await testDeviceMismatchRetryIsBounded();

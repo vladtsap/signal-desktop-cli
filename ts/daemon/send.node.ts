@@ -93,6 +93,7 @@ export type SendTextRequest = Readonly<{
   body: string;
   destination: string;
   groupId?: string;
+  quoteMessageId?: string;
   story?: boolean;
 }>;
 
@@ -552,12 +553,53 @@ export class HeadlessSendService {
     await conversation.initialPromise;
 
     const timestamp = (this.#options.now ?? Date.now)();
+    let quote: MessageAttributesType['quote'];
+    if (request.quoteMessageId) {
+      const quotedMessage = await this.#stores.messageCache.getOrLoadById(
+        request.quoteMessageId
+      );
+      if (!quotedMessage) {
+        throw new HeadlessSendError(
+          'Quoted message was not found',
+          'invalid-request',
+          false
+        );
+      }
+      if (quotedMessage.get('conversationId') !== conversation.id) {
+        throw new HeadlessSendError(
+          'Quoted message belongs to a different conversation',
+          'invalid-request',
+          false
+        );
+      }
+      const authorAci =
+        quotedMessage.get('type') === 'outgoing'
+          ? this.#stores.itemStorage.user.getCheckedAci()
+          : quotedMessage.get('sourceServiceId');
+      if (!authorAci || !isAciString(authorAci)) {
+        throw new HeadlessSendError(
+          'Quoted message has no Signal author',
+          'invalid-request',
+          false
+        );
+      }
+      quote = {
+        attachments: [],
+        authorAci,
+        id: quotedMessage.get('sent_at'),
+        isViewOnce: false,
+        messageId: quotedMessage.id,
+        referencedMessageNotFound: false,
+        text: quotedMessage.get('body') ?? '',
+      };
+    }
     const attributes: MessageAttributesType = {
       body: request.body,
       conversationId: conversation.id,
       id: messageId,
       received_at: timestamp,
       received_at_ms: timestamp,
+      ...(quote ? { quote } : {}),
       sendStateByConversationId: {
         [conversation.id]: {
           status: SendStatus.Pending,
@@ -586,8 +628,20 @@ export class HeadlessSendService {
       }
       const dataMessage = {
         body: request.body,
+        ...(quote
+          ? {
+              quote: {
+                attachments: [],
+                authorAci: quote.authorAci,
+                bodyRanges: [],
+                id: BigInt(quote.id ?? 0),
+                text: quote.text ?? '',
+                type: Proto.DataMessage.Quote.Type.NORMAL,
+              },
+            }
+          : {}),
         timestamp: BigInt(timestamp),
-      } as Proto.DataMessage.Params;
+      } as unknown as Proto.DataMessage.Params;
       const content = Proto.Content.encode({
         content: { dataMessage },
         pniSignatureMessage: null,
