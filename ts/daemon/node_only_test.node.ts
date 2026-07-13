@@ -17,6 +17,7 @@ const daemonModules = [
   'profile.node.ts',
   'protocol_stores.node.ts',
   'receive.node.ts',
+  'send.node.ts',
   'runtime.node.ts',
   'sql.node.ts',
   'transport.node.ts',

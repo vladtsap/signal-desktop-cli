@@ -1,7 +1,12 @@
 // Copyright 2026 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { ErrorCode, Net } from '@signalapp/libsignal-client';
+import {
+  ErrorCode,
+  Net,
+  ServiceId,
+  type CiphertextMessage,
+} from '@signalapp/libsignal-client';
 import type {
   AuthenticatedChatConnection,
   ChatServerMessageAck,
@@ -30,7 +35,33 @@ export type HeadlessTransportClose = Readonly<{
 
 export type HeadlessTransportConnection = Readonly<{
   disconnect: () => Promise<void> | void;
+  fetch?: AuthenticatedChatConnection['fetch'];
   localPort?: number;
+  sendMessage?: AuthenticatedChatConnection['sendMessage'];
+}>;
+
+export type HeadlessOutboundMessage = Readonly<{
+  contents: CiphertextMessage;
+  deviceId: number;
+  registrationId: number;
+}>;
+
+export type HeadlessSendTransport = Readonly<{
+  connected: boolean;
+  fetchAuthenticated: (
+    request: Parameters<AuthenticatedChatConnection['fetch']>[0],
+    options?: Parameters<AuthenticatedChatConnection['fetch']>[1]
+  ) => ReturnType<AuthenticatedChatConnection['fetch']>;
+  sendMessage: (
+    request: Readonly<{
+      destination: string;
+      messages: ReadonlyArray<HeadlessOutboundMessage>;
+      onlineOnly?: boolean;
+      signal?: AbortSignal;
+      timestamp: number;
+      urgent?: boolean;
+    }>
+  ) => Promise<void>;
 }>;
 
 export type HeadlessTransportConnector = Readonly<{
@@ -168,6 +199,52 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     for (const request of pending) {
       this.#dispatch(request);
     }
+  }
+
+  public async fetchAuthenticated(
+    request: Parameters<AuthenticatedChatConnection['fetch']>[0],
+    options?: Parameters<AuthenticatedChatConnection['fetch']>[1]
+  ): ReturnType<AuthenticatedChatConnection['fetch']> {
+    const connection = this.#getOpenConnection();
+    if (!connection.fetch) {
+      throw new Error('Authenticated Signal transport does not support fetch');
+    }
+    return connection.fetch(request, options);
+  }
+
+  public async sendMessage({
+    destination,
+    messages,
+    onlineOnly = false,
+    signal,
+    timestamp,
+    urgent = true,
+  }: Parameters<HeadlessSendTransport['sendMessage']>[0]): Promise<void> {
+    const connection = this.#getOpenConnection();
+    if (!connection.sendMessage) {
+      throw new Error(
+        'Authenticated Signal transport does not support sending'
+      );
+    }
+    await connection.sendMessage(
+      {
+        destination: ServiceId.parseFromServiceIdString(destination),
+        contents: [...messages],
+        onlineOnly,
+        timestamp,
+        urgent,
+      },
+      { abortSignal: signal }
+    );
+  }
+
+  #getOpenConnection(): HeadlessTransportConnection {
+    if (this.#state !== 'open' || !this.#connection) {
+      throw new Error(
+        `Signal transport is not connected (state: ${this.#state})`
+      );
+    }
+    return this.#connection;
   }
 
   public async start({
@@ -380,7 +457,9 @@ export function createLibsignalTransportConnector({
         async disconnect() {
           await connection.disconnect();
         },
+        fetch: connection.fetch.bind(connection),
         localPort: connection.connectionInfo().localPort,
+        sendMessage: connection.sendMessage.bind(connection),
       };
     },
   };
