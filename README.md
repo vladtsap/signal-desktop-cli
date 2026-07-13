@@ -366,6 +366,17 @@ The entrypoint also supports `SIGNAL_UI_PASSWORD_FILE`, but the stock Compose fi
 
 All state commands need R2 configuration. R2 operations use region `auto`, disable EC2 metadata lookup, and use the AWS CLI against the selected endpoint.
 
+## Published container image
+
+Every push to `main` automatically builds the Linux `amd64` daemon target and publishes it to GitHub Container Registry as `ghcr.io/vladtsap/signal-desktop-cli`. The moving `latest` tag and an immutable tag containing the full commit SHA are published together:
+
+```sh
+docker pull ghcr.io/vladtsap/signal-desktop-cli:latest
+docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA
+```
+
+This package contains only the `signal-daemon` target; the linking UI and state-transfer tool continue to build locally through Compose. GitHub controls package visibility separately from repository visibility. If the package is private, authenticate Docker to `ghcr.io` with a GitHub token that has `read:packages` permission before pulling it.
+
 ## Build expiration and upstream maintenance
 
 Both packaged runtimes are valid for exactly 90 days from the image build time. The build generates this timestamp automatically and shares it between the UI and daemon build stages; there is no timestamp, revision, or expiration field to update in `compose.yaml`, `.env`, or `.env.example`. The daemon reports `createdAt`, `expiresAt`, ISO timestamps, `daysRemaining`, and `expired` under `/readyz`. If it starts expired, it opens the profile and control API offline, returns readiness 503, and does not start Signal transport. If it expires while running, it stops Signal transport and keeps health/readiness available for diagnosis. Sending is gated on readiness.
