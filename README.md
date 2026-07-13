@@ -30,7 +30,7 @@ Implemented:
 - a headless authenticated Signal transport with reconnect handling;
 - automatic ACI/PNI prekey replenishment and signed/PQ key rotation;
 - direct encrypted text receive, SQLCipher persistence, and durable webhooks;
-- direct encrypted text send with durable idempotency and existing-session reuse;
+- direct encrypted text send with durable local status and existing-session reuse;
 - unencrypted, immutable, checksummed R2 snapshots with staged restore; and
 - a 90-day reproducible build lifetime with expiration visible at `/readyz`.
 
@@ -195,8 +195,7 @@ curl --fail-with-body \
   -H 'Content-Type: application/json' \
   --data '{
     "destination": "+12025550123",
-    "body": "hello from the headless client",
-    "idempotency_key": "order-123-notification-1"
+    "body": "hello from the headless client"
   }' \
   http://127.0.0.1:8080/v1/messages
 ```
@@ -214,7 +213,7 @@ A successful response has this shape:
 }
 ```
 
-`destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. `idempotency_key` must contain 1–128 ASCII letters, digits, `.`, `_`, `:`, or `-`. Repeating the same key, destination, and body returns the already-sent durable result; reusing the key for different content is rejected. Request bodies are limited to 64 KiB.
+`destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. These are the only accepted request fields, and request bodies are limited to 64 KiB. Each accepted POST creates a fresh outgoing message ID and performs one send operation. There is no application-level deduplication: sending an identical request again can produce a duplicate message. If the connection closes before the response arrives, the outcome is ambiguous; this API does not provide a safe automatic-retry mechanism.
 
 The API is bound to host loopback by Compose. To call it from another container, attach both services to a private Compose network with an override and use the service name; keep bearer authentication and do not publish the endpoint publicly without a separate TLS/authentication gateway and network controls.
 
@@ -333,7 +332,7 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 
 Compose sets `SIGNAL_API_HOST=0.0.0.0` inside the container but publishes it only on host `127.0.0.1`.
 
-If the daemon exceeds `SIGNAL_MEMORY_LIMIT`, the container's cgroup OOM-kills it (commonly reported as exit code 137). Because the service uses `restart: unless-stopped`, Docker then restarts it. The database and webhook outbox are durable, but an API send interrupted at that exact moment can have an ambiguous outcome; retry it with the same `idempotency_key`. Increase the limit or override/remove `mem_limit` in a private Compose override if normal workloads repeatedly reach it.
+If the daemon exceeds `SIGNAL_MEMORY_LIMIT`, the container's cgroup OOM-kills it (commonly reported as exit code 137). Because the service uses `restart: unless-stopped`, Docker then restarts it. The database and webhook outbox are durable, but an API send interrupted at that exact moment can have an ambiguous outcome and there is no deduplication key for safely replaying it. Increase the limit or override/remove `mem_limit` in a private Compose override if normal workloads repeatedly reach it.
 
 ### UI
 
@@ -414,7 +413,7 @@ pnpm run build-linux
 
 Building an image does not link an account or launch its entrypoint. Automated tests should continue using fixtures; reserve real authentication and live send/receive checks for an explicit acceptance environment with an isolated linked profile. Never copy a developer's normal Signal Desktop profile into this fork: portability depends on the container UI creating `config.json` with `--password-store=basic` and a portable SQLCipher key.
 
-When adding features, preserve the Node-only daemon boundary: no Electron, DOM, renderer/preload global, or GUI bundle may become reachable from `bundles/daemon.js`. Keep protocol and SQL dependencies injectable, retain durable inbound staging before server acknowledgement, make outbound requests idempotent, and extend both daemon unit tests and the runtime-bundle audit.
+When adding features, preserve the Node-only daemon boundary: no Electron, DOM, renderer/preload global, or GUI bundle may become reachable from `bundles/daemon.js`. Keep protocol and SQL dependencies injectable, retain durable inbound staging before server acknowledgement, preserve the one-request/one-outgoing-message send contract, and extend both daemon unit tests and the runtime-bundle audit.
 
 ## License and cryptography notice
 

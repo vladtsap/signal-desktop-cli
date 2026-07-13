@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-void test('persists idempotent send states and resolves restored E164 in SQLCipher', async () => {
+void test('persists distinct send states and resolves restored E164 in SQLCipher', async () => {
   const fixture = fileURLToPath(
     new URL('./send_fixture.node.ts', import.meta.url)
   );

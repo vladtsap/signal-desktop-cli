@@ -15,7 +15,7 @@ import {
   processPreKeyBundle,
   signalEncrypt,
 } from '@signalapp/libsignal-client';
-import { v5 as uuidV5 } from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { Sessions, IdentityKeys } from '../LibSignalStores.node.ts';
@@ -32,7 +32,6 @@ import type {
   HeadlessSendTransport,
 } from './transport.node.ts';
 
-const MESSAGE_ID_NAMESPACE = 'b6028cf2-4d9b-55ad-8a55-48c36f34704c';
 const PADDING_BLOCK = 80;
 const DEFAULT_REQUIRE_PQ_RATIO = 0;
 
@@ -86,7 +85,6 @@ export type SendTextRequest = Readonly<{
   body: string;
   destination: string;
   groupId?: string;
-  idempotencyKey: string;
   story?: boolean;
 }>;
 
@@ -308,7 +306,6 @@ function classifySendError(error: unknown): HeadlessSendError {
 
 export class HeadlessSendService {
   readonly #destinationQueues = new Map<string, Promise<unknown>>();
-  readonly #idempotencyQueues = new Map<string, Promise<unknown>>();
   readonly #transport: HeadlessSendTransport;
   readonly #stores: HeadlessProtocolStores;
   readonly #crypto: HeadlessSendCrypto;
@@ -341,44 +338,37 @@ export class HeadlessSendService {
       );
     }
     this.#pending += 1;
-    const messageId = uuidV5(request.idempotencyKey, MESSAGE_ID_NAMESPACE);
-    const previousIdempotency =
-      this.#idempotencyQueues.get(messageId) ?? Promise.resolve();
+    const messageId = uuidV4();
     const previousDestination =
       this.#destinationQueues.get(request.destination) ?? Promise.resolve();
     const operation = this.#runQueued(
-      previousIdempotency,
       previousDestination,
       request,
+      messageId,
       signal
     );
-    this.#idempotencyQueues.set(messageId, operation);
     this.#destinationQueues.set(request.destination, operation);
-    return this.#completeQueued(operation, messageId, request.destination);
+    return this.#completeQueued(operation, request.destination);
   }
 
   async #runQueued(
-    previousIdempotency: Promise<unknown>,
     previousDestination: Promise<unknown>,
     request: SendTextRequest,
+    messageId: string,
     signal?: AbortSignal
   ): Promise<SendTextResult> {
-    await Promise.allSettled([previousIdempotency, previousDestination]);
-    return this.#send(request, signal);
+    await Promise.allSettled([previousDestination]);
+    return this.#send(request, messageId, signal);
   }
 
   async #completeQueued(
     operation: Promise<SendTextResult>,
-    messageId: string,
     destination: string
   ): Promise<SendTextResult> {
     try {
       return await operation;
     } finally {
       this.#pending -= 1;
-      if (this.#idempotencyQueues.get(messageId) === operation) {
-        this.#idempotencyQueues.delete(messageId);
-      }
       if (this.#destinationQueues.get(destination) === operation) {
         this.#destinationQueues.delete(destination);
       }
@@ -397,12 +387,8 @@ export class HeadlessSendService {
         false
       );
     }
-    if (!request.body || !request.idempotencyKey) {
-      throw new HeadlessSendError(
-        'body and idempotencyKey are required',
-        'invalid-request',
-        false
-      );
+    if (!request.body) {
+      throw new HeadlessSendError('body is required', 'invalid-request', false);
     }
   }
 
@@ -451,6 +437,7 @@ export class HeadlessSendService {
 
   async #send(
     request: SendTextRequest,
+    messageId: string,
     signal?: AbortSignal
   ): Promise<SendTextResult> {
     if (!this.#transport.connected) {
@@ -473,79 +460,33 @@ export class HeadlessSendService {
       );
     await conversation.initialPromise;
 
-    const messageId = uuidV5(request.idempotencyKey, MESSAGE_ID_NAMESPACE);
-    let model = await this.#stores.messageCache.getOrLoadById(messageId);
-    if (model) {
-      if (
-        model.get('body') !== request.body ||
-        model.get('conversationId') !== conversation.id
-      ) {
-        throw new HeadlessSendError(
-          'idempotencyKey was already used for another message',
-          'invalid-request',
-          false
-        );
-      }
-      if (
-        model.get('sendStateByConversationId')?.[conversation.id]?.status ===
-        SendStatus.Sent
-      ) {
-        return {
-          destination,
-          messageId,
-          status: 'sent',
-          timestamp: model.get('timestamp'),
-        };
-      }
-    }
-
-    if (!model) {
-      const timestamp = (this.#options.now ?? Date.now)();
-      const attributes: MessageAttributesType = {
-        body: request.body,
-        conversationId: conversation.id,
-        id: messageId,
-        received_at: timestamp,
-        received_at_ms: timestamp,
-        sendStateByConversationId: {
-          [conversation.id]: {
-            status: SendStatus.Pending,
-            updatedAt: timestamp,
-          },
+    const timestamp = (this.#options.now ?? Date.now)();
+    const attributes: MessageAttributesType = {
+      body: request.body,
+      conversationId: conversation.id,
+      id: messageId,
+      received_at: timestamp,
+      received_at_ms: timestamp,
+      sendStateByConversationId: {
+        [conversation.id]: {
+          status: SendStatus.Pending,
+          updatedAt: timestamp,
         },
-        sent_at: timestamp,
-        timestamp,
-        type: 'outgoing',
-      };
-      const candidate = this.#stores.messageCache.create(attributes);
-      model = this.#stores.messageCache.register(candidate);
-      if (model !== candidate) {
-        if (
-          model.get('body') !== request.body ||
-          model.get('conversationId') !== conversation.id
-        ) {
-          throw new HeadlessSendError(
-            'idempotencyKey was already used for another message',
-            'invalid-request',
-            false
-          );
-        }
-        if (
-          model.get('sendStateByConversationId')?.[conversation.id]?.status ===
-          SendStatus.Sent
-        ) {
-          return {
-            destination,
-            messageId,
-            status: 'sent',
-            timestamp: model.get('timestamp'),
-          };
-        }
-      } else {
-        await this.#stores.messageCache.saveMessage(model, { forceSave: true });
-      }
+      },
+      sent_at: timestamp,
+      timestamp,
+      type: 'outgoing',
+    };
+    const candidate = this.#stores.messageCache.create(attributes);
+    const model = this.#stores.messageCache.register(candidate);
+    if (model !== candidate) {
+      throw new HeadlessSendError(
+        'Could not allocate a unique outgoing message ID',
+        'send-failed',
+        false
+      );
     }
-    const timestamp = model.get('timestamp');
+    await this.#stores.messageCache.saveMessage(model, { forceSave: true });
 
     try {
       if (!(await this.#crypto.hasSessions(destination))) {
@@ -591,17 +532,15 @@ export class HeadlessSendService {
       if (classified.code === 'device-mismatch') {
         await this.#stores.signalProtocolStore.archiveAllSessions(destination);
       }
-      if (!classified.retryable) {
-        model.set({
-          sendStateByConversationId: {
-            [conversation.id]: {
-              status: SendStatus.Failed,
-              updatedAt: Date.now(),
-            },
+      model.set({
+        sendStateByConversationId: {
+          [conversation.id]: {
+            status: SendStatus.Failed,
+            updatedAt: Date.now(),
           },
-        });
-        await this.#stores.messageCache.saveMessage(model);
-      }
+        },
+      });
+      await this.#stores.messageCache.saveMessage(model);
       throw classified;
     }
   }

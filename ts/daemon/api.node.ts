@@ -30,11 +30,6 @@ const sendSchema = z
   .object({
     body: z.string().min(1).max(32_768),
     destination: destinationSchema,
-    idempotency_key: z
-      .string()
-      .min(1)
-      .max(128)
-      .regex(/^[A-Za-z0-9._:-]+$/),
   })
   .strict();
 
@@ -323,7 +318,6 @@ export class HeadlessControlService {
           {
             body: parsed.data.body,
             destination: parsed.data.destination,
-            idempotencyKey: parsed.data.idempotency_key,
           },
           controller.signal
         );

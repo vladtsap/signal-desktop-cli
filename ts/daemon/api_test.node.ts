@@ -136,11 +136,24 @@ void test('control API exposes health and protects validated sends', async () =>
     });
     assert.equal(invalid.status, 400);
 
+    const obsoleteIdempotencyKey = await fetch(`${base}/v1/messages`, {
+      body: JSON.stringify({
+        body: 'hello',
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        idempotency_key: 'no-longer-supported',
+      }),
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    });
+    assert.equal(obsoleteIdempotencyKey.status, 400);
+
     const disconnected = await fetch(`${base}/v1/messages`, {
       body: JSON.stringify({
         body: 'hello',
         destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-        idempotency_key: 'request-1',
       }),
       headers: {
         authorization: `Bearer ${TOKEN}`,
@@ -252,7 +265,6 @@ void test('control service aborts and drains an active send before stopping', as
       body: JSON.stringify({
         body: 'pause while stopping',
         destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-        idempotency_key: 'paused-request',
       }),
       headers: {
         authorization: `Bearer ${TOKEN}`,

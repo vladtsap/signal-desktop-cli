@@ -192,52 +192,41 @@ async function testArchivedSessionIsNotCurrent(): Promise<void> {
   assert.equal(hasCurrentSendSession(record), false);
 }
 
-async function testConcurrentIdempotencyClaim(): Promise<void> {
+async function testConcurrentSendsAreSerialized(): Promise<void> {
   const harness = await createHarness();
   try {
     const entered = harness.pauseNextSend();
     const first = harness.service.sendText({
       body: 'first body',
       destination: THEIR_ACI,
-      idempotencyKey: 'concurrent-key',
     });
     await entered;
-    const conflicting = harness.service.sendText({
-      body: 'conflicting body',
-      destination: '+12025550124',
-      idempotencyKey: 'concurrent-key',
+    const second = harness.service.sendText({
+      body: 'second body',
+      destination: THEIR_ACI,
     });
     await new Promise<void>(resolve => setImmediate(resolve));
     assert.equal(harness.calls.send, 1);
     harness.releaseSend();
-    await first;
-    await assert.rejects(conflicting, {
-      code: 'invalid-request',
-      retryable: false,
-    });
-    assert.equal(harness.calls.send, 1);
+    const [firstResult, secondResult] = await Promise.all([first, second]);
+    assert.notEqual(firstResult.messageId, secondResult.messageId);
+    assert.equal(harness.calls.send, 2);
   } finally {
     harness.releaseSend();
     await harness.cleanup();
   }
 }
 
-async function testDurableIdempotentSend(): Promise<void> {
+async function testRepeatedRequestsCreateDistinctDurableSends(): Promise<void> {
   const harness = await createHarness();
   try {
     const request = {
       body: 'hello from headless',
       destination: THEIR_ACI,
-      idempotencyKey: 'request-1',
     };
     const first = await harness.service.sendText(request);
     const second = await harness.service.sendText(request);
-    assert.deepEqual(second, first);
-    await harness.service.sendText({
-      ...request,
-      body: 'second message',
-      idempotencyKey: 'request-2',
-    });
+    assert.notEqual(second.messageId, first.messageId);
     assert.deepEqual(harness.calls, {
       archive: 0,
       encrypt: 2,
@@ -246,7 +235,11 @@ async function testDurableIdempotentSend(): Promise<void> {
       send: 2,
     });
     const persisted = await harness.dataReader.getMessageById(first.messageId);
+    const secondPersisted = await harness.dataReader.getMessageById(
+      second.messageId
+    );
     assert.equal(persisted?.body, request.body);
+    assert.equal(secondPersisted?.body, request.body);
     assert.equal(
       persisted?.sendStateByConversationId?.[harness.recipient.id]?.status,
       SendStatus.Sent
@@ -262,14 +255,12 @@ async function testE164Resolution(): Promise<void> {
     const result = await harness.service.sendText({
       body: 'hello',
       destination: '+12025550124',
-      idempotencyKey: 'request-e164',
     });
     assert.equal(result.destination, THEIR_ACI);
     await assert.rejects(
       harness.service.sendText({
         body: 'hello',
         destination: '+12025550999',
-        idempotencyKey: 'unknown-e164',
       }),
       (error: unknown) =>
         error instanceof HeadlessSendError &&
@@ -289,12 +280,17 @@ async function testRetryableFailure(): Promise<void> {
     const request = {
       body: 'retry me',
       destination: THEIR_ACI,
-      idempotencyKey: 'retry-1',
     };
     await assert.rejects(harness.service.sendText(request), {
       code: 'not-connected',
       retryable: true,
     });
+    const [failed] =
+      await harness.dataReader.getMessagesBySentAt(1_700_000_000_000);
+    assert.equal(
+      failed?.sendStateByConversationId?.[harness.recipient.id]?.status,
+      SendStatus.Failed
+    );
     harness.setSendError();
     const result = await harness.service.sendText(request);
     assert.equal(result.timestamp, 1_700_000_000_000);
@@ -313,7 +309,6 @@ async function testDeviceMismatchRecovery(): Promise<void> {
     const request = {
       body: 'recover me',
       destination: THEIR_ACI,
-      idempotencyKey: 'mismatch-1',
     };
     await assert.rejects(harness.service.sendText(request), {
       code: 'device-mismatch',
@@ -338,7 +333,6 @@ async function testTerminalFailure(): Promise<void> {
     const request = {
       body: 'fail me',
       destination: THEIR_ACI,
-      idempotencyKey: 'fail-1',
     };
     await assert.rejects(harness.service.sendText(request), {
       code: 'identity',
@@ -349,7 +343,6 @@ async function testTerminalFailure(): Promise<void> {
         harness.service.sendText({
           ...request,
           attachments: [{}],
-          idempotencyKey: 'attachment',
         }),
       (error: unknown) =>
         error instanceof HeadlessSendError && error.code === 'unsupported'
@@ -367,8 +360,8 @@ async function testTerminalFailure(): Promise<void> {
 
 async function main(): Promise<void> {
   await testArchivedSessionIsNotCurrent();
-  await testConcurrentIdempotencyClaim();
-  await testDurableIdempotentSend();
+  await testConcurrentSendsAreSerialized();
+  await testRepeatedRequestsCreateDistinctDurableSends();
   await testE164Resolution();
   await testRetryableFailure();
   await testDeviceMismatchRecovery();

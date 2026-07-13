@@ -808,8 +808,7 @@ curl --fail-with-body \
   -H 'Content-Type: application/json' \
   --data '{
     "destination": "+12025550123",
-    "body": "hello from the headless client",
-    "idempotency_key": "order-123-notification-1"
+    "body": "hello from the headless client"
   }' \
   http://127.0.0.1:8080/v1/messages</code></pre>
           </div>
@@ -828,14 +827,14 @@ curl --fail-with-body \
               restored profile.
             </li>
             <li>Body: 1–32,768 characters.</li>
-            <li>
-              Idempotency key: 1–128 ASCII letters, digits,
-              <code>.</code>, <code>_</code>, <code>:</code>, or <code>-</code>.
-            </li>
             <li>Request body limit: 64 KiB.</li>
             <li>
-              Repeating the same key, destination, and body returns the durable
-              result; conflicting reuse is rejected.
+              These are the only accepted fields. Every POST creates a fresh
+              message ID; repeating the same request can send a duplicate.
+            </li>
+            <li>
+              If the connection closes before the response, the outcome is
+              ambiguous and there is no safe automatic-retry mechanism.
             </li>
           </ul>
 
@@ -1164,10 +1163,10 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
             OOM-kills the container, commonly with exit code 137. Compose then
             restarts it because the service uses
             <code>restart: unless-stopped</code>. Durable database and webhook
-            state recover, but retry an interrupted send with the same
-            <code>idempotency_key</code> because its outcome may be ambiguous.
-            Raise the limit or remove <code>mem_limit</code> in a private
-            Compose override if normal workloads repeatedly reach it.
+            state recover, but an interrupted send has an ambiguous outcome and
+            no deduplication key for safe replay. Raise the limit or remove
+            <code>mem_limit</code> in a private Compose override if normal
+            workloads repeatedly reach it.
           </p>
 
           <h3>GUI</h3>
