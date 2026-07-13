@@ -6,6 +6,8 @@
 
 Signal Desktop CLI is a focused fork of Signal Desktop for one portable linked-device profile. It uses the normal Signal Desktop UI for linking and occasional interactive use, then runs the same profile in a smaller Node.js daemon without Electron or a display server.
 
+For a visual, task-oriented setup and operations guide, open [README.html](README.html) in a browser.
+
 The initial feature set is intentionally narrow:
 
 - link and inspect the account through Signal Desktop over a password-protected noVNC UI;

@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Setup and operations guide for Signal Desktop CLI: link with the GUI, run headless, send messages, receive webhooks, and transfer encrypted state through R2."
+    />
+    <title>Signal Desktop CLI — Setup &amp; Operations Guide</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #090b10;
+        --panel: #11151d;
+        --panel-2: #171c26;
+        --line: #2a3343;
+        --text: #edf2f8;
+        --muted: #9ca9ba;
+        --blue: #4f8cff;
+        --blue-soft: rgba(79, 140, 255, 0.14);
+        --green: #5fd6a1;
+        --amber: #f2c66d;
+        --red: #ff7b86;
+        --code: #090d14;
+        --radius: 14px;
+        --shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 24px;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 75% -15%, #172e60 0, transparent 34rem),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.65;
+      }
+
+      a {
+        color: #8eb5ff;
+      }
+
+      a:hover {
+        color: #bad1ff;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 920px);
+        gap: 42px;
+        width: min(1240px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 34px 0 90px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        max-height: calc(100vh - 48px);
+        overflow: auto;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(17, 21, 29, 0.82);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 2px 4px 17px;
+        font-weight: 760;
+        letter-spacing: -0.02em;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 31px;
+        height: 31px;
+        place-items: center;
+        border-radius: 10px;
+        background: var(--blue);
+        color: white;
+        font-size: 14px;
+      }
+
+      nav a {
+        display: block;
+        padding: 7px 10px;
+        border-radius: 8px;
+        color: var(--muted);
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      nav a:hover,
+      nav a.active {
+        background: var(--blue-soft);
+        color: var(--text);
+      }
+
+      main {
+        min-width: 0;
+      }
+
+      .hero {
+        padding: 44px;
+        border: 1px solid #30466f;
+        border-radius: 22px;
+        background:
+          linear-gradient(145deg, rgba(79, 140, 255, 0.17), transparent 55%),
+          var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: #8eb5ff;
+        font-size: 13px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(38px, 7vw, 66px);
+      }
+
+      h2 {
+        margin: 0 0 22px;
+        font-size: clamp(27px, 4vw, 38px);
+      }
+
+      h3 {
+        margin: 30px 0 12px;
+        font-size: 20px;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin: 20px 0 0;
+        color: #bdc8d7;
+        font-size: 18px;
+      }
+
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 26px;
+      }
+
+      .badge {
+        padding: 6px 10px;
+        border: 1px solid #3a4760;
+        border-radius: 999px;
+        background: rgba(9, 13, 20, 0.45);
+        color: #cdd7e4;
+        font-size: 13px;
+      }
+
+      section {
+        padding: 58px 4px 4px;
+      }
+
+      section > p,
+      section > ul,
+      section > ol {
+        color: #c5cfdb;
+      }
+
+      .notice {
+        margin: 20px 0;
+        padding: 17px 19px;
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--blue);
+        border-radius: 10px;
+        background: var(--panel);
+      }
+
+      .notice strong {
+        color: var(--text);
+      }
+
+      .notice.danger {
+        border-left-color: var(--red);
+      }
+
+      .notice.warn {
+        border-left-color: var(--amber);
+      }
+
+      .notice.success {
+        border-left-color: var(--green);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin: 20px 0;
+      }
+
+      .card {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+      }
+
+      .card h3 {
+        margin-top: 0;
+      }
+
+      .card p:last-child,
+      .card ul:last-child {
+        margin-bottom: 0;
+      }
+
+      .step-list {
+        display: grid;
+        gap: 12px;
+        margin: 20px 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: steps;
+      }
+
+      .step-list > li {
+        position: relative;
+        min-height: 58px;
+        padding: 16px 18px 16px 64px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        counter-increment: steps;
+      }
+
+      .step-list > li::before {
+        position: absolute;
+        top: 14px;
+        left: 17px;
+        display: grid;
+        width: 31px;
+        height: 31px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--blue-soft);
+        color: #a9c5ff;
+        font-weight: 760;
+        content: counter(steps);
+      }
+
+      .code-wrap {
+        position: relative;
+        margin: 14px 0 22px;
+      }
+
+      pre {
+        overflow: auto;
+        margin: 0;
+        padding: 19px 54px 19px 19px;
+        border: 1px solid #293345;
+        border-radius: 11px;
+        background: var(--code);
+        color: #dbe7f6;
+        font:
+          13px/1.62 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+        tab-size: 2;
+      }
+
+      code {
+        padding: 0.12em 0.35em;
+        border-radius: 5px;
+        background: #171e2a;
+        color: #dce8f8;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.9em;
+      }
+
+      pre code {
+        padding: 0;
+        background: transparent;
+        font-size: inherit;
+      }
+
+      .copy {
+        position: absolute;
+        top: 9px;
+        right: 9px;
+        padding: 6px 9px;
+        border: 1px solid #3b465a;
+        border-radius: 7px;
+        background: #192130;
+        color: #c8d4e5;
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+      }
+
+      .copy:hover {
+        background: #24314a;
+      }
+
+      table {
+        width: 100%;
+        margin: 18px 0 26px;
+        border-collapse: collapse;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--panel-2);
+        color: #dce5f0;
+      }
+
+      td {
+        color: #bac6d4;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      details {
+        margin: 10px 0;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+      }
+
+      summary {
+        padding: 14px 17px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      details > div {
+        padding: 0 17px 16px;
+        color: #c2ccda;
+      }
+
+      .checklist {
+        padding-left: 0;
+        list-style: none;
+      }
+
+      .checklist li {
+        margin: 8px 0;
+      }
+
+      .checklist li::before {
+        margin-right: 9px;
+        color: var(--green);
+        content: '✓';
+      }
+
+      footer {
+        margin-top: 62px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 920px) {
+        .layout {
+          display: block;
+          width: min(100% - 28px, 920px);
+          padding-top: 14px;
+        }
+
+        .sidebar {
+          position: relative;
+          top: 0;
+          max-height: none;
+          margin-bottom: 18px;
+        }
+
+        nav {
+          display: flex;
+          overflow-x: auto;
+          gap: 4px;
+          padding-bottom: 4px;
+        }
+
+        nav a {
+          flex: 0 0 auto;
+        }
+
+        .hero {
+          padding: 30px 24px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        section {
+          padding-top: 44px;
+        }
+
+        th,
+        td {
+          padding: 10px;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+        }
+      }
+
+      @media print {
+        :root {
+          color-scheme: light;
+          --bg: white;
+          --panel: white;
+          --panel-2: #f3f5f8;
+          --line: #ccd2da;
+          --text: #111827;
+          --muted: #4b5563;
+          --code: #f3f5f8;
+        }
+
+        body {
+          background: white;
+        }
+
+        .layout {
+          display: block;
+          width: 100%;
+          padding: 0;
+        }
+
+        .sidebar,
+        .copy {
+          display: none;
+        }
+
+        .hero,
+        .card,
+        .notice,
+        pre,
+        table,
+        details {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+
+        section {
+          padding-top: 32px;
+        }
+
+        p,
+        li,
+        td {
+          color: #263244 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Page navigation">
+        <div class="brand">
+          <span class="brand-mark">S</span>
+          <span>Signal Desktop CLI</span>
+        </div>
+        <nav>
+          <a href="#overview">Overview</a>
+          <a href="#prerequisites">Prerequisites</a>
+          <a href="#configure">Configure</a>
+          <a href="#link">Link your account</a>
+          <a href="#local">Run locally</a>
+          <a href="#r2">Move through R2</a>
+          <a href="#send">Send messages</a>
+          <a href="#webhooks">Receive webhooks</a>
+          <a href="#switching">Switch UI/headless</a>
+          <a href="#operations">Operations</a>
+          <a href="#updates">Update upstream</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+          <a href="#reference">Environment</a>
+        </nav>
+      </aside>
+
+      <main>
+        <header class="hero" id="overview">
+          <p class="eyebrow">Setup &amp; operations guide</p>
+          <h1>Link once with the UI. Run Signal headless afterward.</h1>
+          <p class="lead">
+            This guide takes you from an empty Docker volume to a linked Signal
+            Desktop profile, a Node-only daemon, incoming webhooks, outgoing
+            messages, and encrypted machine-to-machine state transfer through
+            Cloudflare R2.
+          </p>
+          <div class="badges" aria-label="Project capabilities">
+            <span class="badge">Docker Compose</span>
+            <span class="badge">Linux amd64</span>
+            <span class="badge">Node-only daemon</span>
+            <span class="badge">Encrypted R2 snapshots</span>
+            <span class="badge">Direct text messages</span>
+            <span class="badge">90-day builds</span>
+          </div>
+        </header>
+
+        <section aria-labelledby="important-title">
+          <h2 id="important-title">Read this first</h2>
+          <div class="notice danger">
+            <strong
+              >Never run two copies of the same linked-device profile.</strong
+            >
+            Stop the source machine completely before snapshotting it, and do
+            not start the destination until restore has finished. A local lock
+            protects containers on one host; it cannot coordinate two hosts.
+          </div>
+          <div class="notice warn">
+            <strong>Current scope:</strong> direct one-to-one text receive and
+            send only. Groups, attachments, calls, reactions, stories, sync
+            transcripts, and disappearing-message delivery are not implemented.
+          </div>
+          <div class="notice">
+            A real account link and live Signal send/receive acceptance test
+            still needs to be performed by you. Automated tests do not register
+            or authenticate an account.
+          </div>
+
+          <div class="grid">
+            <article class="card">
+              <h3>Three containers, one volume</h3>
+              <p>
+                <code>signal-ui</code> links or displays the profile,
+                <code>signal</code> runs headless, and <code>state</code> moves
+                an offline profile through R2. They all use
+                <code>signal-desktop-data</code> by default.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Safe default networking</h3>
+              <p>
+                The noVNC UI and HTTP API publish only on
+                <code>127.0.0.1</code>. Use an SSH tunnel for remote access; do
+                not expose either port directly to the public internet.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="prerequisites">
+          <h2>1. Prerequisites</h2>
+          <ul class="checklist">
+            <li>Docker Engine and Docker Compose v2</li>
+            <li>A Signal account in the Android or iOS mobile app</li>
+            <li>An amd64 host, or Linux amd64 emulation</li>
+            <li>Enough memory and disk to compile Signal Desktop initially</li>
+            <li>
+              For remote transfer: a private R2 bucket and S3 API credentials
+            </li>
+            <li>For remote transfer: an age identity stored outside R2</li>
+          </ul>
+          <p>Clone the repository and enter it:</p>
+          <div class="code-wrap">
+            <pre><code>git clone YOUR_FORK_URL signal-desktop-cli
+cd signal-desktop-cli</code></pre>
+          </div>
+        </section>
+
+        <section id="configure">
+          <h2>2. Create your configuration</h2>
+          <p>
+            Copy the sanitized template. The resulting <code>.env</code> file is
+            ignored by Git, but it still contains secrets and should be mode
+            <code>0600</code>.
+          </p>
+          <div class="code-wrap">
+            <pre><code>cp .env.example .env
+chmod 600 .env</code></pre>
+          </div>
+          <p>Edit <code>.env</code> and replace every placeholder:</p>
+          <div class="code-wrap">
+            <pre><code>SIGNAL_UI_PASSWORD=vncpass
+SIGNAL_API_TOKEN=replace-with-at-least-16-random-characters
+SIGNAL_WEBHOOK_URL=https://example.com/signal/webhook
+SIGNAL_WEBHOOK_SECRET=replace-with-at-least-16-random-characters
+
+R2_ACCOUNT_ID=your-cloudflare-account-id
+R2_BUCKET=your-private-bucket
+R2_ACCESS_KEY_ID=your-r2-access-key-id
+R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
+R2_PREFIX=signal-state
+
+AGE_RECIPIENT=age1replace-with-your-public-recipient</code></pre>
+          </div>
+          <div class="notice warn">
+            <strong>VNC limitation:</strong> the UI password must contain at
+            most eight characters. This is an RFB protocol limit. Host-loopback
+            binding and SSH tunnelling are part of the security boundary.
+          </div>
+
+          <h3>Generate the age identity</h3>
+          <p>
+            This is required only when you use R2. Generate it once on a trusted
+            machine. The private identity decrypts every snapshot made for its
+            recipient.
+          </p>
+          <div class="code-wrap">
+            <pre><code>mkdir -p secrets
+age-keygen -o secrets/age-identity.txt
+age-keygen -y secrets/age-identity.txt
+chmod 600 secrets/age-identity.txt</code></pre>
+          </div>
+          <p>
+            Copy the printed <code>age1…</code> value into
+            <code>AGE_RECIPIENT</code>. Transfer
+            <code>secrets/age-identity.txt</code> to a remote machine through a
+            separate secure channel. Never store it in R2.
+          </p>
+        </section>
+
+        <section id="link">
+          <h2>3. Link your Signal account</h2>
+          <ol class="step-list">
+            <li>Start only the GUI container.</li>
+            <li>Open the local noVNC page and enter your UI password.</li>
+            <li>
+              Use the Signal mobile app to scan the linked-device QR code.
+            </li>
+            <li>
+              Wait for Signal Desktop to finish linking and initialization.
+            </li>
+            <li>
+              Stop the UI cleanly before starting the daemon or state tool.
+            </li>
+          </ol>
+
+          <h3>Start the UI</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose --profile ui up --build signal-ui</code></pre>
+          </div>
+          <p>
+            Open <a href="http://127.0.0.1:6080/">http://127.0.0.1:6080/</a>. On
+            a remote host, create a tunnel first:
+          </p>
+          <div class="code-wrap">
+            <pre><code>ssh -L 6080:127.0.0.1:6080 user@remote-host</code></pre>
+          </div>
+
+          <h3>Scan the QR code</h3>
+          <p>
+            In the mobile Signal app, open
+            <strong>Settings → Linked devices</strong>, choose
+            <strong>Link new device</strong>, and scan the QR code shown inside
+            the containerized Signal Desktop window.
+          </p>
+
+          <h3>Stop the UI safely</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose --profile ui stop --timeout 150 signal-ui
+docker compose ps</code></pre>
+          </div>
+          <p>
+            Confirm that neither <code>signal-ui</code> nor
+            <code>signal</code> is running. Never use
+            <code>docker compose down -v</code> unless you intend to delete the
+            linked profile permanently.
+          </p>
+        </section>
+
+        <section id="local">
+          <h2>4A. Run headless on the same machine</h2>
+          <p>
+            If the daemon will use the volume where you linked the account, R2
+            is not required. Start the daemon after the UI has stopped:
+          </p>
+          <div class="code-wrap">
+            <pre><code>docker compose up --build -d signal
+docker compose logs -f signal</code></pre>
+          </div>
+
+          <h3>Check process health and Signal readiness</h3>
+          <div class="code-wrap">
+            <pre><code>curl --fail http://127.0.0.1:8080/healthz
+curl --fail http://127.0.0.1:8080/readyz</code></pre>
+          </div>
+          <ul>
+            <li>
+              <code>/healthz</code> means the local HTTP process is alive.
+            </li>
+            <li>
+              <code>/readyz</code> returns 200 only when the profile, database,
+              build, and online Signal transport are ready.
+            </li>
+            <li>
+              A 503 response includes a JSON status and reason for diagnosis.
+            </li>
+          </ul>
+        </section>
+
+        <section id="r2">
+          <h2>4B. Move the linked profile through R2</h2>
+          <div class="notice danger">
+            Both the source UI and source daemon must be stopped before
+            <code>push</code>. Keep the destination stopped until
+            <code>pull</code> completes.
+          </div>
+
+          <h3>Upload from the source machine</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose stop --timeout 45 signal
+docker compose --profile ui stop --timeout 150 signal-ui
+docker compose --profile tools run --rm --build state push</code></pre>
+          </div>
+          <p>
+            Record the printed snapshot UUID. The tool archives the complete
+            meaningful Signal profile, compresses it, encrypts it locally with
+            age, uploads an immutable object, and publishes metadata last.
+          </p>
+
+          <h3>List and verify</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose --profile tools run --rm state list
+docker compose --profile tools run --rm state verify latest</code></pre>
+          </div>
+          <p>
+            Verification downloads the snapshot, checks size and SHA-256,
+            decrypts it in temporary storage, validates safe archive paths, and
+            compares all files with the encrypted manifest. It does not activate
+            the snapshot.
+          </p>
+
+          <h3>Restore on the destination</h3>
+          <p>
+            Clone the same repository revision, create the destination
+            <code>.env</code>, install the same age identity under
+            <code>secrets/</code>, and run restore <em>before</em> starting the
+            daemon:
+          </p>
+          <div class="code-wrap">
+            <pre><code>docker compose --profile tools run --rm --build state pull latest
+docker compose up --build -d signal
+curl --fail http://127.0.0.1:8080/readyz</code></pre>
+          </div>
+          <p>
+            The state command creates the named Docker volume automatically. A
+            preliminary empty daemon start is unnecessary. To replace a
+            non-empty destination profile, use a specific verified UUID:
+          </p>
+          <div class="code-wrap">
+            <pre><code>docker compose --profile tools run --rm state pull SNAPSHOT_UUID --replace</code></pre>
+          </div>
+          <p>
+            Replacement is staged and verified first, then atomically exchanged
+            on Linux. The volume filesystem must support
+            <code>renameat2(RENAME_EXCHANGE)</code>.
+          </p>
+        </section>
+
+        <section id="send">
+          <h2>5. Send a direct text message</h2>
+          <p>
+            Compose reads <code>.env</code> for containers, but does not export
+            variables into your shell. Export the token or substitute its value
+            in the request without saving it in shell history.
+          </p>
+          <div class="code-wrap">
+            <pre><code>export SIGNAL_API_TOKEN='your-configured-token'
+
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "body": "hello from the headless client",
+    "idempotency_key": "order-123-notification-1"
+  }' \
+  http://127.0.0.1:8080/v1/messages</code></pre>
+          </div>
+          <p>Successful response:</p>
+          <div class="code-wrap">
+            <pre><code>{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "messageId": "00000000-0000-0000-0000-000000000000",
+  "status": "sent",
+  "timestamp": 1783960000000
+}</code></pre>
+          </div>
+          <ul>
+            <li>
+              Destination: lowercase Signal ACI, or E164 already mapped in the
+              restored profile.
+            </li>
+            <li>Body: 1–32,768 characters.</li>
+            <li>
+              Idempotency key: 1–128 ASCII letters, digits,
+              <code>.</code>, <code>_</code>, <code>:</code>, or <code>-</code>.
+            </li>
+            <li>Request body limit: 64 KiB.</li>
+            <li>
+              Repeating the same key, destination, and body returns the durable
+              result; conflicting reuse is rejected.
+            </li>
+          </ul>
+
+          <h3>Call it from another Docker Compose project</h3>
+          <p>
+            Attach both projects to one private external network. Create it
+            once, then add this override beside <code>compose.yaml</code>:
+          </p>
+          <div class="code-wrap">
+            <pre><code>docker network create app-private</code></pre>
+          </div>
+          <div class="code-wrap">
+            <pre><code># compose.override.yaml
+services:
+  signal:
+    networks:
+      default: {}
+      app-private:
+        aliases: [signal-cli]
+
+networks:
+  app-private:
+    external: true</code></pre>
+          </div>
+          <p>
+            Attach your application service to the same
+            <code>app-private</code> network. It can then call
+            <code>http://signal-cli:8080/v1/messages</code> with the same bearer
+            token. A webhook service on that network can likewise use an
+            internal URL such as
+            <code>http://your-app:3000/signal/webhook</code>. Keep the network
+            private and retain API authentication.
+          </p>
+        </section>
+
+        <section id="webhooks">
+          <h2>6. Receive incoming webhooks</h2>
+          <p>
+            Set <code>SIGNAL_WEBHOOK_URL</code> before starting the daemon. Each
+            newly persisted supported direct text becomes one JSON POST:
+          </p>
+          <div class="code-wrap">
+            <pre><code>{
+  "update_id": "7484932459384721",
+  "message": {
+    "message_id": "incoming-message-uuid",
+    "date": 1783960000,
+    "text": "hello",
+    "from": { "id": "sender-aci" },
+    "chat": { "id": "local-conversation-uuid", "type": "private" }
+  }
+}</code></pre>
+          </div>
+
+          <h3>Verify webhook signatures</h3>
+          <p>
+            When <code>SIGNAL_WEBHOOK_SECRET</code> is set, requests include:
+          </p>
+          <div class="code-wrap">
+            <pre><code>X-Signal-Webhook-Signature: sha256=HEX_HMAC_SHA256</code></pre>
+          </div>
+          <p>
+            Compute HMAC-SHA256 over the exact raw HTTP body and compare it in
+            constant time before parsing or acting on the request.
+          </p>
+
+          <h3>Delivery contract</h3>
+          <ul>
+            <li>Ordered, at-least-once delivery.</li>
+            <li>Only HTTP 2xx removes the oldest queued update.</li>
+            <li>Failures retry from one second up to five minutes.</li>
+            <li>Default attempt timeout: ten seconds.</li>
+            <li>
+              The encrypted outbox lives inside the profile and moves with R2
+              snapshots.
+            </li>
+            <li>
+              Consumers must deduplicate by stable string
+              <code>update_id</code>.
+            </li>
+          </ul>
+          <div class="notice">
+            On first initialization, historical linked messages are baselined
+            and not delivered as a webhook flood. If no URL is configured, the
+            cursor advances without building a pending queue.
+          </div>
+        </section>
+
+        <section id="switching">
+          <h2>7. Switch between headless and GUI modes</h2>
+          <p>Stop one owner fully before starting the other.</p>
+
+          <h3>Headless → GUI</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose stop --timeout 45 signal
+docker compose --profile ui up signal-ui</code></pre>
+          </div>
+
+          <h3>GUI → headless</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose --profile ui stop --timeout 150 signal-ui
+docker compose up -d signal</code></pre>
+          </div>
+          <p>
+            If the profile lock reports that it is busy, find and stop the
+            actual owner. Never delete or bypass the lock while a container may
+            still be using the profile.
+          </p>
+        </section>
+
+        <section id="operations">
+          <h2>8. Routine operations</h2>
+
+          <h3>Logs and status</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose ps
+docker compose logs --tail=200 signal
+curl --fail http://127.0.0.1:8080/healthz
+curl --fail-with-body http://127.0.0.1:8080/readyz</code></pre>
+          </div>
+
+          <h3>Offline profile validation</h3>
+          <div class="code-wrap">
+            <pre><code>SIGNAL_DAEMON_CONNECT=false docker compose up signal</code></pre>
+          </div>
+          <p>
+            Offline mode opens and validates the profile without connecting to
+            Signal. The API remains local, but message sends cannot succeed.
+          </p>
+
+          <h3>Later machine migration</h3>
+          <ol class="step-list">
+            <li>Stop the current owner and wait for exit.</li>
+            <li>Push and record a snapshot UUID.</li>
+            <li>Verify that exact UUID.</li>
+            <li>Stop the destination owner.</li>
+            <li>Pull the UUID with <code>--replace</code>.</li>
+            <li>Start exactly one destination runtime.</li>
+          </ol>
+
+          <h3>Rollback</h3>
+          <div class="code-wrap">
+            <pre><code>docker compose stop --timeout 45 signal
+docker compose --profile tools run --rm state verify OLD_SNAPSHOT_UUID
+docker compose --profile tools run --rm state pull OLD_SNAPSHOT_UUID --replace
+docker compose up -d signal</code></pre>
+          </div>
+          <div class="notice warn">
+            Rollback discards local messages and protocol state newer than the
+            selected snapshot. Signal may not replay them.
+          </div>
+        </section>
+
+        <section id="updates">
+          <h2>9. Update from upstream</h2>
+          <p>
+            Builds expire exactly 90 days after image build time. Signal may
+            also remotely shorten GUI validity. Do not extend the fork to 128
+            days: that would require weakening Signal's 91-day safety ceiling.
+          </p>
+          <p>
+            Configure the official repository once, then update by fetching,
+            merging, resolving conflicts, and rebuilding. No timestamp,
+            revision, expiration, Compose, or <code>.env</code> bookkeeping is
+            required.
+          </p>
+          <div class="code-wrap">
+            <pre><code>git remote add upstream https://github.com/signalapp/Signal-Desktop.git # once
+git fetch upstream
+git merge upstream/main
+# Resolve conflicts, if any, and complete the merge.
+
+docker compose build signal signal-ui state
+docker compose up -d signal
+curl --fail http://127.0.0.1:8080/readyz</code></pre>
+          </div>
+          <p>
+            Docker automatically generates one build timestamp shared by the GUI
+            and daemon. <code>SOURCE_DATE_EPOCH</code> exists only as an
+            optional reproducible-build argument and is not part of normal use.
+          </p>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>10. Troubleshooting</h2>
+
+          <details>
+            <summary><code>/readyz</code> returns 503</summary>
+            <div>
+              Read the JSON <code>phase</code> and <code>reason</code>. Common
+              causes are an unlinked profile, Signal transport reconnecting, a
+              terminal transport failure, an expired build, or missing profile
+              credentials. Check <code>docker compose logs signal</code>.
+            </div>
+          </details>
+
+          <details>
+            <summary>The profile lock is busy</summary>
+            <div>
+              Run <code>docker compose ps</code> and stop the UI, daemon, or
+              state tool that owns the profile. Do not remove the lock file to
+              force concurrent access.
+            </div>
+          </details>
+
+          <details>
+            <summary>An E164 destination is not found</summary>
+            <div>
+              E164 works only if the restored Signal profile already maps that
+              number to an ACI. Use a lowercase ACI directly or first establish
+              the contact mapping through supported Signal Desktop activity.
+            </div>
+          </details>
+
+          <details>
+            <summary>Webhook deliveries repeat</summary>
+            <div>
+              This is expected under at-least-once delivery when the consumer
+              accepts a request but the daemon does not durably observe its 2xx
+              response. Deduplicate using <code>update_id</code>.
+            </div>
+          </details>
+
+          <details>
+            <summary>R2 restore refuses a non-empty profile</summary>
+            <div>
+              Verify the intended snapshot and rerun pull with
+              <code>--replace</code>. Ensure all profile owners are stopped
+              first.
+            </div>
+          </details>
+
+          <details>
+            <summary>The daemon says the profile is unlinked</summary>
+            <div>
+              Restore a known-good linked snapshot or link a fresh profile with
+              the GUI. Do not manually edit <code>config.json</code>, SQLCipher,
+              identities, sessions, or prekeys.
+            </div>
+          </details>
+        </section>
+
+        <section id="reference">
+          <h2>Environment reference</h2>
+
+          <h3>Daemon, API, and webhook</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Default</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SIGNAL_API_PORT</code></td>
+                <td>8080</td>
+                <td>Loopback HTTP API port.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_API_TOKEN</code></td>
+                <td>unset</td>
+                <td>Bearer token, at least 16 characters; required online.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_DAEMON_CONNECT</code></td>
+                <td>true</td>
+                <td>Enable or disable Signal network connection.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_DAEMON_LOG_LEVEL</code></td>
+                <td>info</td>
+                <td>debug, info, warn, or error.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_WEBHOOK_URL</code></td>
+                <td>unset</td>
+                <td>HTTP(S) endpoint for incoming text updates.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_WEBHOOK_SECRET</code></td>
+                <td>unset</td>
+                <td>HMAC secret, at least 16 characters.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_WEBHOOK_TIMEOUT_MS</code></td>
+                <td>10000</td>
+                <td>Webhook attempt timeout.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_WEBHOOK_MAX_PENDING</code></td>
+                <td>1000</td>
+                <td>Maximum durable queued updates.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_MEMORY_LIMIT</code></td>
+                <td>512m</td>
+                <td>Daemon Compose memory limit.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_CPU_LIMIT</code></td>
+                <td>1.0</td>
+                <td>Daemon Compose CPU limit.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_PIDS_LIMIT</code></td>
+                <td>128</td>
+                <td>Daemon process limit.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>GUI</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Default</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SIGNAL_UI_PASSWORD</code></td>
+                <td>required</td>
+                <td>noVNC/RFB password, maximum eight characters.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_UI_PORT</code></td>
+                <td>6080</td>
+                <td>Loopback noVNC port.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_UI_RESOLUTION</code></td>
+                <td>1440x900</td>
+                <td>Virtual desktop resolution.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_UI_DISABLE_GPU</code></td>
+                <td>1</td>
+                <td>Add Electron's disable-GPU option.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_UI_MEMORY_LIMIT</code></td>
+                <td>2g</td>
+                <td>GUI Compose memory limit.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>R2 and age</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Default</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>R2_BUCKET</code></td>
+                <td>required</td>
+                <td>Private snapshot bucket.</td>
+              </tr>
+              <tr>
+                <td><code>R2_ACCOUNT_ID</code></td>
+                <td>required*</td>
+                <td>Derives the standard R2 endpoint.</td>
+              </tr>
+              <tr>
+                <td><code>R2_ENDPOINT_URL</code></td>
+                <td>derived</td>
+                <td>Explicit S3-compatible endpoint alternative.</td>
+              </tr>
+              <tr>
+                <td><code>R2_ACCESS_KEY_ID</code></td>
+                <td>required</td>
+                <td>R2 S3 access key ID.</td>
+              </tr>
+              <tr>
+                <td><code>R2_SECRET_ACCESS_KEY</code></td>
+                <td>required</td>
+                <td>R2 S3 secret access key.</td>
+              </tr>
+              <tr>
+                <td><code>R2_PREFIX</code></td>
+                <td>signal-state</td>
+                <td>Snapshot object-key prefix.</td>
+              </tr>
+              <tr>
+                <td><code>AGE_RECIPIENT</code></td>
+                <td>required for push</td>
+                <td>Public age recipient.</td>
+              </tr>
+              <tr>
+                <td><code>AGE_IDENTITY_FILE</code></td>
+                <td>/run/secrets/age-identity.txt</td>
+                <td>Private identity used by pull and verify.</td>
+              </tr>
+              <tr>
+                <td><code>SIGNAL_DATA_VOLUME</code></td>
+                <td>signal-desktop-data</td>
+                <td>
+                  Named volume; use a unique value per independent profile.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>State commands</h3>
+          <div class="code-wrap">
+            <pre><code>signal-state push
+signal-state list
+signal-state verify [latest|SNAPSHOT_UUID|OBJECT_KEY]
+signal-state pull [latest|SNAPSHOT_UUID|OBJECT_KEY] [--replace]</code></pre>
+          </div>
+        </section>
+
+        <footer>
+          <p>
+            Signal Desktop CLI is an unofficial Signal Desktop fork, not the
+            signal-cli project and not an official Signal distribution. Licensed
+            under AGPL-3.0-only. Keep the fork current with upstream Signal
+            Desktop security and protocol changes.
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      for (const wrapper of document.querySelectorAll('.code-wrap')) {
+        const pre = wrapper.querySelector('pre');
+        if (!pre) continue;
+        const button = document.createElement('button');
+        button.className = 'copy';
+        button.type = 'button';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code block');
+        button.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(pre.innerText);
+            button.textContent = 'Copied';
+          } catch {
+            button.textContent = 'Select text';
+          }
+          window.setTimeout(() => {
+            button.textContent = 'Copy';
+          }, 1600);
+        });
+        wrapper.append(button);
+      }
+
+      const navigation = [...document.querySelectorAll('nav a')];
+      const sections = navigation
+        .map(link => document.querySelector(link.getAttribute('href')))
+        .filter(Boolean);
+      const observer = new IntersectionObserver(
+        entries => {
+          const visible = entries
+            .filter(entry => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          for (const link of navigation) {
+            link.classList.toggle(
+              'active',
+              link.getAttribute('href') === `#${visible.target.id}`
+            );
+          }
+        },
+        { rootMargin: '-15% 0px -70% 0px', threshold: [0, 0.2, 0.6] }
+      );
+      for (const section of sections) observer.observe(section);
+    </script>
+  </body>
+</html>
