@@ -18,6 +18,7 @@ import {
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+import { Emoji } from '../axo/emoji.std.ts';
 import { Sessions, IdentityKeys } from '../LibSignalStores.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import { SendStatus } from '../messages/MessageSendState.std.ts';
@@ -99,6 +100,20 @@ export type SendTextRequest = Readonly<{
 
 export type SendTextResult = Readonly<{
   destination: AciString;
+  messageId: string;
+  status: 'sent';
+  timestamp: number;
+}>;
+
+export type SendReactionRequest = Readonly<{
+  destination: string;
+  emoji: string;
+  messageId: string;
+}>;
+
+export type SendReactionResult = Readonly<{
+  destination: AciString;
+  emoji: Emoji.Variant;
   messageId: string;
   status: 'sent';
   timestamp: number;
@@ -375,6 +390,42 @@ export class HeadlessSendService {
     signal?: AbortSignal
   ): Promise<SendTextResult> {
     this.#validate(request);
+    const messageId = uuidV4();
+    return this.#enqueue(request.destination, () =>
+      this.#send(request, messageId, signal)
+    );
+  }
+
+  public sendReaction(
+    request: SendReactionRequest,
+    signal?: AbortSignal
+  ): Promise<SendReactionResult> {
+    if (!request.messageId) {
+      throw new HeadlessSendError(
+        'messageId is required',
+        'invalid-request',
+        false
+      );
+    }
+    if (!Emoji.isEmoji(request.emoji)) {
+      throw new HeadlessSendError(
+        'emoji must be one supported emoji',
+        'invalid-request',
+        false
+      );
+    }
+    return this.#enqueue(request.destination, () =>
+      this.#sendReaction(
+        { ...request, emoji: request.emoji as Emoji.Variant },
+        signal
+      )
+    );
+  }
+
+  #enqueue<Result>(
+    destination: string,
+    send: () => Promise<Result>
+  ): Promise<Result> {
     const maxPending = this.#options.maxPending ?? 100;
     if (this.#pending >= maxPending) {
       throw new HeadlessSendError(
@@ -384,33 +435,20 @@ export class HeadlessSendService {
       );
     }
     this.#pending += 1;
-    const messageId = uuidV4();
     const previousDestination =
-      this.#destinationQueues.get(request.destination) ?? Promise.resolve();
-    const operation = this.#runQueued(
-      previousDestination,
-      request,
-      messageId,
-      signal
-    );
-    this.#destinationQueues.set(request.destination, operation);
-    return this.#completeQueued(operation, request.destination);
+      this.#destinationQueues.get(destination) ?? Promise.resolve();
+    const operation = (async () => {
+      await Promise.allSettled([previousDestination]);
+      return send();
+    })();
+    this.#destinationQueues.set(destination, operation);
+    return this.#completeQueued(operation, destination);
   }
 
-  async #runQueued(
-    previousDestination: Promise<unknown>,
-    request: SendTextRequest,
-    messageId: string,
-    signal?: AbortSignal
-  ): Promise<SendTextResult> {
-    await Promise.allSettled([previousDestination]);
-    return this.#send(request, messageId, signal);
-  }
-
-  async #completeQueued(
-    operation: Promise<SendTextResult>,
+  async #completeQueued<Result>(
+    operation: Promise<Result>,
     destination: string
-  ): Promise<SendTextResult> {
+  ): Promise<Result> {
     try {
       return await operation;
     } finally {
@@ -418,6 +456,107 @@ export class HeadlessSendService {
       if (this.#destinationQueues.get(destination) === operation) {
         this.#destinationQueues.delete(destination);
       }
+    }
+  }
+
+  async #sendReaction(
+    request: SendReactionRequest & { emoji: Emoji.Variant },
+    signal?: AbortSignal
+  ): Promise<SendReactionResult> {
+    if (!this.#transport.connected) {
+      throw new HeadlessSendError(
+        'Signal transport is not connected',
+        'not-connected',
+        true
+      );
+    }
+    const destination = this.#resolveDestination(request.destination);
+    const conversation = this.#stores.conversationController.lookupOrCreate({
+      reason: 'HeadlessSendService.reaction',
+      serviceId: destination,
+    });
+    if (!conversation) {
+      throw new HeadlessSendError(
+        'Could not create recipient',
+        'send-failed',
+        false
+      );
+    }
+    await conversation.initialPromise;
+    const target = await this.#stores.messageCache.getOrLoadById(
+      request.messageId
+    );
+    if (!target || target.get('conversationId') !== conversation.id) {
+      throw new HeadlessSendError(
+        'Reaction target was not found in the destination conversation',
+        'invalid-request',
+        false
+      );
+    }
+    const targetAuthorAci =
+      target.get('type') === 'outgoing'
+        ? this.#stores.itemStorage.user.getCheckedAci()
+        : target.get('sourceServiceId');
+    if (!targetAuthorAci || !isAciString(targetAuthorAci)) {
+      throw new HeadlessSendError(
+        'Reaction target has no Signal author',
+        'invalid-request',
+        false
+      );
+    }
+    const timestamp = (this.#options.now ?? Date.now)();
+    try {
+      if (!(await this.#crypto.hasSessions(destination))) {
+        const keys = await this.#fetchKeys(destination, signal);
+        await this.#crypto.establishSessions({ destination, keys });
+      }
+      const content = Proto.Content.encode({
+        content: {
+          dataMessage: {
+            reaction: {
+              emoji: request.emoji,
+              remove: false,
+              targetAuthorAci,
+              targetSentTimestamp: BigInt(target.get('sent_at')),
+            },
+            timestamp: BigInt(timestamp),
+          } as unknown as Proto.DataMessage.Params,
+        },
+        pniSignatureMessage: null,
+        senderKeyDistributionMessage: null,
+      });
+      await this.#transmitWithDeviceRepair(
+        destination,
+        padMessage(content),
+        timestamp,
+        signal
+      );
+      const ourConversationId =
+        this.#stores.conversationController.getOurConversationIdOrThrow();
+      target.set({
+        reactions: [
+          ...(target.get('reactions') ?? []).filter(
+            reaction => reaction.fromId !== ourConversationId
+          ),
+          {
+            emoji: request.emoji,
+            fromId: ourConversationId,
+            isSentByConversationId: { [conversation.id]: true },
+            targetTimestamp: target.get('sent_at'),
+            timestamp,
+          },
+        ],
+      });
+      await this.#stores.messageCache.saveMessage(target);
+      return {
+        destination,
+        emoji: request.emoji,
+        messageId: request.messageId,
+        status: 'sent',
+        timestamp,
+      };
+    } catch (error) {
+      throw classifySendError(error);
     }
   }
 

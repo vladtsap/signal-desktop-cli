@@ -858,6 +858,30 @@ curl --fail-with-body \
             </li>
           </ul>
 
+          <h3>React to a message</h3>
+          <p>
+            Call authenticated <code>POST /v1/reactions</code> with the same
+            destination, the webhook's opaque <code>message.message_id</code>,
+            and one supported emoji:
+          </p>
+          <div class="code-wrap">
+            <pre><code>curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "message_id": "incoming-message-id",
+    "emoji": "👍"
+  }' \
+  http://127.0.0.1:8080/v1/reactions</code></pre>
+          </div>
+          <p>
+            The target must exist locally and belong to the destination
+            conversation. Sending another reaction from this account replaces
+            its locally stored reaction after Signal accepts the new reaction.
+            Reaction removal is not currently exposed by the API.
+          </p>
+
           <h3>Call it from another Docker Compose project</h3>
           <p>
             Attach both projects to one private external network. Create it

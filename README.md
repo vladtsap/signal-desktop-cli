@@ -216,6 +216,22 @@ A successful response has this shape:
 
 `destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. To send a Signal quoted reply, set optional `quote_message_id` to the opaque ID from an earlier webhook's `message.message_id`; the referenced message must still exist locally and belong to the destination conversation. No other request fields are accepted, and request bodies are limited to 64 KiB. Each accepted POST creates a fresh outgoing message ID and performs one logical send operation. There is no application-level deduplication: sending an identical request again can produce a duplicate message. If Signal explicitly rejects the encrypted payload because the recipient device list changed, the daemon preserves unaffected sessions, repairs only missing, extra, stale, or registration-changed devices, and retransmits once inside the same POST. This bounded retry is safe because Signal rejected the first transmission before accepting it. A second device mismatch is returned as retryable HTTP 502. Other transport failures are never retried automatically: if the connection closes before the response arrives, the outcome is ambiguous.
 
+To react to a locally retained message, call the authenticated `POST /v1/reactions` endpoint with the same destination, the webhook's opaque `message.message_id`, and one supported emoji:
+
+```sh
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "message_id": "incoming-message-id",
+    "emoji": "👍"
+  }' \
+  http://127.0.0.1:8080/v1/reactions
+```
+
+The target must exist locally and belong to the destination conversation. Sending another reaction from this account replaces its locally stored reaction after Signal accepts the new reaction. Reaction removal is not currently exposed by the API.
+
 The API is bound to host loopback by Compose. To call it from another container, attach both services to a private Compose network with an override and use the service name; keep bearer authentication and do not publish the endpoint publicly without a separate TLS/authentication gateway and network controls.
 
 ## Incoming webhooks

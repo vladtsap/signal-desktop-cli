@@ -251,6 +251,9 @@ void test('control service aborts and drains an active send before stopping', as
   let sendSignal: AbortSignal | undefined;
   const service = new HeadlessControlService(config, transport, {
     createSendService: () => ({
+      async sendReaction() {
+        throw new Error('Unexpected reaction');
+      },
       async sendText(request, signal) {
         sendSignal = signal;
         enterSend?.();
@@ -307,10 +310,11 @@ void test('control service aborts and drains an active send before stopping', as
   }
 });
 
-void test('control API forwards a quoted message id', async () => {
+void test('control API forwards quote and reaction fields', async () => {
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-api-quote-'));
   const apiPort = await availablePort();
   const requests = new Array<Record<string, unknown>>();
+  const reactions = new Array<Record<string, unknown>>();
   const config: DaemonConfig = {
     apiHost: '127.0.0.1',
     apiPort,
@@ -335,6 +339,16 @@ void test('control API forwards a quoted message id', async () => {
   } satisfies HeadlessSql;
   const service = new HeadlessControlService({ ...config }, {} as never, {
     createSendService: () => ({
+      async sendReaction(request) {
+        reactions.push(request);
+        return {
+          destination: request.destination as AciString,
+          emoji: request.emoji as never,
+          messageId: request.messageId,
+          status: 'sent',
+          timestamp: 2,
+        };
+      },
       async sendText(request) {
         requests.push(request);
         return {
@@ -373,6 +387,29 @@ void test('control API forwards a quoted message id', async () => {
         body: 'quoted reply',
         destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
         quoteMessageId: '11111111-1111-4111-8111-111111111111',
+      },
+    ]);
+    const reactionResponse = await fetch(
+      `http://127.0.0.1:${apiPort}/v1/reactions`,
+      {
+        body: JSON.stringify({
+          destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+          emoji: '👍',
+          message_id: 'incoming-message-id',
+        }),
+        headers: {
+          authorization: `Bearer ${TOKEN}`,
+          'content-type': 'application/json',
+        },
+        method: 'POST',
+      }
+    );
+    assert.equal(reactionResponse.status, 200);
+    assert.deepEqual(reactions, [
+      {
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        emoji: '👍',
+        messageId: 'incoming-message-id',
       },
     ]);
   } finally {

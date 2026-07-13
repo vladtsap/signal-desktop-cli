@@ -7,6 +7,7 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 
 import { z } from 'zod';
 
+import { Emoji } from '../axo/emoji.std.ts';
 import type { DaemonConfig } from './config.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
@@ -33,6 +34,13 @@ const sendSchema = z
     quote_message_id: z.string().min(1).max(256).optional(),
   })
   .strict();
+const reactionSchema = z
+  .object({
+    destination: destinationSchema,
+    emoji: z.string().refine(Emoji.isEmoji, { message: 'invalid emoji' }),
+    message_id: z.string().min(1).max(256),
+  })
+  .strict();
 
 export type ControlServiceOptions = Readonly<{
   createOutbox?: (
@@ -42,7 +50,7 @@ export type ControlServiceOptions = Readonly<{
   createSendService?: (
     transport: HeadlessSendTransport,
     stores: HeadlessProtocolStores
-  ) => Pick<HeadlessSendService, 'sendText'>;
+  ) => Pick<HeadlessSendService, 'sendReaction' | 'sendText'>;
   getStatus: () => DaemonStatus;
 }>;
 
@@ -161,7 +169,9 @@ export class HeadlessControlService {
   readonly #activeHandlers = new Set<Promise<void>>();
   readonly #controllers = new Set<AbortController>();
   #outbox: DurableWebhookOutbox | undefined;
-  #sendService: Pick<HeadlessSendService, 'sendText'> | undefined;
+  #sendService:
+    | Pick<HeadlessSendService, 'sendReaction' | 'sendText'>
+    | undefined;
   #server: Server | undefined;
 
   public constructor(
@@ -276,7 +286,10 @@ export class HeadlessControlService {
         json(response, status.ready ? 200 : 503, status);
         return;
       }
-      if (request.method !== 'POST' || request.url !== '/v1/messages') {
+      if (
+        request.method !== 'POST' ||
+        (request.url !== '/v1/messages' && request.url !== '/v1/reactions')
+      ) {
         json(response, 404, {
           error: { code: 'not-found', message: 'Not found' },
         });
@@ -289,8 +302,18 @@ export class HeadlessControlService {
         });
         return;
       }
-      const parsed = sendSchema.safeParse(await readJson(request));
-      if (!parsed.success) {
+      const body = await readJson(request);
+      const validation =
+        request.url === '/v1/reactions'
+          ? ({
+              kind: 'reaction' as const,
+              result: reactionSchema.safeParse(body),
+            } as const)
+          : ({
+              kind: 'message' as const,
+              result: sendSchema.safeParse(body),
+            } as const);
+      if (!validation.result.success) {
         throw new HeadlessSendError(
           'Invalid send request',
           'invalid-request',
@@ -316,16 +339,28 @@ export class HeadlessControlService {
             true
           );
         }
-        const result = await sendService.sendText(
-          {
-            body: parsed.data.body,
-            destination: parsed.data.destination,
-            ...(parsed.data.quote_message_id
-              ? { quoteMessageId: parsed.data.quote_message_id }
-              : {}),
-          },
-          controller.signal
-        );
+        const result =
+          validation.kind === 'reaction'
+            ? await sendService.sendReaction(
+                {
+                  destination: validation.result.data.destination,
+                  emoji: validation.result.data.emoji,
+                  messageId: validation.result.data.message_id,
+                },
+                controller.signal
+              )
+            : await sendService.sendText(
+                {
+                  body: validation.result.data.body,
+                  destination: validation.result.data.destination,
+                  ...(validation.result.data.quote_message_id
+                    ? {
+                        quoteMessageId: validation.result.data.quote_message_id,
+                      }
+                    : {}),
+                },
+                controller.signal
+              );
         json(response, 200, result);
       } finally {
         this.#controllers.delete(controller);

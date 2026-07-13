@@ -340,6 +340,55 @@ async function testQuotedReply(): Promise<void> {
   }
 }
 
+async function testReaction(): Promise<void> {
+  const harness = await createHarness();
+  const targetMessageId = '22222222-2222-4222-8222-222222222222';
+  try {
+    const target: MessageAttributesType = {
+      body: 'react to this',
+      conversationId: harness.recipient.id,
+      id: targetMessageId,
+      received_at: 1_699_999_998_000,
+      sent_at: 1_699_999_998_000,
+      sourceServiceId: THEIR_ACI,
+      timestamp: 1_699_999_998_000,
+      type: 'incoming',
+    };
+    const model = harness.stores.messageCache.register(
+      harness.stores.messageCache.create(target)
+    );
+    await harness.stores.messageCache.saveMessage(model, { forceSave: true });
+
+    const result = await harness.service.sendReaction({
+      destination: THEIR_ACI,
+      emoji: '👍',
+      messageId: targetMessageId,
+    });
+    assert.equal(result.emoji, '👍');
+    const persisted = await harness.dataReader.getMessageById(targetMessageId);
+    assert.equal(persisted?.reactions?.length, 1);
+    assert.equal(persisted?.reactions?.[0]?.emoji, '👍');
+    assert.equal(persisted?.reactions?.[0]?.targetTimestamp, 1_699_999_998_000);
+    const reaction = decodeContent(harness.plaintexts[0] ?? new Uint8Array())
+      .content?.dataMessage?.reaction;
+    assert.equal(reaction?.emoji, '👍');
+    assert.equal(reaction?.remove, false);
+    assert.equal(reaction?.targetAuthorAci, THEIR_ACI);
+    assert.equal(reaction?.targetSentTimestamp, 1_699_999_998_000n);
+    await assert.rejects(
+      async () =>
+        harness.service.sendReaction({
+          destination: THEIR_ACI,
+          emoji: 'not an emoji',
+          messageId: targetMessageId,
+        }),
+      { code: 'invalid-request' }
+    );
+  } finally {
+    await harness.cleanup();
+  }
+}
+
 async function testRetryableFailure(): Promise<void> {
   const harness = await createHarness();
   try {
@@ -477,6 +526,7 @@ async function main(): Promise<void> {
   await testRepeatedRequestsCreateDistinctDurableSends();
   await testE164Resolution();
   await testQuotedReply();
+  await testReaction();
   await testRetryableFailure();
   await testDeviceMismatchRecovery();
   await testDeviceMismatchRetryIsBounded();
