@@ -204,6 +204,36 @@ void test('acknowledges only after direct text is durably saved', async () => {
   await harness.receiver.stop();
 });
 
+void test('persists quoted reply context for webhook delivery', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: {
+        body: 'reply body',
+        quote: {
+          authorAci: OUR_ACI,
+          id: 999n,
+          text: 'original body',
+        },
+        timestamp: 1234n,
+      },
+    },
+  } as never);
+  const harness = makeHarness({ plaintext });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.deepEqual(harness.saved[0]?.quote, {
+    attachments: [],
+    authorAci: OUR_ACI,
+    id: 999,
+    isViewOnce: false,
+    referencedMessageNotFound: false,
+    text: 'original body',
+  });
+  await harness.receiver.stop();
+});
+
 void test('retries persistence from staged plaintext without decrypting twice', async () => {
   const harness = makeHarness({ saveFailureCount: 1 });
   await start(harness);

@@ -43,7 +43,10 @@ import { isPniString, normalizeServiceId } from '../types/ServiceId.std.ts';
 import * as Errors from '../types/errors.std.ts';
 import { strictAssert } from '../util/assert.std.ts';
 import { consoleLogger } from '../util/consoleLogger.std.ts';
-import { fromServiceIdBinaryOrString } from '../util/ServiceId.node.ts';
+import {
+  fromAciUuidBytesOrString,
+  fromServiceIdBinaryOrString,
+} from '../util/ServiceId.node.ts';
 import { bytesToUuid } from '../util/uuidToBytes.std.ts';
 import { Zone } from '../util/Zone.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
@@ -616,7 +619,6 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       message.groupV2 ||
       message.attachments.length > 0 ||
       message.preview.length > 0 ||
-      message.quote ||
       message.reaction ||
       message.delete ||
       message.storyContext
@@ -624,6 +626,35 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       throw new UnsupportedIncomingContentError(
         'Incoming data message contains unsupported fields'
       );
+    }
+    let quote: MessageAttributesType['quote'];
+    if (message.quote) {
+      const quoteId = Number(message.quote.id);
+      const authorAci = fromAciUuidBytesOrString(
+        message.quote.authorAciBinary,
+        message.quote.authorAci,
+        'HeadlessMessageReceiver.quote.authorAci'
+      );
+      if (
+        message.quote.id == null ||
+        !Number.isSafeInteger(quoteId) ||
+        quoteId <= 0 ||
+        !authorAci ||
+        message.quote.attachments.length > 0 ||
+        message.quote.bodyRanges.length > 0
+      ) {
+        throw new UnsupportedIncomingContentError(
+          'Incoming quote is malformed or contains unsupported fields'
+        );
+      }
+      quote = {
+        attachments: [],
+        authorAci,
+        id: quoteId,
+        isViewOnce: false,
+        referencedMessageNotFound: false,
+        text: message.quote.text ?? '',
+      };
     }
     const duplicate = await stores.messageCache.findBySentAt(
       envelope.timestamp,
@@ -647,6 +678,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       conversationId: conversation.id,
       decrypted_at: Date.now(),
       id: envelope.id,
+      ...(quote ? { quote } : {}),
       readStatus: ReadStatus.Unread,
       received_at: envelope.receivedAtCounter,
       received_at_ms: envelope.receivedAtDate,

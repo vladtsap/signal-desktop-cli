@@ -907,7 +907,14 @@ networks:
     "date": 1783960000000,
     "text": "hello",
     "from": { "id": "sender-aci" },
-    "chat": { "id": "sender-aci", "type": "private" }
+    "chat": { "id": "sender-aci", "type": "private" },
+    "reply_to_message": {
+      "message_id": "1783959000000",
+      "date": 1783959000000,
+      "text": "quoted text",
+      "from": { "id": "quoted-author-aci" },
+      "chat": { "id": "sender-aci", "type": "private" }
+    }
   }
 }</code></pre>
           </div>
@@ -921,6 +928,17 @@ networks:
             <code>message_id</code>, allowing consumers to deduplicate retries
             without relying on timestamps, which are not guaranteed to be
             unique.
+          </p>
+
+          <p>
+            For a quoted reply, <code>reply_to_message</code> contains Signal's
+            quoted author, text, and target sent timestamp. Signal identifies a
+            quote target by author and sent timestamp rather than by this
+            daemon's local message UUID, so the nested
+            <code>message_id</code> is the target timestamp encoded as a string
+            and <code>date</code> is the same value as a number. The field is
+            omitted for messages without a quote. Quoted attachments and quoted
+            formatting are not yet supported by the headless receiver.
           </p>
 
           <h3>Verify webhook signatures</h3>

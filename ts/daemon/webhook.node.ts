@@ -28,6 +28,13 @@ export type WebhookUpdate = Readonly<{
     date: number;
     from: Readonly<{ id: string }>;
     message_id: string;
+    reply_to_message?: Readonly<{
+      chat: Readonly<{ id: string; type: 'private' }>;
+      date: number;
+      from: Readonly<{ id: string }>;
+      message_id: string;
+      text: string;
+    }>;
     text: string;
   }>;
   update_id: string;
@@ -76,6 +83,15 @@ const stateSchema = z.object({
           date: z.number().safe().int(),
           from: z.object({ id: z.string() }),
           message_id: z.string().min(1).max(256),
+          reply_to_message: z
+            .object({
+              chat: z.object({ id: z.string(), type: z.literal('private') }),
+              date: z.number().safe().int(),
+              from: z.object({ id: z.string() }),
+              message_id: z.string().min(1).max(256),
+              text: z.string().max(1024 * 1024),
+            })
+            .optional(),
           text: z.string().max(1024 * 1024),
         }),
         update_id: z.string().regex(/^\d{1,20}$/),
@@ -135,6 +151,17 @@ function toWebhookUpdate(
       date: message.sent_at,
       from: { id: message.sourceServiceId },
       message_id: message.id,
+      ...(message.quote?.authorAci && message.quote.id != null
+        ? {
+            reply_to_message: {
+              chat: { id: message.sourceServiceId, type: 'private' as const },
+              date: message.quote.id,
+              from: { id: message.quote.authorAci },
+              message_id: String(message.quote.id),
+              text: message.quote.text ?? '',
+            },
+          }
+        : {}),
       text: message.body,
     },
     update_id: stableUpdateId(message.id),

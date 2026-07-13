@@ -231,12 +231,21 @@ After the startup check succeeds, each newly persisted, supported direct text me
     "date": 1783960000000,
     "text": "hello",
     "from": { "id": "sender-aci" },
-    "chat": { "id": "sender-aci", "type": "private" }
+    "chat": { "id": "sender-aci", "type": "private" },
+    "reply_to_message": {
+      "message_id": "1783959000000",
+      "date": 1783959000000,
+      "text": "quoted text",
+      "from": { "id": "quoted-author-aci" },
+      "chat": { "id": "sender-aci", "type": "private" }
+    }
   }
 }
 ```
 
 The IDs are strings. `date` is Signal's exact sent time in Unix milliseconds, matching the timestamp shown by Signal Desktop. Because only direct messages are supported, `chat.id` and `from.id` are both the sender's stable Signal ACI; that ACI can also be used as the send API's `destination`. `update_id` is a separate value deterministically derived from `message_id`, so consumers can deduplicate retries without relying on timestamps, which are not guaranteed to be unique.
+
+For a quoted reply, `reply_to_message` contains Signal's quoted author, text, and target sent timestamp. Signal's quote protocol identifies the target by author and sent timestamp rather than by the receiving daemon's local message UUID, so the nested `message_id` is the target timestamp encoded as a string and `date` is the same value as a number. The field is omitted for messages without a quote. Quoted attachments and quoted formatting are not yet supported by the headless receiver.
 
 When `SIGNAL_WEBHOOK_SECRET` is set, the request includes:
 

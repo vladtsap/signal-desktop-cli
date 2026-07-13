@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
 import type { HeadlessSql } from './sql.node.ts';
-import { DurableWebhookOutbox } from './webhook.node.ts';
+import { DurableWebhookOutbox, type WebhookUpdate } from './webhook.node.ts';
 
 function message(id: string, receivedAt: number): MessageAttributesType {
   return {
@@ -27,6 +27,20 @@ function message(id: string, receivedAt: number): MessageAttributesType {
     timestamp: receivedAt * 1_000,
     type: 'incoming',
   } as MessageAttributesType;
+}
+
+function quotedMessage(id: string, receivedAt: number): MessageAttributesType {
+  return {
+    ...message(id, receivedAt),
+    quote: {
+      attachments: [],
+      authorAci: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' as AciString,
+      id: 999_000,
+      isViewOnce: false,
+      referencedMessageNotFound: false,
+      text: 'original text',
+    },
+  };
 }
 
 function fakeSql(messages: Array<MessageAttributesType>): HeadlessSql {
@@ -198,6 +212,45 @@ void test('startup reconciliation closes the save-to-enqueue crash gap', async (
     assert.equal(restarted.pendingCount, 1);
     await restarted.stop();
   } finally {
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
+void test('webhook includes quoted reply context', async () => {
+  const storagePath = await mkdtemp(join(tmpdir(), 'signal-webhook-quote-'));
+  const messages = new Array<MessageAttributesType>();
+  let delivered: WebhookUpdate | undefined;
+  const outbox = new DurableWebhookOutbox(fakeSql(messages), {
+    fetch: async (_input, init) => {
+      assert.equal(typeof init?.body, 'string');
+      delivered = JSON.parse(init.body) as WebhookUpdate;
+      return new Response(null, { status: 204 });
+    },
+    maxPending: 10,
+    profileKey: '12'.repeat(32),
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await outbox.prepare();
+    const value = quotedMessage('quoted-reply', 3);
+    messages.push(value);
+    await outbox.enqueue(value);
+    outbox.start();
+    await waitFor(() => delivered != null && outbox.pendingCount === 0);
+    assert.deepEqual(delivered?.message.reply_to_message, {
+      chat: {
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        type: 'private',
+      },
+      date: 999_000,
+      from: { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' },
+      message_id: '999000',
+      text: 'original text',
+    });
+  } finally {
+    await outbox.stop();
     await rm(storagePath, { force: true, recursive: true });
   }
 });
