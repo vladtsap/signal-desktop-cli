@@ -759,6 +759,10 @@ docker compose --profile tools run --rm --build state push</code></pre>
             Record the printed snapshot UUID. The tool archives the complete
             meaningful Signal profile, compresses it, encrypts it locally with
             age, uploads an immutable object, and publishes metadata last.
+            Upload is not tied to the original linking machine: whichever
+            stopped machine currently owns the profile can push it. Push needs
+            the public age recipient; verify and pull need the matching private
+            identity.
           </p>
 
           <h3>List and verify</h3>
@@ -923,6 +927,12 @@ networks:
               Consumers must deduplicate by stable string
               <code>update_id</code>.
             </li>
+            <li>
+              <code>SIGNAL_WEBHOOK_MAX_PENDING</code> limits durable,
+              undelivered webhook updates, not messages in Signal's database. At
+              the limit, receive acknowledgement and startup reconciliation
+              pause until delivery frees space; queued updates are not evicted.
+            </li>
           </ul>
           <div class="notice">
             On first initialization, historical linked messages are baselined
@@ -974,6 +984,12 @@ curl --fail-with-body http://127.0.0.1:8080/readyz</code></pre>
           </p>
 
           <h3>Later machine migration</h3>
+          <p>
+            This flow is bidirectional, including remote back to the original
+            computer. Whichever stopped machine currently owns the live profile
+            is the source; the stopped machine taking ownership is the
+            destination.
+          </p>
           <ol class="step-list">
             <li>Stop the current owner and wait for exit.</li>
             <li>Push and record a snapshot UUID.</li>
@@ -1000,8 +1016,9 @@ docker compose up -d signal</code></pre>
           <h2>9. Update from upstream</h2>
           <p>
             Builds expire exactly 90 days after image build time. Signal may
-            also remotely shorten GUI validity. Do not extend the fork to 128
-            days: that would require weakening Signal's 91-day safety ceiling.
+            also remotely shorten GUI validity. The official fork policy is a
+            90-day build lifetime; merge current upstream and rebuild at least
+            that often.
           </p>
           <p>
             Configure the official repository once, then update by fetching,
@@ -1136,17 +1153,15 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
               <tr>
                 <td><code>SIGNAL_WEBHOOK_MAX_PENDING</code></td>
                 <td>1000</td>
-                <td>Maximum durable queued updates.</td>
+                <td>
+                  Maximum durable undelivered updates; a full queue applies
+                  receive backpressure.
+                </td>
               </tr>
               <tr>
                 <td><code>SIGNAL_MEMORY_LIMIT</code></td>
                 <td>512m</td>
-                <td>Daemon Compose memory limit.</td>
-              </tr>
-              <tr>
-                <td><code>SIGNAL_CPU_LIMIT</code></td>
-                <td>1.0</td>
-                <td>Daemon Compose CPU limit.</td>
+                <td>Hard daemon Compose memory limit.</td>
               </tr>
               <tr>
                 <td><code>SIGNAL_PIDS_LIMIT</code></td>
@@ -1155,6 +1170,16 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
               </tr>
             </tbody>
           </table>
+          <p>
+            If the daemon exceeds <code>SIGNAL_MEMORY_LIMIT</code>, its cgroup
+            OOM-kills the container, commonly with exit code 137. Compose then
+            restarts it because the service uses
+            <code>restart: unless-stopped</code>. Durable database and webhook
+            state recover, but retry an interrupted send with the same
+            <code>idempotency_key</code> because its outcome may be ambiguous.
+            Raise the limit or remove <code>mem_limit</code> in a private
+            Compose override if normal workloads repeatedly reach it.
+          </p>
 
           <h3>GUI</h3>
           <table>

@@ -157,7 +157,7 @@ With both runtimes stopped and the R2/age variables configured:
 docker compose --profile tools run --rm --build state push
 ```
 
-The command prints the new snapshot UUID. `push` inventories the profile, creates a tar+zstd stream, encrypts it to `AGE_RECIPIENT`, uploads the payload first, and publishes its descriptor last. Snapshots are immutable; a later push creates another object rather than overwriting the previous one.
+The command prints the new snapshot UUID. `push` inventories the profile, creates a tar+zstd stream, encrypts it to `AGE_RECIPIENT`, uploads the payload first, and publishes its descriptor last. Snapshots are immutable; a later push creates another object rather than overwriting the previous one. Upload is not tied to the original linking machine: whichever stopped machine currently owns the live profile can push it to R2. `push` needs the public `AGE_RECIPIENT`; `verify` and `pull` need the matching private age identity.
 
 List and fully verify the uploaded snapshot before migration:
 
@@ -255,13 +255,13 @@ Verify the HMAC over the exact raw HTTP body with `SIGNAL_WEBHOOK_SECRET` and co
 
 Delivery is ordered and at least once. Only a 2xx response removes the oldest entry. Network errors, redirects, timeouts, and non-2xx responses retry with exponential delays from 1 second to 5 minutes. The timeout defaults to 10 seconds. The encrypted outbox is stored as `headless-webhook-outbox.enc` in the profile, uses AES-256-GCM with a key derived from the SQLCipher profile key, and survives restarts and R2 transfers.
 
-The first daemon initialization creates a cursor at the newest existing incoming message, so linking/restoring historical messages does not flood a newly configured webhook. Subsequent startup reconciliation closes the crash window between SQL message persistence and outbox enqueue. If no webhook URL is configured, incoming text remains in Signal's encrypted database and the webhook cursor advances without accumulating deliveries. The pending count is limited by `SIGNAL_WEBHOOK_MAX_PENDING` and the encrypted outbox file is capped at 128 MiB.
+The first daemon initialization creates a cursor at the newest existing incoming message, so linking/restoring historical messages does not flood a newly configured webhook. Subsequent startup reconciliation closes the crash window between SQL message persistence and outbox enqueue. If no webhook URL is configured, incoming text remains in Signal's encrypted database and the webhook cursor advances without accumulating deliveries. `SIGNAL_WEBHOOK_MAX_PENDING` is the maximum number of durable, undelivered webhook updates, not the number of messages retained in Signal's database. When the outbox reaches it, the daemon stops acknowledging newly received supported messages until space is available, causing Signal to retry them; startup reconciliation also pauses at the full queue. No queued update is silently evicted. The encrypted outbox file is additionally capped at 128 MiB.
 
 Consumers must still be idempotent: a crash after accepting a POST but before the daemon records the 2xx can cause the same `update_id` to be sent again.
 
 ## Moving the profile again
 
-The same stop/snapshot/restore sequence applies in either direction and for every later migration:
+The same stop/snapshot/restore sequence applies in either direction—including remote back to the original computer—and for every later migration. The current profile owner is always the source; the stopped machine that will take ownership is the destination:
 
 1. Stop the daemon or UI on the current owner and wait for it to exit.
 2. Run `state push` there, record the UUID, and preferably run `state verify UUID`.
@@ -335,12 +335,13 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 | `SIGNAL_WEBHOOK_URL`                | unset   | HTTP(S) destination; unset disables delivery.                                        |
 | `SIGNAL_WEBHOOK_SECRET`             | unset   | HMAC secret, minimum 16 characters.                                                  |
 | `SIGNAL_WEBHOOK_TIMEOUT_MS`         | `10000` | Per-attempt timeout, 1,000–120,000 ms.                                               |
-| `SIGNAL_WEBHOOK_MAX_PENDING`        | `1000`  | Durable queued updates, 1–10,000.                                                    |
-| `SIGNAL_CPU_LIMIT`                  | `1.0`   | Compose daemon CPU limit.                                                            |
-| `SIGNAL_MEMORY_LIMIT`               | `512m`  | Compose daemon memory limit.                                                         |
+| `SIGNAL_WEBHOOK_MAX_PENDING`        | `1000`  | Durable undelivered updates, 1–10,000; a full queue applies receive backpressure.    |
+| `SIGNAL_MEMORY_LIMIT`               | `512m`  | Hard Compose daemon memory limit.                                                    |
 | `SIGNAL_PIDS_LIMIT`                 | `128`   | Compose daemon process limit.                                                        |
 
 Compose sets `SIGNAL_API_HOST=0.0.0.0` inside the container but publishes it only on host `127.0.0.1`.
+
+If the daemon exceeds `SIGNAL_MEMORY_LIMIT`, the container's cgroup OOM-kills it (commonly reported as exit code 137). Because the service uses `restart: unless-stopped`, Docker then restarts it. The database and webhook outbox are durable, but an API send interrupted at that exact moment can have an ambiguous outcome; retry it with the same `idempotency_key`. Increase the limit or override/remove `mem_limit` in a private Compose override if normal workloads repeatedly reach it.
 
 ### UI
 
@@ -378,9 +379,7 @@ The entrypoint also supports `SIGNAL_UI_PASSWORD_FILE`, but the stock Compose fi
 
 Both packaged runtimes are valid for exactly 90 days from the image build time. The build generates this timestamp automatically and shares it between the UI and daemon build stages; there is no timestamp, revision, or expiration field to update in `compose.yaml`, `.env`, or `.env.example`. The daemon reports `createdAt`, `expiresAt`, ISO timestamps, `daysRemaining`, and `expired` under `/readyz`. If it starts expired, it opens the profile and control API offline, returns readiness 503, and does not start Signal transport. If it expires while running, it stops Signal transport and keeps health/readiness available for diagnosis. Sending is gated on readiness.
 
-The GUI keeps Signal's remote expiration behavior, so Signal can shorten its effective lifetime. A rebuild is therefore required **at least** every 90 days and may be required sooner.
-
-This fork does not extend the lifetime to 128 days. Upstream contains a 91-day safety ceiling for update-enabled builds; the fork's explicit 90-day form fits below it. Supporting 128 days would require weakening that defense and would leave protocol/security compatibility stale for longer. The correct maintenance operation is to merge current upstream and rebuild.
+The GUI keeps Signal's remote expiration behavior, so Signal can shorten its effective lifetime. The official fork policy is a 90-day build lifetime, and a rebuild is therefore required **at least** every 90 days and may be required sooner. The correct maintenance operation is to merge current upstream and rebuild.
 
 Configure an `upstream` remote for `signalapp/Signal-Desktop` once. The normal update workflow is only fetch, merge, resolve any conflicts, and rebuild:
 
