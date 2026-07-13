@@ -33,6 +33,7 @@ const sendSchema = z
   .object({
     body: z.string().min(1).max(32_768),
     destination: destinationSchema,
+    parse_mode: z.literal('Markdown').optional(),
     quote_message_id: z.string().min(1).max(256).optional(),
   })
   .strict();
@@ -367,6 +368,9 @@ export class HeadlessControlService {
                 {
                   body: validation.result.data.body,
                   destination: validation.result.data.destination,
+                  ...(validation.result.data.parse_mode
+                    ? { parseMode: validation.result.data.parse_mode }
+                    : {}),
                   ...(validation.result.data.quote_message_id
                     ? {
                         quoteMessageId: validation.result.data.quote_message_id,

@@ -389,6 +389,39 @@ async function testReaction(): Promise<void> {
   }
 }
 
+async function testMarkdownFormatting(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    const result = await harness.service.sendText({
+      body: '**bold** and ||secret||',
+      destination: THEIR_ACI,
+      parseMode: 'Markdown',
+    });
+    const persisted = await harness.dataReader.getMessageById(result.messageId);
+    assert.equal(persisted?.body, 'bold and secret');
+    assert.deepEqual(persisted?.bodyRanges, [
+      { length: 4, start: 0, style: Proto.BodyRange.Style.BOLD },
+      { length: 6, start: 9, style: Proto.BodyRange.Style.SPOILER },
+    ]);
+    const dataMessage = decodeContent(harness.plaintexts[0] ?? new Uint8Array())
+      .content?.dataMessage;
+    assert.equal(dataMessage?.body, 'bold and secret');
+    assert.deepEqual(
+      dataMessage?.bodyRanges.map(range => ({
+        length: range.length,
+        start: range.start,
+        style: range.associatedValue?.style,
+      })),
+      [
+        { length: 4, start: 0, style: Proto.BodyRange.Style.BOLD },
+        { length: 6, start: 9, style: Proto.BodyRange.Style.SPOILER },
+      ]
+    );
+  } finally {
+    await harness.cleanup();
+  }
+}
+
 async function testRetryableFailure(): Promise<void> {
   const harness = await createHarness();
   try {
@@ -527,6 +560,7 @@ async function main(): Promise<void> {
   await testE164Resolution();
   await testQuotedReply();
   await testReaction();
+  await testMarkdownFormatting();
   await testRetryableFailure();
   await testDeviceMismatchRecovery();
   await testDeviceMismatchRetryIsBounded();

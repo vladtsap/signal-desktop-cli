@@ -406,6 +406,7 @@ void test('control API forwards quote and reaction fields', async () => {
       body: JSON.stringify({
         body: 'quoted reply',
         destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        parse_mode: 'Markdown',
         quote_message_id: '11111111-1111-4111-8111-111111111111',
       }),
       headers: {
@@ -419,6 +420,7 @@ void test('control API forwards quote and reaction fields', async () => {
       {
         body: 'quoted reply',
         destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        parseMode: 'Markdown',
         quoteMessageId: '11111111-1111-4111-8111-111111111111',
       },
     ]);

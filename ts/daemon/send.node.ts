@@ -28,6 +28,7 @@ import { QualifiedAddress } from '../types/QualifiedAddress.std.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
 import { isAciString } from '../util/isAciString.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { parseMarkdownBody } from './markdown.std.ts';
 import type {
   HeadlessOutboundMessage,
   HeadlessSendTransport,
@@ -94,6 +95,7 @@ export type SendTextRequest = Readonly<{
   body: string;
   destination: string;
   groupId?: string;
+  parseMode?: 'Markdown';
   quoteMessageId?: string;
   story?: boolean;
 }>;
@@ -692,6 +694,10 @@ export class HeadlessSendService {
     await conversation.initialPromise;
 
     const timestamp = (this.#options.now ?? Date.now)();
+    const formatted =
+      request.parseMode === 'Markdown'
+        ? parseMarkdownBody(request.body)
+        : { body: request.body, bodyRanges: [] };
     let quote: MessageAttributesType['quote'];
     if (request.quoteMessageId) {
       const quotedMessage = await this.#stores.messageCache.getOrLoadById(
@@ -733,11 +739,19 @@ export class HeadlessSendService {
       };
     }
     const attributes: MessageAttributesType = {
-      body: request.body,
+      body: formatted.body,
+      ...(formatted.bodyRanges.length > 0
+        ? { bodyRanges: formatted.bodyRanges }
+        : {}),
       conversationId: conversation.id,
       id: messageId,
       received_at: timestamp,
       received_at_ms: timestamp,
+      ...(formatted.bodyRanges.length > 0
+        ? {
+            requiredProtocolVersion: Proto.DataMessage.ProtocolVersion.MENTIONS,
+          }
+        : {}),
       ...(quote ? { quote } : {}),
       sendStateByConversationId: {
         [conversation.id]: {
@@ -766,7 +780,16 @@ export class HeadlessSendService {
         await this.#crypto.establishSessions({ destination, keys });
       }
       const dataMessage = {
-        body: request.body,
+        body: formatted.body,
+        bodyRanges: formatted.bodyRanges.map(range => ({
+          associatedValue: { style: range.style },
+          length: range.length,
+          start: range.start,
+        })),
+        requiredProtocolVersion:
+          formatted.bodyRanges.length > 0
+            ? Proto.DataMessage.ProtocolVersion.MENTIONS
+            : 0,
         ...(quote
           ? {
               quote: {

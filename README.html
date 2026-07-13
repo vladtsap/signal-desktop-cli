@@ -812,7 +812,8 @@ curl --fail-with-body \
   -H 'Content-Type: application/json' \
   --data '{
     "destination": "+12025550123",
-    "body": "hello from the headless client",
+    "body": "**hello** from the headless client",
+    "parse_mode": "Markdown",
     "quote_message_id": "incoming-message-uuid"
   }' \
   http://127.0.0.1:8080/v1/messages</code></pre>
@@ -837,6 +838,16 @@ curl --fail-with-body \
               opaque ID from an earlier webhook's
               <code>message.message_id</code>. The referenced message must still
               exist locally and belong to the destination conversation.
+            </li>
+            <li>
+              Optional formatting: set <code>parse_mode</code> to the exact
+              value <code>Markdown</code>. Supported markers are
+              <code>**bold**</code>, <code>_italic_</code>,
+              <code>~~strikethrough~~</code>, <code>`monospace`</code>, and
+              <code>||spoiler||</code>. Markers are removed, nesting is
+              supported, a backslash escapes the following character, and
+              unmatched markers remain literal. Without the option, the body is
+              sent exactly as provided.
             </li>
             <li>Request body limit: 64 KiB.</li>
             <li>
