@@ -30,7 +30,7 @@ export type WebhookUpdate = Readonly<{
     message_id: string;
     text: string;
   }>;
-  update_id: string;
+  webhook_update_id: string;
 }>;
 
 type Entry = Readonly<{
@@ -59,6 +59,32 @@ const encryptedStateSchema = z.object({
   version: z.literal(FORMAT_VERSION),
 });
 
+const messageSchema = z.object({
+  chat: z.object({ id: z.string(), type: z.literal('private') }),
+  date: z.number().safe().int(),
+  from: z.object({ id: z.string() }),
+  message_id: z.string().min(1).max(256),
+  text: z.string().max(1024 * 1024),
+});
+
+const updateIdSchema = z.string().regex(/^\d{1,20}$/);
+
+const webhookUpdateSchema = z.union([
+  z.object({
+    message: messageSchema,
+    webhook_update_id: updateIdSchema,
+  }),
+  z
+    .object({
+      message: messageSchema,
+      update_id: updateIdSchema,
+    })
+    .transform(({ message, update_id }) => ({
+      message,
+      webhook_update_id: update_id,
+    })),
+]);
+
 const stateSchema = z.object({
   cursor: z
     .object({
@@ -70,16 +96,7 @@ const stateSchema = z.object({
     z.object({
       attempts: z.number().safe().int().nonnegative(),
       nextAttemptAt: z.number().safe().int().nonnegative(),
-      update: z.object({
-        message: z.object({
-          chat: z.object({ id: z.string(), type: z.literal('private') }),
-          date: z.number().safe().int(),
-          from: z.object({ id: z.string() }),
-          message_id: z.string().min(1).max(256),
-          text: z.string().max(1024 * 1024),
-        }),
-        update_id: z.string().regex(/^\d{1,20}$/),
-      }),
+      update: webhookUpdateSchema,
     })
   ),
   version: z.literal(FORMAT_VERSION),
@@ -137,7 +154,7 @@ function toWebhookUpdate(
       message_id: message.id,
       text: message.body,
     },
-    update_id: stableUpdateId(message.id),
+    webhook_update_id: stableUpdateId(message.id),
   };
 }
 
