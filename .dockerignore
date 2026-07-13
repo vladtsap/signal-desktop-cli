@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+!.env.example
+.cache
+node_modules
+release
+storybook-static
+*.log
+.DS_Store

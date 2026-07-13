@@ -1,0 +1,40 @@
+name: signal-desktop-cli
+
+services:
+  signal-ui:
+    profiles: [ui]
+    platform: linux/amd64
+    build:
+      context: .
+      target: signal-ui
+      args:
+        # Timestamp of the upstream Signal commit this fork is based on. Update
+        # it when merging a newer upstream release; it controls build expiry.
+        SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-1783615919}
+    environment:
+      SIGNAL_STORAGE_PATH: /var/lib/signal-desktop
+      SIGNAL_PROFILE_LOCK_PATH: /var/lib/signal-desktop/.signal-desktop-cli.lock
+      SIGNAL_UI_DISABLE_GPU: ${SIGNAL_UI_DISABLE_GPU:-1}
+      SIGNAL_UI_LISTEN_ADDRESS: 0.0.0.0
+      SIGNAL_UI_PASSWORD: ${SIGNAL_UI_PASSWORD:?Set SIGNAL_UI_PASSWORD (maximum 8 characters)}
+      SIGNAL_UI_PORT: ${SIGNAL_UI_PORT:-6080}
+      SIGNAL_UI_RESOLUTION: ${SIGNAL_UI_RESOLUTION:-1440x900}
+      TZ: ${TZ:-UTC}
+    ports:
+      - '127.0.0.1:${SIGNAL_UI_PORT:-6080}:${SIGNAL_UI_PORT:-6080}'
+    security_opt:
+      - no-new-privileges:true
+    shm_size: 1gb
+    stop_grace_period: 2m30s
+    volumes:
+      - signal-data:/var/lib/signal-desktop
+    healthcheck:
+      test: [CMD-SHELL, "bash -c '</dev/tcp/127.0.0.1/$${SIGNAL_UI_PORT}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
+
+volumes:
+  signal-data:
+    name: ${SIGNAL_DATA_VOLUME:-signal-desktop-data}

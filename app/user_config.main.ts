@@ -1,7 +1,7 @@
 // Copyright 2017 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { app } from 'electron';
 
@@ -11,8 +11,17 @@ import * as Errors from '../ts/types/errors.std.ts';
 import OS from '../ts/util/os/osMain.node.ts';
 
 let userData: string | undefined;
-// Use separate data directory for benchmarks & development
-if (config.has('storagePath')) {
+const environmentStoragePath = process.env.SIGNAL_STORAGE_PATH;
+
+// Containers use an explicit path so the complete profile can live in a named
+// volume independently of the host user's home directory. Otherwise, use a
+// separate data directory for benchmarks and development when configured.
+if (environmentStoragePath !== undefined) {
+  if (!environmentStoragePath || !isAbsolute(environmentStoragePath)) {
+    throw new Error('SIGNAL_STORAGE_PATH must be an absolute, non-empty path');
+  }
+  userData = environmentStoragePath;
+} else if (config.has('storagePath')) {
   userData = String(config.get('storagePath'));
 } else if (config.has('storageProfile')) {
   userData = join(

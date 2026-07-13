@@ -150,6 +150,20 @@ const { get, pick, isNumber, isBoolean, some, debounce, noop } = lodash;
 const log = createLogger('app/main');
 const updaterLog = log.child('updater');
 
+let shutdownSignalReceived = false;
+function handleShutdownSignal(): void {
+  if (shutdownSignalReceived) {
+    return;
+  }
+
+  shutdownSignalReceived = true;
+  log.info('received process signal; requesting graceful shutdown');
+  app.quit();
+}
+
+process.once('SIGINT', handleShutdownSignal);
+process.once('SIGTERM', handleShutdownSignal);
+
 const animationSettings = systemPreferences.getAnimationSettings();
 
 if (OS.isMacOS()) {
