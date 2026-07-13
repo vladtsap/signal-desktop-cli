@@ -368,14 +368,14 @@ All state commands need R2 configuration. R2 operations use region `auto`, disab
 
 ## Published container image
 
-Every push to `main` automatically builds the Linux `amd64` daemon target and publishes it to GitHub Container Registry as `ghcr.io/vladtsap/signal-desktop-cli`. The moving `latest` tag and an immutable tag containing the full commit SHA are published together:
+Every push to `main` automatically runs the daemon and state-tool tests, builds and smoke-tests the Linux `amd64` daemon target, and publishes it to GitHub Container Registry as `ghcr.io/vladtsap/signal-desktop-cli` only if every preceding step succeeds. The tested local image is pushed without rebuilding it. The moving `latest` tag and an immutable tag containing the full commit SHA are published together:
 
 ```sh
 docker pull ghcr.io/vladtsap/signal-desktop-cli:latest
 docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA
 ```
 
-This package contains only the `signal-daemon` target; the linking UI and state-transfer tool continue to build locally through Compose. GitHub controls package visibility separately from repository visibility. If the package is private, authenticate Docker to `ghcr.io` with a GitHub token that has `read:packages` permission before pulling it.
+The publish job exposes `image` (the immutable `name@sha256:digest` reference), `image_name`, `latest_tag`, `commit_tag`, and `digest` outputs for later jobs, and writes the reusable references to the workflow summary. This package contains only the `signal-daemon` target; the linking UI and state-transfer tool continue to build locally through Compose. GitHub controls package visibility separately from repository visibility. If the package is private, authenticate Docker to `ghcr.io` with a GitHub token that has `read:packages` permission before pulling it.
 
 ## Build expiration and upstream maintenance
 

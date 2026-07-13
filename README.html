@@ -1043,24 +1043,31 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
           </p>
           <h3>Published daemon image</h3>
           <p>
-            Every push to <code>main</code> automatically builds the Linux
-            <code>amd64</code> daemon target and publishes it to GitHub
+            Every push to <code>main</code> automatically runs the daemon and
+            state-tool tests, builds and smoke-tests the Linux
+            <code>amd64</code> daemon target, and publishes it to GitHub
             Container Registry as
-            <code>ghcr.io/vladtsap/signal-desktop-cli</code>. The workflow
-            publishes both the moving <code>latest</code> tag and an immutable
-            tag containing the full commit SHA.
+            <code>ghcr.io/vladtsap/signal-desktop-cli</code> only if every
+            preceding step succeeds. The tested local image is pushed without
+            rebuilding it. The workflow publishes both the moving
+            <code>latest</code> tag and an immutable tag containing the full
+            commit SHA.
           </p>
           <div class="code-wrap">
             <pre><code>docker pull ghcr.io/vladtsap/signal-desktop-cli:latest
 docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
           </div>
           <p>
-            The package contains only <code>signal-daemon</code>; build the UI
-            and state-transfer tool locally through Compose. GitHub controls
-            package visibility separately from repository visibility. Private
-            packages require a GitHub token with
-            <code>read:packages</code> permission when authenticating Docker to
-            <code>ghcr.io</code>.
+            The publish job exposes <code>image</code> (the immutable
+            <code>name@sha256:digest</code> reference), <code>image_name</code>,
+            <code>latest_tag</code>, <code>commit_tag</code>, and
+            <code>digest</code> outputs for later jobs, and writes the reusable
+            references to the workflow summary. The package contains only
+            <code>signal-daemon</code>; build the UI and state-transfer tool
+            locally through Compose. GitHub controls package visibility
+            separately from repository visibility. Private packages require a
+            GitHub token with <code>read:packages</code> permission when
+            authenticating Docker to <code>ghcr.io</code>.
           </p>
         </section>
 
