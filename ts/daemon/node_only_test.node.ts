@@ -16,10 +16,12 @@ const daemonModules = [
   'models.node.ts',
   'profile.node.ts',
   'protocol_stores.node.ts',
+  'receive.node.ts',
   'runtime.node.ts',
   'sql.node.ts',
   'transport.node.ts',
   '../SignalProtocolStore.node.ts',
+  '../LibSignalStores.node.ts',
   '../textsecure/Storage.node.ts',
   '../textsecure/storage/User.std.ts',
 ];

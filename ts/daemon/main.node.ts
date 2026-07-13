@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import packageJson from '../../package.json' with { type: 'json' };
+import productionConfig from '../../config/production.json' with { type: 'json' };
 
 import { loadDaemonConfig } from './config.node.ts';
 import { waitForTermination } from './lifecycle.node.ts';
@@ -9,9 +10,14 @@ import { DaemonRuntime } from './runtime.node.ts';
 
 async function main(): Promise<void> {
   const config = loadDaemonConfig();
-  const protocolRuntime = (
+  const transport = (
     await import('./transport.node.ts')
   ).createHeadlessTransportRuntime(packageJson.version);
+  const protocolRuntime = (
+    await import('./receive.node.ts')
+  ).createHeadlessReceiveRuntime(transport, {
+    serverTrustRoots: productionConfig.serverTrustRoots,
+  });
   const runtime = new DaemonRuntime(config, {
     appVersion: packageJson.version,
     loadProfile: (await import('./profile.node.ts')).loadPortableProfile,
