@@ -616,6 +616,13 @@
             <pre><code>git clone YOUR_FORK_URL signal-desktop-cli
 cd signal-desktop-cli</code></pre>
           </div>
+          <p>
+            Docker BuildKit caches pnpm packages plus Node and Electron headers
+            between builds. The source build runs all pending lifecycle scripts
+            in one recursive pnpm rebuild, and native <code>node-gyp</code> work
+            automatically uses every CPU available to Docker; increase Docker's
+            CPU allocation if the image build does not use the expected cores.
+          </p>
         </section>
 
         <section id="configure">

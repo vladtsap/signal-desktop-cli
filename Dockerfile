@@ -43,8 +43,9 @@ COPY . .
 RUN date +%s > "${SIGNAL_BUILD_EPOCH_FILE}"
 
 RUN --mount=type=cache,id=pnpm-store-amd64,target=/pnpm/store,sharing=locked \
-    pnpm rebuild --pending --recursive --store-dir /pnpm/store \
-    && pnpm rebuild --pending --workspace-root --store-dir /pnpm/store
+    --mount=type=cache,id=node-gyp-amd64,target=/root/.cache/node-gyp,sharing=locked \
+    --mount=type=cache,id=electron-gyp-amd64,target=/root/.electron-gyp,sharing=locked \
+    JOBS=MAX pnpm rebuild --pending --recursive --store-dir /pnpm/store
 
 FROM source-build AS ui-build
 

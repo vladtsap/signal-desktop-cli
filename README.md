@@ -74,6 +74,8 @@ While connected, the daemon checks ACI and PNI server prekey inventories at star
 
 Clone this repository on every machine that will use the profile. Commands below run from the repository root.
 
+Docker BuildKit caches pnpm packages plus Node and Electron headers between builds. The source build runs all pending lifecycle scripts in one recursive pnpm rebuild, and native `node-gyp` work automatically uses every CPU available to Docker; increase Docker's CPU allocation if the image build does not use the expected cores.
+
 ## Configuration
 
 Create a local `.env` from the tracked, sanitized template. `.env` and its variants are ignored by Git, while `.env.example` remains tracked:
