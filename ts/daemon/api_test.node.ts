@@ -115,6 +115,8 @@ void test('control API exposes health and protects validated sends', async () =>
     profileSqlKey: 'ab'.repeat(32),
     protocolStores: {
       conversationController: {
+        doWeHaveOtherDevices: () => false,
+        isConversationAccepted: () => false,
         isGroupConversation: () => false,
       },
       itemStorage: {
@@ -130,9 +132,7 @@ void test('control API exposes health and protects validated sends', async () =>
           return {
             get(key: string) {
               if (key !== 'type') return undefined;
-              return messageId === 'outgoing-message'
-                ? 'outgoing'
-                : 'incoming';
+              return messageId === 'outgoing-message' ? 'outgoing' : 'incoming';
             },
             set: (update: Record<string, unknown>) => readUpdates.push(update),
           };
@@ -327,6 +327,9 @@ void test('control service aborts and drains an active send before stopping', as
   let sendSignal: AbortSignal | undefined;
   const service = new HeadlessControlService(config, transport, {
     createSendService: () => ({
+      async markReadAfterWebhook() {
+        throw new Error('Unexpected webhook delivery');
+      },
       async sendReaction() {
         throw new Error('Unexpected reaction');
       },
@@ -415,6 +418,9 @@ void test('control API forwards quote and reaction fields', async () => {
   } satisfies HeadlessSql;
   const service = new HeadlessControlService({ ...config }, {} as never, {
     createSendService: () => ({
+      async markReadAfterWebhook() {
+        throw new Error('Unexpected webhook delivery');
+      },
       async sendReaction(request) {
         reactions.push(request);
         return {

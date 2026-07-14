@@ -10,8 +10,6 @@ import { z } from 'zod';
 import { Emoji } from '../axo/emoji.std.ts';
 import type { DaemonConfig } from './config.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
-import { SeenStatus } from '../MessageSeenStatus.std.ts';
-import { ReadStatus } from '../messages/MessageReadStatus.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import type { DaemonStatus, RuntimeServiceContext } from './runtime.node.ts';
 import { HeadlessSendError, HeadlessSendService } from './send.node.ts';
@@ -53,7 +51,10 @@ export type ControlServiceOptions = Readonly<{
   createSendService?: (
     transport: HeadlessSendTransport,
     stores: HeadlessProtocolStores
-  ) => Pick<HeadlessSendService, 'sendReaction' | 'sendText'>;
+  ) => Pick<
+    HeadlessSendService,
+    'markReadAfterWebhook' | 'sendReaction' | 'sendText'
+  >;
   getStatus: () => DaemonStatus;
 }>;
 
@@ -173,7 +174,10 @@ export class HeadlessControlService {
   readonly #controllers = new Set<AbortController>();
   #outbox: DurableWebhookOutbox | undefined;
   #sendService:
-    | Pick<HeadlessSendService, 'sendReaction' | 'sendText'>
+    | Pick<
+        HeadlessSendService,
+        'markReadAfterWebhook' | 'sendReaction' | 'sendText'
+      >
     | undefined;
   #server: Server | undefined;
 
@@ -206,18 +210,8 @@ export class HeadlessControlService {
               conversationId
             ),
           maxPending: this.#config.webhookMaxPending,
-          markRead: async messageId => {
-            const message =
-              await context.protocolStores.messageCache.getOrLoadById(
-                messageId
-              );
-            if (!message || message.get('type') !== 'incoming') return;
-            message.set({
-              readStatus: ReadStatus.Read,
-              seenStatus: SeenStatus.Seen,
-            });
-            await context.protocolStores.messageCache.saveMessage(message);
-          },
+          markRead: (messageId, signal) =>
+            this.#sendService?.markReadAfterWebhook(messageId, signal),
           profileKey: context.profileSqlKey,
           ...(this.#config.webhookSecret
             ? { secret: this.#config.webhookSecret }

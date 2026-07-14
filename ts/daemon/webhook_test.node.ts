@@ -470,6 +470,43 @@ void test('read-marking failure retains and redelivers the entry', async () => {
   }
 });
 
+void test('stop aborts active post-webhook read actions', async () => {
+  const storagePath = await mkdtemp(
+    join(tmpdir(), 'signal-webhook-stop-read-')
+  );
+  const messages = new Array<MessageAttributesType>();
+  let markReadStarted = false;
+  const outbox = new DurableWebhookOutbox(fakeSql(messages), {
+    fetch: async () => new Response(null, { status: 204 }),
+    markRead: async (_messageId, signal) => {
+      markReadStarted = true;
+      await new Promise<void>((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(signal.reason), {
+          once: true,
+        });
+      });
+    },
+    maxPending: 10,
+    profileKey: '68'.repeat(32),
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await outbox.prepare();
+    const value = message('abort-read-on-stop', 7);
+    messages.push(value);
+    await outbox.enqueue(value);
+    outbox.start();
+    await waitFor(() => markReadStarted);
+    await outbox.stop();
+    assert.equal(outbox.pendingCount, 1);
+  } finally {
+    await outbox.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
 void test('disabled webhook advances its cursor without accumulating entries', async () => {
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-webhook-off-'));
   const messages = new Array<MessageAttributesType>();

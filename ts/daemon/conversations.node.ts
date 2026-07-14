@@ -11,6 +11,7 @@ import type {
   ClientReadableInterface,
   ClientWritableInterface,
 } from '../sql/Interface.std.ts';
+import { SignalService as Proto } from '../protobuf/index.std.ts';
 import type { Storage } from '../textsecure/Storage.node.ts';
 import type { ServiceIdString } from '../types/ServiceId.std.ts';
 import {
@@ -18,6 +19,7 @@ import {
   normalizeServiceId,
 } from '../types/ServiceId.std.ts';
 import { unencodeNumber } from '../util/unencodeNumber.std.ts';
+import { isInSystemContacts } from '../util/isInSystemContacts.std.ts';
 import { HeadlessConversationModel } from './models.node.ts';
 
 export type HeadlessConversationEvents = Readonly<{
@@ -292,6 +294,28 @@ export class HeadlessConversationController {
 
   public doWeHaveOtherDevices(): boolean {
     return !this.areWePrimaryDevice();
+  }
+
+  public isConversationAccepted(id: string): boolean {
+    const conversation = this.get(id);
+    if (!conversation || conversation.get('type') !== 'private') return false;
+    if (conversation.id === this.getOurConversationId()) return true;
+
+    const attributes = conversation.attributes;
+    if (attributes.removalStage !== undefined) return false;
+    if (
+      attributes.messageRequestResponseType ===
+      Proto.SyncMessage.MessageRequestResponse.Type.ACCEPT
+    ) {
+      return true;
+    }
+
+    return (
+      Boolean(attributes.profileSharing) ||
+      isInSystemContacts(attributes) ||
+      (attributes.sentMessageCount ?? 0) > 0 ||
+      (attributes.messageCountBeforeMessageRequests ?? 0) > 0
+    );
   }
 
   #assertLoaded(): void {

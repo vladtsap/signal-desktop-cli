@@ -15,18 +15,22 @@ import {
   processPreKeyBundle,
   signalEncrypt,
 } from '@signalapp/libsignal-client';
+import { randomBytes, randomInt } from 'node:crypto';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
 import { Emoji } from '../axo/emoji.std.ts';
 import { Sessions, IdentityKeys } from '../LibSignalStores.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
+import { SeenStatus } from '../MessageSeenStatus.std.ts';
+import { ReadStatus } from '../messages/MessageReadStatus.std.ts';
 import { SendStatus } from '../messages/MessageSendState.std.ts';
 import { SignalService as Proto } from '../protobuf/index.std.ts';
 import { Address } from '../types/Address.std.ts';
 import { QualifiedAddress } from '../types/QualifiedAddress.std.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
 import { isAciString } from '../util/isAciString.std.ts';
+import { toAciObject } from '../util/ServiceId.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import { parseMarkdownBody } from './markdown.std.ts';
 import type {
@@ -161,6 +165,10 @@ function padMessage(message: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
   return result;
 }
 
+function syncMessagePadding(): Uint8Array<ArrayBuffer> {
+  return Uint8Array.from(randomBytes(randomInt(1, 513)));
+}
+
 function createLibsignalSendCrypto(
   stores: HeadlessProtocolStores
 ): HeadlessSendCrypto {
@@ -179,8 +187,12 @@ function createLibsignalSendCrypto(
   return {
     async establishSessions({ destination, keys }) {
       const identityKey = PublicKey.deserialize(fromBase64(keys.identityKey));
+      const remoteDevices =
+        destination === ourAci
+          ? keys.devices.filter(device => device.deviceId !== ourDeviceId)
+          : keys.devices;
       await Promise.all(
-        keys.devices.map(async device => {
+        remoteDevices.map(async device => {
           const remoteAddress = ProtocolAddress.new(
             destination,
             device.deviceId
@@ -224,10 +236,14 @@ function createLibsignalSendCrypto(
       );
     },
     async encrypt({ destination, plaintext }) {
-      const deviceIds = await stores.signalProtocolStore.getDeviceIds({
+      const storedDeviceIds = await stores.signalProtocolStore.getDeviceIds({
         ourServiceId: ourAci,
         serviceId: destination,
       });
+      const deviceIds =
+        destination === ourAci
+          ? storedDeviceIds.filter(deviceId => deviceId !== ourDeviceId)
+          : storedDeviceIds;
       return Promise.all(
         deviceIds.map(async deviceId => {
           const remoteAddress = ProtocolAddress.new(destination, deviceId);
@@ -261,10 +277,14 @@ function createLibsignalSendCrypto(
       );
     },
     async hasSessions(destination) {
-      const deviceIds = await stores.signalProtocolStore.getDeviceIds({
+      const storedDeviceIds = await stores.signalProtocolStore.getDeviceIds({
         ourServiceId: ourAci,
         serviceId: destination,
       });
+      const deviceIds =
+        destination === ourAci
+          ? storedDeviceIds.filter(deviceId => deviceId !== ourDeviceId)
+          : storedDeviceIds;
       if (deviceIds.length === 0) {
         return false;
       }
@@ -422,6 +442,52 @@ export class HeadlessSendService {
         signal
       )
     );
+  }
+
+  public async markReadAfterWebhook(
+    messageId: string,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const message = await this.#stores.messageCache.getOrLoadById(messageId);
+    if (!message || message.get('type') !== 'incoming') return;
+
+    message.set({
+      readStatus: ReadStatus.Read,
+      seenStatus: SeenStatus.Seen,
+    });
+    await this.#stores.messageCache.saveMessage(message);
+
+    const senderAci = message.get('sourceServiceId');
+    const timestamp = message.get('sent_at');
+    if (
+      !senderAci ||
+      !isAciString(senderAci) ||
+      !Number.isSafeInteger(timestamp)
+    )
+      return;
+
+    const sends = new Array<Promise<void>>();
+    if (
+      this.#stores.itemStorage.get('read-receipt-setting') &&
+      this.#stores.conversationController.isConversationAccepted(
+        message.get('conversationId')
+      )
+    ) {
+      sends.push(
+        this.#enqueue(senderAci, () =>
+          this.#sendReadReceipt(senderAci, timestamp, signal)
+        )
+      );
+    }
+    if (this.#stores.conversationController.doWeHaveOtherDevices()) {
+      const ourAci = this.#stores.itemStorage.user.getCheckedAci();
+      sends.push(
+        this.#enqueue(ourAci, () =>
+          this.#sendReadSync(ourAci, senderAci, timestamp, signal)
+        )
+      );
+    }
+    await Promise.all(sends);
   }
 
   #enqueue<Result>(
@@ -626,7 +692,8 @@ export class HeadlessSendService {
     destination: AciString,
     plaintext: Uint8Array<ArrayBuffer>,
     timestamp: number,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    urgent = true
   ): Promise<void> {
     const messages = await this.#crypto.encrypt({ destination, plaintext });
     if (messages.length === 0)
@@ -636,7 +703,7 @@ export class HeadlessSendService {
       messages,
       signal,
       timestamp,
-      urgent: true,
+      urgent,
     });
   }
 
@@ -644,10 +711,11 @@ export class HeadlessSendService {
     destination: AciString,
     plaintext: Uint8Array<ArrayBuffer>,
     timestamp: number,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    urgent = true
   ): Promise<void> {
     try {
-      await this.#transmit(destination, plaintext, timestamp, signal);
+      await this.#transmit(destination, plaintext, timestamp, signal, urgent);
       return;
     } catch (error) {
       if (!LibSignalErrorBase.is(error, ErrorCode.MismatchedDevices)) {
@@ -664,7 +732,92 @@ export class HeadlessSendService {
         keys,
         staleDevices: entry.staleDevices,
       });
-      await this.#transmit(destination, plaintext, timestamp, signal);
+      await this.#transmit(destination, plaintext, timestamp, signal, urgent);
+    }
+  }
+
+  async #sendReadReceipt(
+    senderAci: AciString,
+    readTimestamp: number,
+    signal?: AbortSignal
+  ): Promise<void> {
+    await this.#sendProtocolMessage(
+      senderAci,
+      {
+        content: {
+          receiptMessage: {
+            timestamp: [BigInt(readTimestamp)],
+            type: Proto.ReceiptMessage.Type.READ,
+          },
+        },
+        pniSignatureMessage: null,
+        senderKeyDistributionMessage: null,
+      },
+      signal,
+      false
+    );
+  }
+
+  async #sendReadSync(
+    ourAci: AciString,
+    senderAci: AciString,
+    readTimestamp: number,
+    signal?: AbortSignal
+  ): Promise<void> {
+    await this.#sendProtocolMessage(
+      ourAci,
+      {
+        content: {
+          syncMessage: {
+            content: null,
+            padding: syncMessagePadding(),
+            read: [
+              {
+                senderAci: null,
+                senderAciBinary: toAciObject(senderAci).getRawUuidBytes(),
+                timestamp: BigInt(readTimestamp),
+              },
+            ],
+            stickerPackOperation: null,
+            viewed: null,
+          },
+        },
+        pniSignatureMessage: null,
+        senderKeyDistributionMessage: null,
+      },
+      signal,
+      true
+    );
+  }
+
+  async #sendProtocolMessage(
+    destination: AciString,
+    content: Proto.Content.Params,
+    signal: AbortSignal | undefined,
+    urgent: boolean
+  ): Promise<void> {
+    if (!this.#transport.connected) {
+      throw new HeadlessSendError(
+        'Signal transport is not connected',
+        'not-connected',
+        true
+      );
+    }
+    try {
+      if (!(await this.#crypto.hasSessions(destination))) {
+        const keys = await this.#fetchKeys(destination, signal);
+        await this.#crypto.establishSessions({ destination, keys });
+      }
+      const timestamp = (this.#options.now ?? Date.now)();
+      await this.#transmitWithDeviceRepair(
+        destination,
+        padMessage(Proto.Content.encode(content)),
+        timestamp,
+        signal,
+        urgent
+      );
+    } catch (error) {
+      throw classifySendError(error);
     }
   }
 

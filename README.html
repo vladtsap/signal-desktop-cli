@@ -1384,13 +1384,18 @@ networks:
             <li>Ordered, at-least-once delivery.</li>
             <li>
               Only HTTP 2xx marks the incoming message read locally and removes
-              the oldest queued update. Failed or retrying deliveries remain
-              unread. The read update is durable first, so a final outbox commit
-              failure can redeliver an already-read message.
+              the oldest queued update. It also sends a read sync to the
+              account's other linked devices and, when the restored profile's
+              read-receipt setting is enabled and the contact's message request
+              has been accepted, a Signal read receipt to the contact. Network
+              errors, redirects, timeouts, and non-2xx responses leave the
+              message unread and send neither action.
             </li>
             <li>
-              The local read transition does not send a read receipt to the
-              contact or a read sync to another linked device.
+              The local read update and protocol sends complete before the
+              outbox entry is removed. A post-2xx action or final outbox commit
+              failure can redeliver an already-accepted and locally read webhook
+              and repeat the idempotent Signal read actions.
             </li>
             <li>Failures retry from one second up to five minutes.</li>
             <li>Default attempt timeout: ten seconds.</li>

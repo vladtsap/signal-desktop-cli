@@ -123,7 +123,7 @@ export type WebhookOutboxOptions = Readonly<{
   fetch?: typeof fetch;
   maxPending: number;
   isGroupConversation?: (conversationId: string) => boolean;
-  markRead?: (messageId: string) => Promise<void> | void;
+  markRead?: (messageId: string, signal: AbortSignal) => Promise<void> | void;
   now?: () => number;
   profileKey: string;
   secret?: string;
@@ -200,7 +200,9 @@ export class DurableWebhookOutbox {
   readonly #isGroupConversation:
     | ((conversationId: string) => boolean)
     | undefined;
-  readonly #markRead: ((messageId: string) => Promise<void> | void) | undefined;
+  readonly #markRead:
+    | ((messageId: string, signal: AbortSignal) => Promise<void> | void)
+    | undefined;
   readonly #now: () => number;
   readonly #secret: string | undefined;
   readonly #sql: HeadlessSql;
@@ -440,11 +442,9 @@ export class DurableWebhookOutbox {
       headers['x-signal-webhook-signature'] =
         `sha256=${createHmac('sha256', this.#secret).update(body).digest('hex')}`;
     }
-    this.#abortController = new AbortController();
-    const timeout = setTimeout(
-      () => this.#abortController?.abort(),
-      this.#timeoutMs
-    );
+    const controller = new AbortController();
+    this.#abortController = controller;
+    const timeout = setTimeout(() => controller.abort(), this.#timeoutMs);
     let succeeded = false;
     try {
       const response = await this.#fetch(this.#url, {
@@ -452,37 +452,45 @@ export class DurableWebhookOutbox {
         headers,
         method: 'POST',
         redirect: 'error',
-        signal: this.#abortController.signal,
+        signal: controller.signal,
       });
       succeeded = response.status >= 200 && response.status < 300;
     } catch {
       // Network errors and timeouts remain durable and are retried.
     } finally {
       clearTimeout(timeout);
-      this.#abortController = undefined;
     }
-    if (!this.#running) return;
-    if (succeeded) {
-      await this.#markRead?.(entry.update.message.message_id);
+    try {
+      if (!this.#running) return;
+      if (succeeded) {
+        await this.#markRead?.(
+          entry.update.message.message_id,
+          controller.signal
+        );
+        await this.#commit({
+          ...this.#state,
+          entries: this.#state.entries.slice(1),
+        });
+        await this.#reconcile();
+        this.#schedule(0);
+        return;
+      }
+      const attempts = entry.attempts + 1;
+      const replacement = {
+        ...entry,
+        attempts,
+        nextAttemptAt: this.#now() + retryDelay(attempts),
+      };
       await this.#commit({
         ...this.#state,
-        entries: this.#state.entries.slice(1),
+        entries: [replacement, ...this.#state.entries.slice(1)],
       });
-      await this.#reconcile();
-      this.#schedule(0);
-      return;
+      this.#schedule(retryDelay(attempts));
+    } finally {
+      if (this.#abortController === controller) {
+        this.#abortController = undefined;
+      }
     }
-    const attempts = entry.attempts + 1;
-    const replacement = {
-      ...entry,
-      attempts,
-      nextAttemptAt: this.#now() + retryDelay(attempts),
-    };
-    await this.#commit({
-      ...this.#state,
-      entries: [replacement, ...this.#state.entries.slice(1)],
-    });
-    this.#schedule(retryDelay(attempts));
   }
 
   #serialize(operation: () => Promise<void>): Promise<void> {

@@ -15,6 +15,8 @@ import {
   SessionRecord,
 } from '@signalapp/libsignal-client';
 
+import { SeenStatus } from '../MessageSeenStatus.std.ts';
+import { ReadStatus } from '../messages/MessageReadStatus.std.ts';
 import { SendStatus } from '../messages/MessageSendState.std.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import { SignalService as Proto } from '../protobuf/index.std.ts';
@@ -97,6 +99,10 @@ async function createHarness() {
     value: '+12025550123.2',
   });
   await dataWriter.createOrUpdateItem({ id: 'password', value: 'secret' });
+  await dataWriter.createOrUpdateItem({
+    id: 'read-receipt-setting',
+    value: true,
+  });
   const stores = await openHeadlessProtocolStores(sql);
   const saveMessage = stores.messageCache.saveMessage.bind(stores.messageCache);
   let nextSaveError: Error | undefined;
@@ -114,7 +120,7 @@ async function createHarness() {
   const recipient = stores.conversationController.getOrCreate(
     THEIR_ACI,
     'private',
-    { e164: '+12025550124' }
+    { e164: '+12025550124', profileSharing: true }
   );
   await recipient.initialPromise;
 
@@ -500,6 +506,74 @@ async function testReaction(): Promise<void> {
         }),
       { code: 'invalid-request' }
     );
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testWebhookReadReceiptAndSync(): Promise<void> {
+  const harness = await createHarness();
+  const messageId = '33333333-3333-4333-8333-333333333333';
+  try {
+    await storeMessage(harness, incomingMessage(harness, messageId));
+
+    await harness.service.markReadAfterWebhook(messageId);
+
+    const persisted = await harness.dataReader.getMessageById(messageId);
+    assert.equal(persisted?.readStatus, ReadStatus.Read);
+    assert.equal(persisted?.seenStatus, SeenStatus.Seen);
+    assert.equal(harness.calls.send, 2);
+
+    const contents = harness.plaintexts.map(decodeContent);
+    const receipt = contents.find(content => content.content?.receiptMessage)
+      ?.content?.receiptMessage;
+    assert.equal(receipt?.type, Proto.ReceiptMessage.Type.READ);
+    assert.deepEqual(receipt?.timestamp, [1_699_999_998_000n]);
+
+    const sync = contents.find(content => content.content?.syncMessage)?.content
+      ?.syncMessage;
+    assert.equal(sync?.read.length, 1);
+    assert.equal(sync?.read[0]?.timestamp, 1_699_999_998_000n);
+    assert.deepEqual(
+      sync?.read[0]?.senderAciBinary,
+      Aci.fromUuid(THEIR_ACI).getRawUuidBytes()
+    );
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testWebhookReadReceiptSetting(): Promise<void> {
+  const harness = await createHarness();
+  const messageId = '44444444-4444-4444-8444-444444444444';
+  try {
+    await harness.stores.itemStorage.put('read-receipt-setting', false);
+    await storeMessage(harness, incomingMessage(harness, messageId));
+
+    await harness.service.markReadAfterWebhook(messageId);
+
+    assert.equal(harness.calls.send, 1);
+    const content = decodeContent(harness.plaintexts[0] ?? new Uint8Array());
+    assert.equal(content.content?.receiptMessage, undefined);
+    assert.equal(content.content?.syncMessage?.read.length, 1);
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testWebhookReadReceiptRequiresAcceptedConversation(): Promise<void> {
+  const harness = await createHarness();
+  const messageId = '55555555-5555-4555-8555-555555555555';
+  try {
+    harness.recipient.set({ profileSharing: false });
+    await storeMessage(harness, incomingMessage(harness, messageId));
+
+    await harness.service.markReadAfterWebhook(messageId);
+
+    assert.equal(harness.calls.send, 1);
+    const content = decodeContent(harness.plaintexts[0] ?? new Uint8Array());
+    assert.equal(content.content?.receiptMessage, undefined);
+    assert.equal(content.content?.syncMessage?.read.length, 1);
   } finally {
     await harness.cleanup();
   }
@@ -895,6 +969,9 @@ async function main(): Promise<void> {
   await testQuotedReplyValidation();
   await testQuotesOutgoingMessageWithOurAci();
   await testReaction();
+  await testWebhookReadReceiptAndSync();
+  await testWebhookReadReceiptSetting();
+  await testWebhookReadReceiptRequiresAcceptedConversation();
   await testReactionValidation();
   await testReactionReplacementOnOutgoingMessage();
   await testReactionDeviceRepairAndFailures();
