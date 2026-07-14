@@ -11,6 +11,7 @@ import {
   DataWriter as ServerDataWriter,
   initialize,
 } from '../sql/Server.node.ts';
+import { WalCheckpoints } from '../sql/WalCheckpoints.std.ts';
 import { createDaemonLogger } from './logging.std.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 
@@ -47,6 +48,41 @@ export function openHeadlessSql({
   key: string;
   storagePath: string;
 }>): HeadlessSql {
+  let tail = Promise.resolve<unknown>(undefined);
+  let closed = false;
+  let checkpointPendingReason: string | null = null;
+  let checkpointScheduled = false;
+
+  function scheduleCheckpoint(): void {
+    if (checkpointScheduled) {
+      return;
+    }
+    checkpointScheduled = true;
+
+    queueMicrotask(() => {
+      checkpointScheduled = false;
+      if (closed || checkpointPendingReason == null) {
+        return;
+      }
+
+      const reason = checkpointPendingReason;
+      checkpointPendingReason = null;
+      // oxlint-disable-next-line promise/prefer-await-to-then, signal-desktop/no-then -- add checkpoint after queued SQL work
+      const result = tail.then(() => {
+        if (!closed) {
+          WalCheckpoints.runImmediately(db, consoleLogger, reason);
+        }
+      });
+      // oxlint-disable-next-line promise/prefer-await-to-then -- keep the queue usable after a failed checkpoint
+      tail = result.catch(() => undefined);
+    });
+  }
+
+  WalCheckpoints.setOnCheckpointNeeded(reason => {
+    checkpointPendingReason = reason;
+    scheduleCheckpoint();
+  });
+
   const db = initialize({
     appVersion,
     configDir: storagePath,
@@ -54,8 +90,6 @@ export function openHeadlessSql({
     key,
     logger: consoleLogger,
   });
-  let tail = Promise.resolve<unknown>(undefined);
-  let closed = false;
 
   function enqueue<Result>(operation: (database: WritableDB) => Result) {
     if (closed) {
