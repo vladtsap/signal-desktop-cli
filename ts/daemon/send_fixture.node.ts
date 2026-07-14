@@ -98,6 +98,19 @@ async function createHarness() {
   });
   await dataWriter.createOrUpdateItem({ id: 'password', value: 'secret' });
   const stores = await openHeadlessProtocolStores(sql);
+  const saveMessage = stores.messageCache.saveMessage.bind(stores.messageCache);
+  let nextSaveError: Error | undefined;
+  Object.defineProperty(stores.messageCache, 'saveMessage', {
+    configurable: true,
+    value: async (...args: Parameters<typeof saveMessage>) => {
+      if (nextSaveError) {
+        const error = nextSaveError;
+        nextSaveError = undefined;
+        throw error;
+      }
+      return saveMessage(...args);
+    },
+  });
   const recipient = stores.conversationController.getOrCreate(
     THEIR_ACI,
     'private',
@@ -195,12 +208,43 @@ async function createHarness() {
     setNextSendError(value: Error) {
       nextSendError = value;
     },
+    setNextSaveError(value: Error) {
+      nextSaveError = value;
+    },
     releaseSend() {
       releaseSend?.();
     },
     repairs,
     stores,
   };
+}
+
+async function storeMessage(
+  harness: Awaited<ReturnType<typeof createHarness>>,
+  attributes: MessageAttributesType
+): Promise<void> {
+  const model = harness.stores.messageCache.register(
+    harness.stores.messageCache.create(attributes)
+  );
+  await harness.stores.messageCache.saveMessage(model, { forceSave: true });
+}
+
+function incomingMessage(
+  harness: Awaited<ReturnType<typeof createHarness>>,
+  id: string,
+  overrides: Partial<MessageAttributesType> = {}
+): MessageAttributesType {
+  return {
+    body: 'incoming target',
+    conversationId: harness.recipient.id,
+    id,
+    received_at: 1_699_999_998_000,
+    sent_at: 1_699_999_998_000,
+    sourceServiceId: THEIR_ACI,
+    timestamp: 1_699_999_998_000,
+    type: 'incoming',
+    ...overrides,
+  } as MessageAttributesType;
 }
 
 function decodeContent(plaintext: Uint8Array<ArrayBuffer>): Proto.Content {
@@ -340,6 +384,76 @@ async function testQuotedReply(): Promise<void> {
   }
 }
 
+async function testQuotedReplyValidation(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    await assert.rejects(
+      harness.service.sendText({
+        body: 'missing quote',
+        destination: THEIR_ACI,
+        quoteMessageId: 'missing-message',
+      }),
+      { code: 'invalid-request' }
+    );
+
+    await storeMessage(
+      harness,
+      incomingMessage(harness, 'quote-other-conversation', {
+        conversationId: 'other-conversation',
+      })
+    );
+    await assert.rejects(
+      harness.service.sendText({
+        body: 'wrong conversation',
+        destination: THEIR_ACI,
+        quoteMessageId: 'quote-other-conversation',
+      }),
+      { code: 'invalid-request' }
+    );
+
+    await storeMessage(
+      harness,
+      incomingMessage(harness, 'quote-invalid-author', {
+        sourceServiceId: undefined,
+      })
+    );
+    await assert.rejects(
+      harness.service.sendText({
+        body: 'invalid author',
+        destination: THEIR_ACI,
+        quoteMessageId: 'quote-invalid-author',
+      }),
+      { code: 'invalid-request' }
+    );
+    assert.equal(harness.calls.send, 0);
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testQuotesOutgoingMessageWithOurAci(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    const original = await harness.service.sendText({
+      body: 'our original',
+      destination: THEIR_ACI,
+    });
+    const reply = await harness.service.sendText({
+      body: 'our follow-up',
+      destination: THEIR_ACI,
+      quoteMessageId: original.messageId,
+    });
+    const persisted = await harness.dataReader.getMessageById(reply.messageId);
+    assert.equal(persisted?.quote?.authorAci, OUR_ACI);
+    const quote = decodeContent(harness.plaintexts[1] ?? new Uint8Array())
+      .content?.dataMessage?.quote;
+    assert.equal(quote?.authorAci, OUR_ACI);
+    assert.equal(quote?.id, BigInt(original.timestamp));
+  } finally {
+    await harness.cleanup();
+  }
+}
+
 async function testReaction(): Promise<void> {
   const harness = await createHarness();
   const targetMessageId = '22222222-2222-4222-8222-222222222222';
@@ -375,6 +489,8 @@ async function testReaction(): Promise<void> {
     assert.equal(reaction?.remove, false);
     assert.equal(reaction?.targetAuthorAci, THEIR_ACI);
     assert.equal(reaction?.targetSentTimestamp, 1_699_999_998_000n);
+    assert.equal(harness.calls.fetch, 1);
+    assert.equal(harness.calls.establish, 1);
     await assert.rejects(
       async () =>
         harness.service.sendReaction({
@@ -385,6 +501,223 @@ async function testReaction(): Promise<void> {
       { code: 'invalid-request' }
     );
   } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testReactionValidation(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    assert.throws(
+      () =>
+        harness.service.sendReaction({
+          destination: THEIR_ACI,
+          emoji: '👍',
+          messageId: '',
+        }),
+      { code: 'invalid-request' }
+    );
+    await assert.rejects(
+      harness.service.sendReaction({
+        destination: THEIR_ACI,
+        emoji: '👍',
+        messageId: 'missing-reaction-target',
+      }),
+      { code: 'invalid-request' }
+    );
+
+    await storeMessage(
+      harness,
+      incomingMessage(harness, 'reaction-other-conversation', {
+        conversationId: 'other-conversation',
+      })
+    );
+    await assert.rejects(
+      harness.service.sendReaction({
+        destination: THEIR_ACI,
+        emoji: '👍',
+        messageId: 'reaction-other-conversation',
+      }),
+      { code: 'invalid-request' }
+    );
+
+    await storeMessage(
+      harness,
+      incomingMessage(harness, 'reaction-invalid-author', {
+        sourceServiceId: undefined,
+      })
+    );
+    await assert.rejects(
+      harness.service.sendReaction({
+        destination: THEIR_ACI,
+        emoji: '👍',
+        messageId: 'reaction-invalid-author',
+      }),
+      { code: 'invalid-request' }
+    );
+    assert.equal(harness.calls.send, 0);
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testReactionReplacementOnOutgoingMessage(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    const target = await harness.service.sendText({
+      body: 'our reaction target',
+      destination: THEIR_ACI,
+    });
+    await harness.service.sendReaction({
+      destination: THEIR_ACI,
+      emoji: '👍',
+      messageId: target.messageId,
+    });
+    await harness.service.sendReaction({
+      destination: THEIR_ACI,
+      emoji: '❤️',
+      messageId: target.messageId,
+    });
+    const persisted = await harness.dataReader.getMessageById(target.messageId);
+    assert.deepEqual(
+      persisted?.reactions?.map(reaction => reaction.emoji),
+      ['❤️']
+    );
+    for (const index of [1, 2]) {
+      const reaction = decodeContent(
+        harness.plaintexts[index] ?? new Uint8Array()
+      ).content?.dataMessage?.reaction;
+      assert.equal(reaction?.targetAuthorAci, OUR_ACI);
+      assert.equal(reaction?.targetSentTimestamp, BigInt(target.timestamp));
+    }
+  } finally {
+    await harness.cleanup();
+  }
+}
+
+async function testReactionDeviceRepairAndFailures(): Promise<void> {
+  const repairHarness = await createHarness();
+  try {
+    await storeMessage(
+      repairHarness,
+      incomingMessage(repairHarness, 'reaction-device-repair')
+    );
+    repairHarness.setNextSendError(
+      new LibSignalErrorBase(
+        'reaction device list changed',
+        'MismatchedDevices',
+        'test',
+        {
+          entries: [
+            new MismatchedDevicesEntry({
+              account: Aci.fromUuid(THEIR_ACI),
+              extraDevices: [3],
+              missingDevices: [2],
+              staleDevices: [4],
+            }),
+          ],
+        }
+      )
+    );
+    await repairHarness.service.sendReaction({
+      destination: THEIR_ACI,
+      emoji: '👍',
+      messageId: 'reaction-device-repair',
+    });
+    assert.equal(repairHarness.calls.repair, 1);
+    assert.equal(repairHarness.calls.send, 2);
+  } finally {
+    await repairHarness.cleanup();
+  }
+
+  const transportHarness = await createHarness();
+  try {
+    await storeMessage(
+      transportHarness,
+      incomingMessage(transportHarness, 'reaction-transport-failure')
+    );
+    transportHarness.setSendError(
+      new HeadlessSendError('identity changed', 'identity', false)
+    );
+    await assert.rejects(
+      transportHarness.service.sendReaction({
+        destination: THEIR_ACI,
+        emoji: '👍',
+        messageId: 'reaction-transport-failure',
+      }),
+      { code: 'identity', retryable: false }
+    );
+    const persisted = await transportHarness.dataReader.getMessageById(
+      'reaction-transport-failure'
+    );
+    assert.equal(persisted?.reactions, undefined);
+  } finally {
+    await transportHarness.cleanup();
+  }
+
+  const persistenceHarness = await createHarness();
+  try {
+    await storeMessage(
+      persistenceHarness,
+      incomingMessage(persistenceHarness, 'reaction-persistence-failure')
+    );
+    persistenceHarness.setNextSaveError(new Error('simulated save failure'));
+    await assert.rejects(
+      persistenceHarness.service.sendReaction({
+        destination: THEIR_ACI,
+        emoji: '👍',
+        messageId: 'reaction-persistence-failure',
+      }),
+      { code: 'send-failed', retryable: false }
+    );
+    assert.equal(persistenceHarness.calls.send, 1);
+    const persisted = await persistenceHarness.dataReader.getMessageById(
+      'reaction-persistence-failure'
+    );
+    assert.equal(persisted?.reactions, undefined);
+  } finally {
+    await persistenceHarness.cleanup();
+  }
+}
+
+async function testMixedQueueOrderingAndSaturation(): Promise<void> {
+  const harness = await createHarness();
+  try {
+    await storeMessage(
+      harness,
+      incomingMessage(harness, 'queued-reaction-target')
+    );
+    const entered = harness.pauseNextSend();
+    const text = harness.service.sendText({
+      body: 'first queued send',
+      destination: THEIR_ACI,
+    });
+    await entered;
+    const reaction = harness.service.sendReaction({
+      destination: THEIR_ACI,
+      emoji: '👍',
+      messageId: 'queued-reaction-target',
+    });
+    await new Promise<void>(resolve => setImmediate(resolve));
+    assert.equal(harness.calls.send, 1);
+    assert.throws(
+      () =>
+        harness.service.sendText({
+          body: 'queue overflow',
+          destination: THEIR_ACI,
+        }),
+      { code: 'rate-limited', retryable: true }
+    );
+    harness.releaseSend();
+    await Promise.all([text, reaction]);
+    assert.equal(harness.calls.send, 2);
+    assert.equal(
+      decodeContent(harness.plaintexts[1] ?? new Uint8Array()).content
+        ?.dataMessage?.reaction?.emoji,
+      '👍'
+    );
+  } finally {
+    harness.releaseSend();
     await harness.cleanup();
   }
 }
@@ -559,7 +892,13 @@ async function main(): Promise<void> {
   await testRepeatedRequestsCreateDistinctDurableSends();
   await testE164Resolution();
   await testQuotedReply();
+  await testQuotedReplyValidation();
+  await testQuotesOutgoingMessageWithOurAci();
   await testReaction();
+  await testReactionValidation();
+  await testReactionReplacementOnOutgoingMessage();
+  await testReactionDeviceRepairAndFailures();
+  await testMixedQueueOrderingAndSaturation();
   await testMarkdownFormatting();
   await testRetryableFailure();
   await testDeviceMismatchRecovery();

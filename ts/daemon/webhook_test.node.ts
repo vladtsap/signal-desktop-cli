@@ -392,6 +392,7 @@ void test('delivery commit failure retains and redelivers the entry', async () =
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   const address = server.address();
   assert.ok(address && typeof address !== 'string');
+  const markedRead = new Array<string>();
   let failNextPersist = false;
   const outbox = new DurableWebhookOutbox(fakeSql(messages), {
     beforePersist() {
@@ -401,6 +402,9 @@ void test('delivery commit failure retains and redelivers the entry', async () =
       }
     },
     maxPending: 10,
+    markRead: messageId => {
+      markedRead.push(messageId);
+    },
     profileKey: '56'.repeat(32),
     storagePath,
     timeoutMs: 1_000,
@@ -416,9 +420,52 @@ void test('delivery commit failure retains and redelivers the entry', async () =
     await waitFor(() => deliveries >= 1);
     assert.equal(outbox.pendingCount, 1);
     await waitFor(() => deliveries >= 2 && outbox.pendingCount === 0);
+    assert.deepEqual(markedRead, [
+      'redeliver-after-commit-failure',
+      'redeliver-after-commit-failure',
+    ]);
   } finally {
     await outbox.stop();
     await new Promise<void>(resolve => server.close(() => resolve()));
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
+void test('read-marking failure retains and redelivers the entry', async () => {
+  const storagePath = await mkdtemp(
+    join(tmpdir(), 'signal-webhook-read-failure-')
+  );
+  const messages = new Array<MessageAttributesType>();
+  let deliveries = 0;
+  let markReadCalls = 0;
+  const outbox = new DurableWebhookOutbox(fakeSql(messages), {
+    fetch: async () => {
+      deliveries += 1;
+      return new Response(null, { status: 204 });
+    },
+    markRead: () => {
+      markReadCalls += 1;
+      if (markReadCalls === 1) throw new Error('simulated read failure');
+    },
+    maxPending: 10,
+    profileKey: '67'.repeat(32),
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await outbox.prepare();
+    const value = message('redeliver-after-read-failure', 6);
+    messages.push(value);
+    await outbox.enqueue(value);
+    outbox.start();
+    await waitFor(() => deliveries === 1 && markReadCalls === 1);
+    assert.equal(outbox.pendingCount, 1);
+    await waitFor(
+      () => deliveries === 2 && markReadCalls === 2 && outbox.pendingCount === 0
+    );
+  } finally {
+    await outbox.stop();
     await rm(storagePath, { force: true, recursive: true });
   }
 });

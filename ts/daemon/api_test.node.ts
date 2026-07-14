@@ -59,6 +59,7 @@ void test('control API exposes health and protects validated sends', async () =>
   const storagePath = await mkdtemp(join(tmpdir(), 'signal-api-'));
   const apiPort = await availablePort();
   const webhookMethods = new Array<string>();
+  const readLookups = new Array<string>();
   const readUpdates = new Array<Record<string, unknown>>();
   const webhookServer = createServer((request, response) => {
     webhookMethods.push(request.method ?? '');
@@ -123,10 +124,19 @@ void test('control API exposes health and protects validated sends', async () =>
         },
       },
       messageCache: {
-        getOrLoadById: async () => ({
-          get: (key: string) => (key === 'type' ? 'incoming' : undefined),
-          set: (update: Record<string, unknown>) => readUpdates.push(update),
-        }),
+        getOrLoadById: async (messageId: string) => {
+          readLookups.push(messageId);
+          if (messageId === 'missing-message') return undefined;
+          return {
+            get(key: string) {
+              if (key !== 'type') return undefined;
+              return messageId === 'outgoing-message'
+                ? 'outgoing'
+                : 'incoming';
+            },
+            set: (update: Record<string, unknown>) => readUpdates.push(update),
+          };
+        },
         saveMessage: async () => 'incoming-message',
       },
       signalProtocolStore: {},
@@ -159,6 +169,36 @@ void test('control API exposes health and protects validated sends', async () =>
     assert.deepEqual(readUpdates, [
       { readStatus: ReadStatus.Read, seenStatus: SeenStatus.Seen },
     ]);
+    for (const [id, receivedAt] of [
+      ['missing-message', 2],
+      ['outgoing-message', 3],
+    ] as const) {
+      // oxlint-disable-next-line no-await-in-loop -- preserves outbox enqueue order
+      await service.handleIncoming({
+        attachments: [],
+        body: `deliver ${id}`,
+        conversationId: 'direct-conversation',
+        id,
+        received_at: receivedAt,
+        sent_at: receivedAt * 1_000,
+        sourceServiceId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' as AciString,
+        timestamp: receivedAt * 1_000,
+        type: 'incoming',
+      } as MessageAttributesType);
+    }
+    while (readLookups.length < 3) {
+      if (Date.now() > deliveryDeadline) {
+        throw new Error('Timed out waiting for skipped webhook read updates');
+      }
+      // oxlint-disable-next-line eslint/no-await-in-loop -- waits for webhook worker
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    assert.deepEqual(readLookups, [
+      'incoming-message',
+      'missing-message',
+      'outgoing-message',
+    ]);
+    assert.equal(readUpdates.length, 1);
     const base = `http://127.0.0.1:${apiPort}`;
     const health = await fetch(`${base}/healthz`);
     assert.equal(health.status, 200);
@@ -450,6 +490,57 @@ void test('control API forwards quote and reaction fields', async () => {
         messageId: 'incoming-message-id',
       },
     ]);
+
+    const invalidParseMode = await fetch(
+      `http://127.0.0.1:${apiPort}/v1/messages`,
+      {
+        body: JSON.stringify({
+          body: 'invalid formatting mode',
+          destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+          parse_mode: 'markdown',
+        }),
+        headers: {
+          authorization: `Bearer ${TOKEN}`,
+          'content-type': 'application/json',
+        },
+        method: 'POST',
+      }
+    );
+    assert.equal(invalidParseMode.status, 400);
+    assert.equal(requests.length, 1);
+
+    for (const body of [
+      {
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        emoji: '👍',
+      },
+      {
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        emoji: 'not an emoji',
+        message_id: 'incoming-message-id',
+      },
+      {
+        destination: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        emoji: '👍',
+        message_id: 'incoming-message-id',
+        remove: true,
+      },
+    ]) {
+      // oxlint-disable-next-line no-await-in-loop -- validates independent HTTP requests
+      const invalidReaction = await fetch(
+        `http://127.0.0.1:${apiPort}/v1/reactions`,
+        {
+          body: JSON.stringify(body),
+          headers: {
+            authorization: `Bearer ${TOKEN}`,
+            'content-type': 'application/json',
+          },
+          method: 'POST',
+        }
+      );
+      assert.equal(invalidReaction.status, 400);
+    }
+    assert.equal(reactions.length, 1);
   } finally {
     await service.stop();
     await rm(storagePath, { force: true, recursive: true });

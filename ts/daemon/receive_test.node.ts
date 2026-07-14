@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { SignalService as Proto } from '../protobuf/index.std.ts';
 import type { UnprocessedType } from '../textsecure/Types.d.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
+import { uuidToBytes } from '../util/uuidToBytes.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import {
   HeadlessMessageReceiver,
@@ -234,6 +235,33 @@ void test('persists quoted reply context for webhook delivery', async () => {
   await harness.receiver.stop();
 });
 
+void test('persists a quote with a binary author ACI', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: {
+        body: 'binary author reply',
+        quote: {
+          authorAciBinary: uuidToBytes(OUR_ACI),
+          id: 999n,
+          text: 'binary author original',
+        },
+        timestamp: 1234n,
+      },
+    },
+  } as never);
+  const harness = makeHarness({ plaintext });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(
+    (harness.saved[0]?.quote as { authorAci?: string } | undefined)?.authorAci,
+    OUR_ACI
+  );
+  assert.equal(harness.staged.size, 0);
+  await harness.receiver.stop();
+});
+
 for (const [name, quote, unsupportedReason] of [
   [
     'string',
@@ -269,6 +297,61 @@ for (const [name, quote, unsupportedReason] of [
     assert.equal(harness.saved.length, 0);
     assert.equal(harness.staged.size, 1);
     assert.equal(harness.receiver.unsupportedReason, unsupportedReason);
+    await harness.receiver.stop();
+  });
+}
+
+for (const [name, quote] of [
+  ['missing timestamp', { authorAci: OUR_ACI }],
+  ['zero timestamp', { authorAci: OUR_ACI, id: 0n }],
+  [
+    'unsafe timestamp',
+    { authorAci: OUR_ACI, id: BigInt(Number.MAX_SAFE_INTEGER) + 1n },
+  ],
+  [
+    'attachment',
+    {
+      attachments: [{ contentType: 'image/png' }],
+      authorAci: OUR_ACI,
+      id: 999n,
+    },
+  ],
+  [
+    'formatted body range',
+    {
+      authorAci: OUR_ACI,
+      bodyRanges: [
+        {
+          associatedValue: { style: Proto.BodyRange.Style.BOLD },
+          length: 4,
+          start: 0,
+        },
+      ],
+      id: 999n,
+    },
+  ],
+] as const) {
+  void test(`retains a quote with an unsupported ${name}`, async () => {
+    const plaintext = Proto.Content.encode({
+      content: {
+        dataMessage: {
+          body: 'unsupported quote',
+          quote,
+          timestamp: 1234n,
+        },
+      },
+    } as never);
+    const harness = makeHarness({ plaintext });
+    await start(harness);
+    const { incoming, statuses } = request();
+    await harness.transport.emit(incoming);
+    assert.deepEqual(statuses, [200]);
+    assert.equal(harness.saved.length, 0);
+    assert.equal(harness.staged.size, 1);
+    assert.equal(
+      harness.receiver.unsupportedReason,
+      'Incoming quote is malformed or contains unsupported fields'
+    );
     await harness.receiver.stop();
   });
 }
