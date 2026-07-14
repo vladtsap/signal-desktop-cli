@@ -521,7 +521,7 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 | `SIGNAL_WEBHOOK_SECRET`             | unset   | HMAC secret, minimum 16 characters.                                                  |
 | `SIGNAL_WEBHOOK_TIMEOUT_MS`         | `10000` | Startup GET and POST attempt timeout, 1,000–120,000 ms.                              |
 | `SIGNAL_WEBHOOK_MAX_PENDING`        | `1000`  | Durable undelivered updates, 1–10,000; a full queue applies receive backpressure.    |
-| `SIGNAL_MEMORY_LIMIT`               | `512m`  | Hard Compose daemon memory limit.                                                    |
+| `SIGNAL_MEMORY_LIMIT`               | `768m`  | Hard Compose daemon memory limit.                                                    |
 | `SIGNAL_PIDS_LIMIT`                 | `128`   | Compose daemon process limit.                                                        |
 
 Compose sets `SIGNAL_API_HOST=0.0.0.0` inside the container but publishes it only on host `127.0.0.1`.

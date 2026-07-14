@@ -25,7 +25,7 @@ services:
       - '127.0.0.1:${SIGNAL_API_PORT:-8080}:${SIGNAL_API_PORT:-8080}'
     cap_drop:
       - ALL
-    mem_limit: ${SIGNAL_MEMORY_LIMIT:-512m}
+    mem_limit: ${SIGNAL_MEMORY_LIMIT:-768m}
     pids_limit: ${SIGNAL_PIDS_LIMIT:-128}
     read_only: true
     restart: unless-stopped
