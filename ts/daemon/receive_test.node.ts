@@ -234,6 +234,45 @@ void test('persists quoted reply context for webhook delivery', async () => {
   await harness.receiver.stop();
 });
 
+for (const [name, quote, unsupportedReason] of [
+  [
+    'string',
+    { authorAci: 'not-an-aci', id: 999n },
+    'Incoming quote is malformed or contains unsupported fields',
+  ],
+  [
+    'binary',
+    { authorAciBinary: Uint8Array.of(1), id: 999n },
+    'Incoming quote is malformed or contains unsupported fields',
+  ],
+  [
+    'PNI-prefixed string',
+    { authorAci: 'PNI:cccccccc-cccc-4ccc-8ccc-cccccccccccc', id: 999n },
+    'Incoming quote has a malformed author ACI',
+  ],
+] as const) {
+  void test(`retains a quote with a malformed ${name} author ACI`, async () => {
+    const plaintext = Proto.Content.encode({
+      content: {
+        dataMessage: {
+          body: 'reply body',
+          quote,
+          timestamp: 1234n,
+        },
+      },
+    } as never);
+    const harness = makeHarness({ plaintext });
+    await start(harness);
+    const { incoming, statuses } = request();
+    await harness.transport.emit(incoming);
+    assert.deepEqual(statuses, [200]);
+    assert.equal(harness.saved.length, 0);
+    assert.equal(harness.staged.size, 1);
+    assert.equal(harness.receiver.unsupportedReason, unsupportedReason);
+    await harness.receiver.stop();
+  });
+}
+
 void test('retries persistence from staged plaintext without decrypting twice', async () => {
   const harness = makeHarness({ saveFailureCount: 1 });
   await start(harness);

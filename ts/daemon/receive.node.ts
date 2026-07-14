@@ -43,6 +43,7 @@ import { isPniString, normalizeServiceId } from '../types/ServiceId.std.ts';
 import * as Errors from '../types/errors.std.ts';
 import { strictAssert } from '../util/assert.std.ts';
 import { consoleLogger } from '../util/consoleLogger.std.ts';
+import { isAciString } from '../util/isAciString.std.ts';
 import {
   fromAciUuidBytesOrString,
   fromServiceIdBinaryOrString,
@@ -630,16 +631,25 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     let quote: MessageAttributesType['quote'];
     if (message.quote) {
       const quoteId = Number(message.quote.id);
-      const authorAci = fromAciUuidBytesOrString(
-        message.quote.authorAciBinary,
-        message.quote.authorAci,
-        'HeadlessMessageReceiver.quote.authorAci'
-      );
+      let authorAci;
+      try {
+        authorAci = fromAciUuidBytesOrString(
+          message.quote.authorAciBinary,
+          message.quote.authorAci,
+          'HeadlessMessageReceiver.quote.authorAci'
+        );
+      } catch (error) {
+        throw new UnsupportedIncomingContentError(
+          'Incoming quote has a malformed author ACI',
+          { cause: error }
+        );
+      }
       if (
         message.quote.id == null ||
         !Number.isSafeInteger(quoteId) ||
         quoteId <= 0 ||
         !authorAci ||
+        !isAciString(authorAci) ||
         message.quote.attachments.length > 0 ||
         message.quote.bodyRanges.length > 0
       ) {
