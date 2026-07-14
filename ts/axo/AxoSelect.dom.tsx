@@ -6,7 +6,7 @@ import { Select } from 'radix-ui';
 import { AxoBaseMenu } from './_internal/AxoBaseMenu.dom.tsx';
 import { AxoSymbol } from './AxoSymbol.dom.tsx';
 import { tw } from './tw.dom.tsx';
-import { ExperimentalAxoBadge } from './AxoBadge.dom.tsx';
+import { AxoBadge } from './AxoBadge.dom.tsx';
 import { AxoTheme } from './AxoTheme.dom.tsx';
 import { variants } from './_internal/variants.dom.tsx';
 
@@ -462,31 +462,26 @@ export namespace AxoSelect {
    * --------------------------------------------------------------------------
    */
 
-  export type ExperimentalItemBadgeProps = Omit<
-    ExperimentalAxoBadge.RootProps,
-    'size'
-  >;
+  export type ItemBadgeProps = Omit<AxoBadge.RootProps, 'size'>;
 
   /**
    * A badge shown at the trailing edge of an item, typically for unread counts.
    */
-  export const ExperimentalItemBadge = memo(
-    (props: ExperimentalItemBadgeProps) => {
-      return (
-        <span className={tw('ms-[5px]')}>
-          <ExperimentalAxoBadge.Root
-            size="sm"
-            value={props.value}
-            max={props.max}
-            maxDisplay={props.maxDisplay}
-            label={props.label}
-          />
-        </span>
-      );
-    }
-  );
+  export const ItemBadge: FC<ItemBadgeProps> = memo((props: ItemBadgeProps) => {
+    return (
+      <span className={tw('ms-[5px]')}>
+        <AxoBadge.Root
+          variant={props.variant}
+          size="sm"
+          value={props.value}
+          max={props.max}
+          label={props.label}
+        />
+      </span>
+    );
+  });
 
-  ExperimentalItemBadge.displayName = 'AxoSelect.ItemBadge';
+  ItemBadge.displayName = 'AxoSelect.ItemBadge';
 
   /**
    * <AxoSelect.Group>

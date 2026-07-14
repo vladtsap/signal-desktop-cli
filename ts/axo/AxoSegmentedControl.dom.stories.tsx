@@ -42,11 +42,11 @@ function Template(props: {
             Inbox
           </ExperimentalAxoSegmentedControl.ItemText>
           {props.includeBadges && (
-            <ExperimentalAxoSegmentedControl.ExperimentalItemBadge
+            <ExperimentalAxoSegmentedControl.ItemBadge
+              variant="primary"
               value={42}
               max={99}
-              maxDisplay="99+"
-              label={null}
+              label="42 unread messages"
             />
           )}
         </ExperimentalAxoSegmentedControl.Item>
@@ -56,11 +56,11 @@ function Template(props: {
             Drafts
           </ExperimentalAxoSegmentedControl.ItemText>
           {props.includeBadges && (
-            <ExperimentalAxoSegmentedControl.ExperimentalItemBadge
+            <ExperimentalAxoSegmentedControl.ItemBadge
+              variant="primary"
               value="mention"
               max={99}
-              maxDisplay="99+"
-              label={null}
+              label="You were mentioned"
             />
           )}
         </ExperimentalAxoSegmentedControl.Item>
@@ -69,11 +69,11 @@ function Template(props: {
             Sent
           </ExperimentalAxoSegmentedControl.ItemText>
           {props.includeBadges && (
-            <ExperimentalAxoSegmentedControl.ExperimentalItemBadge
+            <ExperimentalAxoSegmentedControl.ItemBadge
+              variant="primary"
               value="unread"
               max={99}
-              maxDisplay="99+"
-              label={null}
+              label="Marked unread"
             />
           )}
         </ExperimentalAxoSegmentedControl.Item>

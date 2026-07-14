@@ -5,9 +5,14 @@ import { memo, useId, useMemo } from 'react';
 import type { Transition } from 'motion/react';
 import { motion } from 'motion/react';
 import { tw } from '../tw.dom.tsx';
-import { ExperimentalAxoBadge } from '../AxoBadge.dom.tsx';
+import { AxoBadge } from '../AxoBadge.dom.tsx';
 import { createStrictContext, useStrictContext } from './StrictContext.dom.tsx';
 import { variants } from './variants.dom.tsx';
+import {
+  AriaLabellingProvider,
+  useAriaLabellingContext,
+  useCreateAriaLabellingContext,
+} from './AriaLabellingContext.dom.tsx';
 
 /**
  * Used to share styles/animations for SegmentedControls, Toolbar ToggleGroups,
@@ -165,8 +170,13 @@ export namespace ExperimentalAxoBaseSegmentedControl {
   }>;
 
   export const Item: FC<ItemProps> = memo(props => {
-    const { value, children, ...rest } = props;
+    const { ref, value, children, ...rest } = props;
     const context = useStrictContext(RootContext);
+    const {
+      context: labellingContext,
+      labelId,
+      descriptionId,
+    } = useCreateAriaLabellingContext();
 
     const isSelected = useMemo(() => {
       if (context.value == null) {
@@ -181,35 +191,39 @@ export namespace ExperimentalAxoBaseSegmentedControl {
     }, [value, context.value]);
 
     return (
-      <button
-        ref={props.ref}
-        type="button"
-        className={tw(
-          'relative flex min-w-0 items-center justify-center px-3 py-[5px]',
-          'cursor-pointer rounded-full type-body-medium font-medium text-primary',
-          'outline-focused-inner not-forced-colors:outline-none not-forced-colors:keyboard-mode:focus:axo-focus-ring',
-          'forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]',
-          'forced-colors:data-[axo-contextmenu-state=open]:text-[HighlightText]',
-          ItemWidths.get(context.itemWidth),
-          isSelected && tw('forced-colors:text-[SelectedItemText]'),
-          !isSelected &&
-            tw(
-              'data-[axo-contextmenu-state=open]:bg-primary',
-              'forced-colors:data-[axo-contextmenu-state=open]:bg-[Highlight]'
-            )
-        )}
-        {...rest}
-      >
-        {children}
-        {isSelected && (
-          <motion.span
-            layoutId={`${context.id}.Indicator`}
-            className={IndicatorStyles.get(context.variant)}
-            transition={IndicatorTransition}
-            style={{ borderRadius: 14 }}
-          />
-        )}
-      </button>
+      <AriaLabellingProvider value={labellingContext}>
+        <button
+          ref={ref}
+          type="button"
+          className={tw(
+            'relative flex min-w-0 items-center justify-center px-3 py-[5px]',
+            'cursor-pointer rounded-full type-body-medium font-medium text-primary',
+            'outline-focused-inner not-forced-colors:outline-none not-forced-colors:keyboard-mode:focus:axo-focus-ring',
+            'forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]',
+            'forced-colors:data-[axo-contextmenu-state=open]:text-[HighlightText]',
+            ItemWidths.get(context.itemWidth),
+            isSelected && tw('forced-colors:text-[SelectedItemText]'),
+            !isSelected &&
+              tw(
+                'data-[axo-contextmenu-state=open]:bg-primary',
+                'forced-colors:data-[axo-contextmenu-state=open]:bg-[Highlight]'
+              )
+          )}
+          aria-labelledby={labelId}
+          aria-describedby={descriptionId}
+          {...rest}
+        >
+          {children}
+          {isSelected && (
+            <motion.span
+              layoutId={`${context.id}.Indicator`}
+              className={IndicatorStyles.get(context.variant)}
+              transition={IndicatorTransition}
+              style={{ borderRadius: 14 }}
+            />
+          )}
+        </button>
+      </AriaLabellingProvider>
     );
   });
 
@@ -231,8 +245,12 @@ export namespace ExperimentalAxoBaseSegmentedControl {
 
   /** Truncated label text inside a segmented control item. */
   export const ItemText: FC<ItemTextProps> = memo(props => {
+    const id = useId();
+    const { labelRef } = useAriaLabellingContext('AxoBaseSegmentControl.Item');
     return (
       <span
+        ref={labelRef}
+        id={id}
         className={tw('relative z-20 block truncate forced-color-adjust-none')}
         style={{ maxWidth: props.maxWidth }}
       >
@@ -248,27 +266,30 @@ export namespace ExperimentalAxoBaseSegmentedControl {
    * --------------------------------------------------------------------------
    */
 
-  export type ExperimentalItemBadgeProps = Omit<
-    ExperimentalAxoBadge.RootProps,
-    'size'
-  >;
+  export type ItemBadgeProps = Omit<AxoBadge.RootProps, 'size'>;
 
   /** A badge rendered to the right of the item label. */
-  export const ExperimentalItemBadge = memo(
-    (props: ExperimentalItemBadgeProps) => {
-      return (
-        <span className={tw('relative z-20 ms-[5px]')}>
-          <ExperimentalAxoBadge.Root
-            size="md"
-            value={props.value}
-            max={props.max}
-            maxDisplay={props.maxDisplay}
-            label={props.label}
-          />
-        </span>
-      );
-    }
-  );
+  export const ItemBadge: FC<ItemBadgeProps> = memo((props: ItemBadgeProps) => {
+    const id = useId();
+    const { descriptionRef } = useAriaLabellingContext(
+      'AxoBaseSegmentControl.Item'
+    );
+    return (
+      <span
+        ref={descriptionRef}
+        id={id}
+        className={tw('relative z-20 ms-[5px]')}
+      >
+        <AxoBadge.Root
+          variant={props.variant}
+          size="md"
+          value={props.value}
+          max={props.max}
+          label={props.label}
+        />
+      </span>
+    );
+  });
 
-  ExperimentalItemBadge.displayName = 'AxoBaseSegmentedControl.ItemBadge';
+  ItemBadge.displayName = 'AxoBaseSegmentedControl.ItemBadge';
 }
