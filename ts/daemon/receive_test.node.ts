@@ -57,7 +57,8 @@ class FakeTransport implements HeadlessTransportRuntime {
 }
 
 function makeEnvelope(
-  content: Uint8Array<ArrayBuffer> = Uint8Array.from([1, 2, 3])
+  content: Uint8Array<ArrayBuffer> = Uint8Array.from([1, 2, 3]),
+  type = Proto.Envelope.Type.DOUBLE_RATCHET
 ): Uint8Array<ArrayBuffer> {
   return Proto.Envelope.encode({
     clientTimestamp: 1234n,
@@ -67,7 +68,7 @@ function makeEnvelope(
     serverTimestamp: 1300n,
     sourceDeviceId: 2,
     sourceServiceId: SENDER_ACI,
-    type: Proto.Envelope.Type.DOUBLE_RATCHET,
+    type,
   } as never);
 }
 
@@ -436,7 +437,12 @@ void test('acknowledges unsupported empty control envelopes without staging null
     ),
   });
   await start(harness);
-  const { incoming, statuses } = request(makeEnvelope(new Uint8Array()));
+  const { incoming, statuses } = request(
+    makeEnvelope(
+      new Uint8Array(),
+      Proto.Envelope.Type.SERVER_DELIVERY_RECEIPT
+    )
+  );
   await harness.transport.emit(incoming);
   assert.deepEqual(statuses, [200]);
   assert.equal(harness.saved.length, 0);

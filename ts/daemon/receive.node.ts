@@ -95,6 +95,25 @@ export type HeadlessReceiveOptions = Readonly<{
 
 export class UnsupportedIncomingContentError extends Error {}
 
+function getEnvelopeTypeName(type: number): string {
+  switch (type) {
+    case Proto.Envelope.Type.UNKNOWN:
+      return 'UNKNOWN';
+    case Proto.Envelope.Type.DOUBLE_RATCHET:
+      return 'DOUBLE_RATCHET';
+    case Proto.Envelope.Type.PREKEY_MESSAGE:
+      return 'PREKEY_MESSAGE';
+    case Proto.Envelope.Type.SERVER_DELIVERY_RECEIPT:
+      return 'SERVER_DELIVERY_RECEIPT';
+    case Proto.Envelope.Type.UNIDENTIFIED_SENDER:
+      return 'UNIDENTIFIED_SENDER';
+    case Proto.Envelope.Type.PLAINTEXT_CONTENT:
+      return 'PLAINTEXT_CONTENT';
+    default:
+      return `UNKNOWN(${type})`;
+  }
+}
+
 function stableEnvelopeId(body: Uint8Array<ArrayBuffer>): string {
   return createHash('sha256').update(body).digest('hex');
 }
@@ -622,6 +641,8 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
                 'HeadlessMessageReceiver: acknowledged unsupported empty Signal envelope',
                 {
                   envelopeId: envelope.id,
+                  envelopeType: envelope.type,
+                  envelopeTypeName: getEnvelopeTypeName(envelope.type),
                   reason: error.message,
                 }
               );
