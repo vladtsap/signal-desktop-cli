@@ -576,11 +576,14 @@ export class DurableWebhookOutbox {
     }
   }
 
-  #serialize(operation: () => Promise<void>): Promise<void> {
+  #serialize<Result>(operation: () => Promise<Result>): Promise<Result> {
     // oxlint-disable-next-line promise/prefer-await-to-then, signal-desktop/no-then -- ordered durability tail
     const result = this.#tail.then(operation);
-    // oxlint-disable-next-line promise/prefer-await-to-then -- keep the outbox tail usable after failure
-    this.#tail = result.catch(() => undefined);
+    // oxlint-disable-next-line promise/prefer-await-to-then, signal-desktop/no-then -- keep the outbox tail usable after failure
+    this.#tail = result.then(
+      () => undefined,
+      () => undefined
+    );
     return result;
   }
 
