@@ -42,7 +42,6 @@ import type { ServiceIdString } from '../types/ServiceId.std.ts';
 import { isPniString, normalizeServiceId } from '../types/ServiceId.std.ts';
 import * as Errors from '../types/errors.std.ts';
 import { strictAssert } from '../util/assert.std.ts';
-import { consoleLogger } from '../util/consoleLogger.std.ts';
 import { isAciString } from '../util/isAciString.std.ts';
 import {
   fromAciUuidBytesOrString,
@@ -52,6 +51,7 @@ import { bytesToUuid } from '../util/uuidToBytes.std.ts';
 import { Zone } from '../util/Zone.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import { captureDaemonError } from './monitoring.node.ts';
+import { daemonLogger as consoleLogger, elapsedMs } from './logging.std.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
 import type {
   HeadlessIncomingRequest,
@@ -554,7 +554,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         }
       );
     } catch (error) {
-      captureDaemonError(error, 'receiver.process-envelope');
+      captureDaemonError(error, 'receiver.process-envelope', { envelopeId });
       consoleLogger.error(
         'HeadlessMessageReceiver: failed to process incoming Signal envelope',
         { envelopeId, error: Errors.toLogFormat(error) }
@@ -590,6 +590,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     } else {
       this.#receivedAtCounter += 1;
       const envelope = decodeEnvelope(body, stores, this.#receivedAtCounter);
+      const decryptStartedAt = Date.now();
       consoleLogger.info(
         'HeadlessMessageReceiver: decrypting Signal envelope',
         {
@@ -671,11 +672,23 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         return;
       }
       decrypted = outcome.result;
+      consoleLogger.info('HeadlessMessageReceiver: decrypted Signal envelope', {
+        decryptDurationMs: elapsedMs(decryptStartedAt),
+        envelopeId: id,
+      });
     }
 
     try {
+      const persistStartedAt = Date.now();
       await this.#persistDirectText(decrypted);
       await stores.signalProtocolStore.removeUnprocessed(decrypted.envelope.id);
+      consoleLogger.info(
+        'HeadlessMessageReceiver: completed envelope persistence',
+        {
+          envelopeId: decrypted.envelope.id,
+          persistDurationMs: elapsedMs(persistStartedAt),
+        }
+      );
     } catch (error) {
       if (error instanceof UnsupportedIncomingContentError) {
         // The server may discard an envelope once it receives 200. Preserve
@@ -829,12 +842,14 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         messageId: model.attributes.id,
       }
     );
+    const outboxStartedAt = Date.now();
     await this.#onPersistedMessage?.(model.attributes);
     consoleLogger.info(
       'HeadlessMessageReceiver: handed message to webhook outbox',
       {
         envelopeId: envelope.id,
         messageId: model.attributes.id,
+        outboxDurationMs: elapsedMs(outboxStartedAt),
       }
     );
   }

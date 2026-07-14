@@ -8,6 +8,7 @@ import localProductionConfig from '../../config/local-production.json' with { ty
 import { loadDaemonConfig } from './config.node.ts';
 import { HeadlessControlService } from './api.node.ts';
 import { waitForTermination } from './lifecycle.node.ts';
+import { logDaemonError, logDaemonEvent } from './logging.std.ts';
 import {
   captureDaemonError,
   closeDaemonMonitoring,
@@ -65,12 +66,17 @@ async function main(
   services.runtime = runtime;
 
   await runtime.start();
-  // oxlint-disable-next-line no-console
-  console.info('signal-daemon: ready', runtime.getStatus());
+  const status = runtime.getStatus();
+  logDaemonEvent('info', 'daemon.ready', {
+    connected: status.connected,
+    databaseReady: status.databaseReady,
+    linked: status.linked,
+    phase: status.phase,
+    ready: status.ready,
+  });
   await waitForTermination({
     onSignal(signal) {
-      // oxlint-disable-next-line no-console
-      console.info(`signal-daemon: received ${signal}; checkpointing database`);
+      logDaemonEvent('info', 'daemon.shutdown.requested', { signal });
     },
     shutdownTimeoutMs: config.shutdownTimeoutMs,
     stop: () => runtime.stop(),
@@ -87,11 +93,7 @@ async function run(): Promise<void> {
     await main(config);
   } catch (error) {
     captureDaemonError(error, 'daemon.run');
-    // oxlint-disable-next-line no-console
-    console.error(
-      'signal-daemon: startup failed:',
-      error instanceof Error ? error.message : error
-    );
+    logDaemonError('daemon.run.failed', error);
     process.exitCode = 1;
   } finally {
     await closeDaemonMonitoring();

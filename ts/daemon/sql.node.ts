@@ -11,7 +11,15 @@ import {
   DataWriter as ServerDataWriter,
   initialize,
 } from '../sql/Server.node.ts';
-import { consoleLogger } from '../util/consoleLogger.std.ts';
+import { createDaemonLogger } from './logging.std.ts';
+import { captureDaemonError } from './monitoring.node.ts';
+
+const consoleLogger = createDaemonLogger({
+  fallbackComponent: 'sql',
+  onIssue: ({ error, event, level }) => {
+    captureDaemonError(error, 'sql.logger', { event, level });
+  },
+});
 
 export type HeadlessSql = Readonly<{
   close: () => Promise<void>;

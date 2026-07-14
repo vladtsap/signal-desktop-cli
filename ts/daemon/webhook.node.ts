@@ -15,8 +15,8 @@ import { dirname, join } from 'node:path';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import { z } from 'zod';
 import * as Errors from '../types/errors.std.ts';
-import { consoleLogger } from '../util/consoleLogger.std.ts';
 import type { HeadlessSql } from './sql.node.ts';
+import { daemonLogger as consoleLogger, elapsedMs } from './logging.std.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 
 const FORMAT_VERSION = 1;
@@ -257,6 +257,7 @@ export class DurableWebhookOutbox {
     consoleLogger.info('DurableWebhookOutbox: checking webhook endpoint', {
       timeoutMs: this.#timeoutMs,
     });
+    const checkStartedAt = Date.now();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.#timeoutMs);
     try {
@@ -277,6 +278,7 @@ export class DurableWebhookOutbox {
         );
       }
       consoleLogger.info('DurableWebhookOutbox: webhook endpoint is ready', {
+        durationMs: elapsedMs(checkStartedAt),
         status: response.status,
       });
     } catch (error) {
@@ -291,6 +293,7 @@ export class DurableWebhookOutbox {
   }
 
   public async prepare(): Promise<void> {
+    const prepareStartedAt = Date.now();
     let exists = true;
     try {
       const metadata = await stat(this.#filePath);
@@ -319,12 +322,14 @@ export class DurableWebhookOutbox {
       });
       consoleLogger.info('DurableWebhookOutbox: initialized durable state', {
         cursorCreated: cursor != null,
+        durationMs: elapsedMs(prepareStartedAt),
         pendingCount: 0,
       });
       return;
     }
     await this.#reconcile();
     consoleLogger.info('DurableWebhookOutbox: reconciled durable state', {
+      durationMs: elapsedMs(prepareStartedAt),
       pendingCount: this.#state.entries.length,
     });
   }
@@ -559,6 +564,7 @@ export class DurableWebhookOutbox {
       return wait;
     }
     const body = JSON.stringify(entry.update);
+    const deliveryStartedAt = Date.now();
     const headers: Record<string, string> = {
       'content-type': 'application/json',
     };
@@ -588,6 +594,7 @@ export class DurableWebhookOutbox {
       succeeded = response.status >= 200 && response.status < 300;
       consoleLogger.info('DurableWebhookOutbox: webhook response received', {
         attempt: entry.attempts + 1,
+        durationMs: elapsedMs(deliveryStartedAt),
         messageId: entry.update.message.message_id,
         status: response.status,
         webhookUpdateId: entry.update.webhook_update_id,
@@ -606,7 +613,11 @@ export class DurableWebhookOutbox {
     try {
       if (!this.#running) return undefined;
       if (deliveryError) {
-        captureDaemonError(deliveryError, 'webhook.post');
+        captureDaemonError(deliveryError, 'webhook.post', {
+          attempt: entry.attempts + 1,
+          messageId: entry.update.message.message_id,
+          webhookUpdateId: entry.update.webhook_update_id,
+        });
         consoleLogger.warn(
           'DurableWebhookOutbox: webhook delivery failed; keeping update for retry',
           {
@@ -629,6 +640,7 @@ export class DurableWebhookOutbox {
         this.#startReadAction(entry.update.message.message_id);
         consoleLogger.info('DurableWebhookOutbox: webhook delivery succeeded', {
           attempt: entry.attempts + 1,
+          durationMs: elapsedMs(deliveryStartedAt),
           messageId: entry.update.message.message_id,
           pendingCount: this.#state.entries.length,
           webhookUpdateId: entry.update.webhook_update_id,
@@ -697,6 +709,7 @@ export class DurableWebhookOutbox {
     messageId: string,
     controller: AbortController
   ): Promise<void> {
+    const actionStartedAt = Date.now();
     const timeout = setTimeout(() => {
       controller.abort(new Error('Post-webhook read action timed out'));
     }, this.#timeoutMs);
@@ -719,14 +732,19 @@ export class DurableWebhookOutbox {
       consoleLogger.info(
         'DurableWebhookOutbox: post-webhook read action succeeded',
         {
+          durationMs: elapsedMs(actionStartedAt),
           messageId,
         }
       );
     } catch (error) {
-      captureDaemonError(error, 'webhook.read-actions');
+      captureDaemonError(error, 'webhook.read-actions', { messageId });
       consoleLogger.warn(
         'DurableWebhookOutbox: post-webhook read action failed',
-        { error: Errors.toLogFormat(error), messageId }
+        {
+          durationMs: elapsedMs(actionStartedAt),
+          error: Errors.toLogFormat(error),
+          messageId,
+        }
       );
     } finally {
       clearTimeout(timeout);

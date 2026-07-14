@@ -15,8 +15,8 @@ import type {
 
 import { getUserAgent } from '../util/getUserAgent.node.ts';
 import * as Errors from '../types/errors.std.ts';
-import { consoleLogger } from '../util/consoleLogger.std.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
+import { daemonLogger as consoleLogger, elapsedMs } from './logging.std.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 
 export type HeadlessTransportCredentials = Readonly<{
@@ -287,10 +287,13 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     this.#failureReason = undefined;
     this.#abortController = new AbortController();
     this.#state = 'connecting';
+    const connectStartedAt = Date.now();
     consoleLogger.info('AuthenticatedHeadlessTransport: connecting');
     try {
       await this.#connect(false);
-      consoleLogger.info('AuthenticatedHeadlessTransport: connected');
+      consoleLogger.info('AuthenticatedHeadlessTransport: connected', {
+        durationMs: elapsedMs(connectStartedAt),
+      });
     } catch (error) {
       this.#state = 'failed';
       this.#failureReason =
@@ -335,6 +338,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       return;
     }
     this.#state = isReconnect ? 'reconnecting' : 'connecting';
+    const connectStartedAt = Date.now();
     this.#generation += 1;
     const generation = this.#generation;
     const connection = await this.#connector.connect(
@@ -353,6 +357,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     this.#reconnectAttempt = 0;
     this.#state = 'open';
     consoleLogger.info('AuthenticatedHeadlessTransport: connection opened', {
+      durationMs: elapsedMs(connectStartedAt),
       reconnect: isReconnect,
     });
     this.#scheduleKeepalive(generation);
@@ -532,9 +537,15 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       return;
     }
     try {
+      const keepaliveStartedAt = Date.now();
       consoleLogger.info('AuthenticatedHeadlessTransport: running keepalive');
       await connection.keepalive(controller.signal, this.#keepaliveTimeoutMs);
-      consoleLogger.info('AuthenticatedHeadlessTransport: keepalive succeeded');
+      consoleLogger.info(
+        'AuthenticatedHeadlessTransport: keepalive succeeded',
+        {
+          durationMs: elapsedMs(keepaliveStartedAt),
+        }
+      );
       this.#scheduleKeepalive(generation);
     } catch (error) {
       if (

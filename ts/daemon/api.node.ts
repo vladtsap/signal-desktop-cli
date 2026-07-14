@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 import { Emoji } from '../axo/emoji.std.ts';
 import type { DaemonConfig } from './config.node.ts';
+import { elapsedMs, logDaemonError, logDaemonEvent } from './logging.std.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
@@ -195,6 +196,7 @@ export class HeadlessControlService {
   }
 
   public async prepare(context: RuntimeServiceContext): Promise<void> {
+    const prepareStartedAt = Date.now();
     if (this.#config.connect && !this.#config.apiToken) {
       throw new Error(
         'SIGNAL_API_TOKEN (at least 16 characters) is required when SIGNAL_DAEMON_CONNECT=true'
@@ -223,6 +225,10 @@ export class HeadlessControlService {
         });
     await this.#outbox.prepare();
     await this.#outbox.checkEndpoint();
+    logDaemonEvent('info', 'api.prepared', {
+      durationMs: elapsedMs(prepareStartedAt),
+      webhookEnabled: this.#config.webhookUrl != null,
+    });
   }
 
   public async start(): Promise<void> {
@@ -244,6 +250,10 @@ export class HeadlessControlService {
     });
     this.#server = server;
     this.#outbox.start();
+    logDaemonEvent('info', 'api.started', {
+      host: this.#config.apiHost,
+      port: this.#config.apiPort,
+    });
   }
 
   public handleIncoming(message: MessageAttributesType): Promise<void> {
@@ -253,6 +263,7 @@ export class HeadlessControlService {
   }
 
   public async stop(): Promise<void> {
+    const stopStartedAt = Date.now();
     const server = this.#server;
     this.#server = undefined;
     for (const controller of this.#controllers) controller.abort();
@@ -267,12 +278,36 @@ export class HeadlessControlService {
     await this.#outbox?.stop();
     this.#outbox = undefined;
     this.#sendService = undefined;
+    logDaemonEvent('info', 'api.stopped', {
+      durationMs: elapsedMs(stopStartedAt),
+    });
   }
 
   #trackHandler(request: IncomingMessage, response: ServerResponse): void {
-    const handler = this.#handle(request, response);
+    const handler = this.#handleAndLog(request, response);
     this.#activeHandlers.add(handler);
     void this.#settleHandler(handler);
+  }
+
+  async #handleAndLog(
+    request: IncomingMessage,
+    response: ServerResponse
+  ): Promise<void> {
+    const startedAt = Date.now();
+    try {
+      await this.#handle(request, response);
+    } finally {
+      logDaemonEvent(
+        response.statusCode >= 500 ? 'warn' : 'info',
+        'api.request.completed',
+        {
+          durationMs: elapsedMs(startedAt),
+          method: request.method,
+          path: request.url,
+          status: response.statusCode,
+        }
+      );
+    }
   }
 
   async #settleHandler(handler: Promise<void>): Promise<void> {
@@ -280,6 +315,7 @@ export class HeadlessControlService {
       await handler;
     } catch (error) {
       captureDaemonError(error, 'api.response');
+      logDaemonError('api.response.failed', error);
       // The request handler normally converts failures to JSON. A socket can
       // still disappear while writing that response during shutdown.
     } finally {
@@ -396,7 +432,21 @@ export class HeadlessControlService {
         error instanceof HeadlessSendError
           ? error
           : new HeadlessSendError('Send failed', 'send-failed', false);
-      json(response, sendErrorStatus(classified), {
+      const status = sendErrorStatus(classified);
+      logDaemonEvent(
+        ['invalid-request', 'recipient-not-found', 'unsupported'].includes(
+          classified.code
+        )
+          ? 'info'
+          : 'warn',
+        'api.request.failed',
+        {
+          code: classified.code,
+          retryable: classified.retryable,
+          status,
+        }
+      );
+      json(response, status, {
         error: {
           code: classified.code,
           message: publicSendErrorMessage(classified.code),

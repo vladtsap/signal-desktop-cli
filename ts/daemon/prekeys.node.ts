@@ -33,6 +33,7 @@ import { ServiceIdKind, type ServiceIdString } from '../types/ServiceId.std.ts';
 import { wrappingAdd24 } from '../util/wrappingAdd.std.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
 import type { HeadlessSendTransport } from './transport.node.ts';
+import { logDaemonError } from './logging.std.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 
 const DAY = 24 * 60 * 60 * 1_000;
@@ -492,11 +493,7 @@ export class PreKeyMaintainedProtocolRuntime implements ProtocolRuntime {
       } catch (error) {
         if (!signal.aborted) {
           captureDaemonError(error, 'prekeys.update', { reason });
-          // oxlint-disable-next-line no-console
-          console.error(
-            `signal-daemon: pre-key ${reason} update failed`,
-            error
-          );
+          logDaemonError('prekeys.update.failed', error, { reason });
           this.#schedule(this.#options.retryIntervalMs);
         }
       }

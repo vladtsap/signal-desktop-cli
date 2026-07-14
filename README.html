@@ -1427,22 +1427,29 @@ networks:
 
           <h3>Delivery diagnostics</h3>
           <p>
-            The <code>signal</code> container writes lifecycle diagnostics to
-            stdout. Inspect the live stream with
+            The <code>signal</code> container writes one JSON event per line to
+            stdout/stderr. Inspect the live stream with
             <code>docker compose logs --timestamps --follow signal</code>. Every
-            incoming envelope is logged as it is received, queued, decrypted or
-            resumed from staging, persisted, handed to the outbox, acknowledged
-            to Signal, skipped, rejected, or failed. Webhook diagnostics record
-            durable-state load and reconciliation, enqueue and skip reasons,
-            capacity backpressure, every POST attempt, HTTP status, retry delay,
-            successful durable removal, and post-webhook read-action results.
-            Transport diagnostics cover connection lifecycle, reconnect
-            attempts, keepalive checks, request buffering, and queue overflow.
+            event has stable <code>timestamp</code>, <code>level</code>, and
+            dot-separated <code>event</code> fields, followed by safe
+            event-specific fields. Every incoming envelope is logged as it is
+            received, queued, decrypted or resumed from staging, persisted,
+            handed to the outbox, acknowledged to Signal, skipped, rejected, or
+            failed. Webhook diagnostics record durable-state load and
+            reconciliation, enqueue and skip reasons, capacity backpressure,
+            every POST attempt, HTTP status, retry delay, successful durable
+            removal, and post-webhook read-action results. Transport diagnostics
+            cover connection lifecycle, reconnect attempts, keepalive checks,
+            request buffering, and queue overflow. API and runtime lifecycle
+            events use the same format.
           </p>
           <p>
             Use <code>messageId</code> and <code>webhookUpdateId</code> to
             correlate an incoming message with its delivery attempts;
-            <code>envelopeId</code> correlates the Signal receive path. Logs
+            <code>envelopeId</code> correlates the Signal receive path.
+            <code>durationMs</code>, <code>decryptDurationMs</code>,
+            <code>persistDurationMs</code>, and
+            <code>outboxDurationMs</code> identify slow stages. Logs
             intentionally omit Signal message text, webhook payloads,
             credentials, webhook secrets, and HMAC signatures. A
             <code>skipped</code> event includes its explicit reason (for example
@@ -1743,14 +1750,16 @@ docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
           <p>
             When <code>SENTRY_DSN</code> is set, the daemon reports uncaught
             exceptions, unhandled promise rejections, startup and shutdown
-            failures, and handled background failures from webhook delivery/read
-            actions, Signal receive and transport processing, and pre-key
-            maintenance. Events include the daemon release and an operation tag.
-            API requests, HTTP headers, webhook payloads, Signal message
-            content, and HTTP breadcrumbs are deliberately excluded. Sentry is
-            disabled when the variable is unset. Retryable failures may produce
-            an event for each failed attempt, subject to Sentry's own rate
-            limits.
+            failures, and handled daemon failures from API responses,
+            SQL/database operations, webhook delivery/read actions, Signal
+            receive and transport processing, runtime expiration, and pre-key
+            maintenance. Events include the daemon release, an operation tag,
+            and safe correlation metadata such as message/update IDs and retry
+            attempt—never message text. API requests, HTTP headers, webhook
+            payloads, Signal message content, and HTTP breadcrumbs are
+            deliberately excluded. Sentry is disabled when the variable is
+            unset. Retryable failures may produce an event for each failed
+            attempt, subject to Sentry's own rate limits.
           </p>
           <p>
             If the daemon exceeds <code>SIGNAL_MEMORY_LIMIT</code>, its cgroup
