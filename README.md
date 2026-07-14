@@ -187,7 +187,7 @@ If `SIGNAL_DAEMON_CONNECT=false`, the daemon opens the offline profile and API w
 
 ## Send a text message
 
-The only authenticated endpoint is `POST /v1/messages`. Health endpoints do not require authentication. When `SIGNAL_DAEMON_CONNECT=true`, startup requires `SIGNAL_API_TOKEN` with at least 16 characters.
+The message endpoints `POST /v1/messages` and `POST /v1/reactions` require authentication. Health endpoints do not require authentication. When `SIGNAL_DAEMON_CONNECT=true`, startup requires `SIGNAL_API_TOKEN` with at least 16 characters.
 
 ```sh
 curl --fail-with-body \

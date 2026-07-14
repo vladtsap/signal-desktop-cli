@@ -800,6 +800,13 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
         <section id="send">
           <h2>5. Send a direct text message</h2>
           <p>
+            The message endpoints <code>POST /v1/messages</code> and
+            <code>POST /v1/reactions</code> require authentication. Health
+            endpoints do not require authentication. When
+            <code>SIGNAL_DAEMON_CONNECT=true</code>, startup requires
+            <code>SIGNAL_API_TOKEN</code> with at least 16 characters.
+          </p>
+          <p>
             Compose reads <code>.env</code> for containers, but does not export
             variables into your shell. Export the token or substitute its value
             in the request without saving it in shell history.
