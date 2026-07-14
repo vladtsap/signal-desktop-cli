@@ -420,10 +420,8 @@ void test('delivery commit failure retains and redelivers the entry', async () =
     await waitFor(() => deliveries >= 1);
     assert.equal(outbox.pendingCount, 1);
     await waitFor(() => deliveries >= 2 && outbox.pendingCount === 0);
-    assert.deepEqual(markedRead, [
-      'redeliver-after-commit-failure',
-      'redeliver-after-commit-failure',
-    ]);
+    await waitFor(() => markedRead.length === 1);
+    assert.deepEqual(markedRead, ['redeliver-after-commit-failure']);
   } finally {
     await outbox.stop();
     await new Promise<void>(resolve => server.close(() => resolve()));
@@ -431,14 +429,62 @@ void test('delivery commit failure retains and redelivers the entry', async () =
   }
 });
 
-void test('read-marking failures redeliver with exponential backoff', async () => {
+void test('an active webhook POST does not block durable enqueue', async () => {
+  const storagePath = await mkdtemp(
+    join(tmpdir(), 'signal-webhook-concurrent-')
+  );
+  const messages = new Array<MessageAttributesType>();
+  let deliveries = 0;
+  let releaseFirstDelivery: (() => void) | undefined;
+  const firstDelivery = new Promise<void>(resolve => {
+    releaseFirstDelivery = resolve;
+  });
+  const outbox = new DurableWebhookOutbox(fakeSql(messages), {
+    fetch: async () => {
+      deliveries += 1;
+      if (deliveries === 1) await firstDelivery;
+      return new Response(null, { status: 204 });
+    },
+    maxPending: 10,
+    profileKey: '66'.repeat(32),
+    storagePath,
+    timeoutMs: 1_000,
+    url: 'https://example.com/signal-webhook',
+  });
+  try {
+    await outbox.prepare();
+    const first = message('slow-post', 6);
+    messages.push(first);
+    await outbox.enqueue(first);
+    outbox.start();
+    await waitFor(() => deliveries === 1);
+
+    const second = message('enqueue-during-post', 7);
+    messages.push(second);
+    await Promise.race([
+      outbox.enqueue(second),
+      new Promise<never>((_resolve, reject) => {
+        setTimeout(() => reject(new Error('enqueue was blocked by POST')), 250);
+      }),
+    ]);
+    assert.equal(outbox.pendingCount, 2);
+
+    releaseFirstDelivery?.();
+    await waitFor(() => deliveries === 2 && outbox.pendingCount === 0);
+  } finally {
+    releaseFirstDelivery?.();
+    await outbox.stop();
+    await rm(storagePath, { force: true, recursive: true });
+  }
+});
+
+void test('read-marking failures do not redeliver successful webhooks', async () => {
   const storagePath = await mkdtemp(
     join(tmpdir(), 'signal-webhook-read-failure-')
   );
   const messages = new Array<MessageAttributesType>();
   let deliveries = 0;
   let markReadCalls = 0;
-  const markReadTimes = new Array<number>();
   const outbox = new DurableWebhookOutbox(fakeSql(messages), {
     fetch: async () => {
       deliveries += 1;
@@ -446,8 +492,7 @@ void test('read-marking failures redeliver with exponential backoff', async () =
     },
     markRead: () => {
       markReadCalls += 1;
-      markReadTimes.push(Date.now());
-      if (markReadCalls <= 2) throw new Error('simulated read failure');
+      throw new Error('simulated read failure');
     },
     maxPending: 10,
     profileKey: '67'.repeat(32),
@@ -461,13 +506,12 @@ void test('read-marking failures redeliver with exponential backoff', async () =
     messages.push(value);
     await outbox.enqueue(value);
     outbox.start();
-    await waitFor(() => deliveries === 2 && markReadCalls === 2);
-    assert.equal(outbox.pendingCount, 1);
     await waitFor(
-      () => deliveries === 3 && markReadCalls === 3 && outbox.pendingCount === 0
+      () => deliveries === 1 && markReadCalls === 1 && outbox.pendingCount === 0
     );
-    assert.ok((markReadTimes[1] ?? 0) - (markReadTimes[0] ?? 0) >= 900);
-    assert.ok((markReadTimes[2] ?? 0) - (markReadTimes[1] ?? 0) >= 1_900);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    assert.equal(deliveries, 1);
+    assert.equal(markReadCalls, 1);
   } finally {
     await outbox.stop();
     await rm(storagePath, { force: true, recursive: true });
@@ -479,9 +523,13 @@ void test('stop aborts active post-webhook read actions', async () => {
     join(tmpdir(), 'signal-webhook-stop-read-')
   );
   const messages = new Array<MessageAttributesType>();
+  let deliveries = 0;
   let markReadStarted = false;
   const outbox = new DurableWebhookOutbox(fakeSql(messages), {
-    fetch: async () => new Response(null, { status: 204 }),
+    fetch: async () => {
+      deliveries += 1;
+      return new Response(null, { status: 204 });
+    },
     markRead: async (_messageId, signal) => {
       markReadStarted = true;
       await new Promise<void>((_resolve, reject) => {
@@ -503,8 +551,12 @@ void test('stop aborts active post-webhook read actions', async () => {
     await outbox.enqueue(value);
     outbox.start();
     await waitFor(() => markReadStarted);
+    const next = message('deliver-while-read-action-is-pending', 8);
+    messages.push(next);
+    await outbox.enqueue(next);
+    await waitFor(() => deliveries === 2 && outbox.pendingCount === 0);
     await outbox.stop();
-    assert.equal(outbox.pendingCount, 1);
+    assert.equal(outbox.pendingCount, 0);
   } finally {
     await outbox.stop();
     await rm(storagePath, { force: true, recursive: true });

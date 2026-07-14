@@ -211,6 +211,10 @@ export class DurableWebhookOutbox {
   readonly #url: string | undefined;
   readonly #groupConversationIds = new Set<string>();
   #abortController: AbortController | undefined;
+  #delivering = false;
+  #deliveryPromise: Promise<void> | undefined;
+  readonly #readActions = new Set<Promise<void>>();
+  readonly #readControllers = new Set<AbortController>();
   #state: State = { entries: [], version: FORMAT_VERSION };
   #tail = Promise.resolve();
   #timer: NodeJS.Timeout | undefined;
@@ -308,8 +312,15 @@ export class DurableWebhookOutbox {
     this.#running = false;
     if (this.#timer) clearTimeout(this.#timer);
     this.#timer = undefined;
-    this.#abortController?.abort();
-    await this.#tail;
+    this.#abortController?.abort(new Error('Webhook outbox stopped'));
+    for (const controller of this.#readControllers) {
+      controller.abort(new Error('Webhook outbox stopped'));
+    }
+    await Promise.allSettled([
+      this.#tail,
+      ...(this.#deliveryPromise ? [this.#deliveryPromise] : []),
+      ...this.#readActions,
+    ]);
   }
 
   public enqueue(message: MessageAttributesType): Promise<void> {
@@ -411,30 +422,42 @@ export class DurableWebhookOutbox {
   }
 
   #schedule(delayMs: number): void {
-    if (!this.#running || !this.#url || this.#timer) return;
+    if (!this.#running || !this.#url || this.#timer || this.#delivering) return;
     this.#timer = setTimeout(() => {
       this.#timer = undefined;
-      // oxlint-disable-next-line promise/prefer-await-to-then -- timer must contain delivery failures
-      void this.#serialize(() => this.#deliverOne()).catch(error => {
-        captureDaemonError(error, 'webhook.delivery-loop');
-        this.#schedule(1_000);
-      });
+      this.#delivering = true;
+      const delivery = this.#runDelivery();
+      this.#deliveryPromise = delivery;
     }, delayMs);
     this.#timer.unref();
   }
 
-  async #deliverOne(): Promise<void> {
-    if (!this.#running || !this.#url) return;
-    const entry = this.#state.entries[0];
+  async #runDelivery(): Promise<void> {
+    let nextDelay: number | undefined;
+    try {
+      nextDelay = await this.#deliverOne();
+    } catch (error) {
+      captureDaemonError(error, 'webhook.delivery-loop');
+      nextDelay = 1_000;
+    } finally {
+      this.#delivering = false;
+      this.#deliveryPromise = undefined;
+      if (nextDelay != null) this.#schedule(nextDelay);
+    }
+  }
+
+  async #deliverOne(): Promise<number | undefined> {
+    if (!this.#running || !this.#url) return undefined;
+    const entry = await this.#serialize(async () => {
+      if (!this.#state.entries[0]) await this.#reconcile();
+      return this.#state.entries[0];
+    });
     if (!entry) {
-      await this.#reconcile();
-      if (this.#state.entries.length > 0) this.#schedule(0);
-      return;
+      return undefined;
     }
     const wait = entry.nextAttemptAt - this.#now();
     if (wait > 0) {
-      this.#schedule(wait);
-      return;
+      return wait;
     }
     const body = JSON.stringify(entry.update);
     const headers: Record<string, string> = {
@@ -470,30 +493,23 @@ export class DurableWebhookOutbox {
       clearTimeout(timeout);
     }
     try {
-      if (!this.#running) return;
+      if (!this.#running) return undefined;
       if (deliveryError) {
         captureDaemonError(deliveryError, 'webhook.post');
       }
       if (succeeded) {
-        try {
-          await this.#markRead?.(
-            entry.update.message.message_id,
-            controller.signal
-          );
-        } catch (error) {
-          captureDaemonError(error, 'webhook.read-actions');
-          if (this.#running) await this.#retry(entry);
-          return;
-        }
-        await this.#commit({
-          ...this.#state,
-          entries: this.#state.entries.slice(1),
+        await this.#serialize(async () => {
+          if (this.#state.entries[0] !== entry) return;
+          await this.#commit({
+            ...this.#state,
+            entries: this.#state.entries.slice(1),
+          });
+          await this.#reconcile();
         });
-        await this.#reconcile();
-        this.#schedule(0);
-        return;
+        this.#startReadAction(entry.update.message.message_id);
+        return 0;
       }
-      await this.#retry(entry);
+      return await this.#serialize(() => this.#retry(entry));
     } finally {
       if (this.#abortController === controller) {
         this.#abortController = undefined;
@@ -501,9 +517,10 @@ export class DurableWebhookOutbox {
     }
   }
 
-  async #retry(entry: Entry): Promise<void> {
+  async #retry(entry: Entry): Promise<number> {
     const attempts = entry.attempts + 1;
     const delay = retryDelay(attempts);
+    if (this.#state.entries[0] !== entry) return 0;
     await this.#commit({
       ...this.#state,
       entries: [
@@ -511,7 +528,52 @@ export class DurableWebhookOutbox {
         ...this.#state.entries.slice(1),
       ],
     });
-    this.#schedule(delay);
+    return delay;
+  }
+
+  #startReadAction(messageId: string): void {
+    const markRead = this.#markRead;
+    if (!markRead || !this.#running) return;
+    const controller = new AbortController();
+    this.#readControllers.add(controller);
+    const action = this.#runReadAction(markRead, messageId, controller);
+    this.#readActions.add(action);
+    // oxlint-disable-next-line promise/prefer-await-to-then -- detach bounded side effect
+    void action.finally(() => {
+      this.#readActions.delete(action);
+      this.#readControllers.delete(controller);
+    });
+  }
+
+  async #runReadAction(
+    markRead: NonNullable<WebhookOutboxOptions['markRead']>,
+    messageId: string,
+    controller: AbortController
+  ): Promise<void> {
+    const timeout = setTimeout(() => {
+      controller.abort(new Error('Post-webhook read action timed out'));
+    }, this.#timeoutMs);
+    const aborted = new Promise<never>((_resolve, reject) => {
+      if (controller.signal.aborted) {
+        reject(controller.signal.reason);
+        return;
+      }
+      controller.signal.addEventListener(
+        'abort',
+        () => reject(controller.signal.reason),
+        { once: true }
+      );
+    });
+    try {
+      const readAction = (async () => {
+        await markRead(messageId, controller.signal);
+      })();
+      await Promise.race([readAction, aborted]);
+    } catch (error) {
+      captureDaemonError(error, 'webhook.read-actions');
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   #serialize(operation: () => Promise<void>): Promise<void> {

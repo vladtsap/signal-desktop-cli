@@ -37,6 +37,7 @@ export type HeadlessTransportClose = Readonly<{
 export type HeadlessTransportConnection = Readonly<{
   disconnect: () => Promise<void> | void;
   fetch?: AuthenticatedChatConnection['fetch'];
+  keepalive?: (signal: AbortSignal, timeoutMs: number) => Promise<void> | void;
   localPort?: number;
   sendMessage?: AuthenticatedChatConnection['sendMessage'];
 }>;
@@ -86,6 +87,8 @@ export type HeadlessTransportState =
   | 'stopped';
 
 export type HeadlessTransportOptions = Readonly<{
+  keepaliveIntervalMs?: number;
+  keepaliveTimeoutMs?: number;
   maxPendingRequests?: number;
   reconnectDelay?: (attempt: number, signal: AbortSignal) => Promise<void>;
 }>;
@@ -103,6 +106,8 @@ export type HeadlessTransportRuntime = ProtocolRuntime &
   }>;
 
 const DEFAULT_MAX_PENDING_REQUESTS = 1_000;
+const DEFAULT_KEEPALIVE_INTERVAL_MS = 30_000;
+const DEFAULT_KEEPALIVE_TIMEOUT_MS = 30_000;
 const RECONNECT_DELAYS = [1_000, 2_000, 3_000, 5_000, 8_000, 13_000, 21_000];
 
 function defaultReconnectDelay(
@@ -140,6 +145,8 @@ function getCredentials(
 
 export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime {
   readonly #connector: HeadlessTransportConnector;
+  readonly #keepaliveIntervalMs: number;
+  readonly #keepaliveTimeoutMs: number;
   readonly #maxPendingRequests: number;
   readonly #reconnectDelay: (
     attempt: number,
@@ -154,6 +161,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
   #handler:
     | ((request: HeadlessIncomingRequest) => Promise<void> | void)
     | undefined;
+  #keepaliveTimer: NodeJS.Timeout | undefined;
   #reconnectAttempt = 0;
   #state: HeadlessTransportState = 'idle';
 
@@ -162,8 +170,20 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     options: HeadlessTransportOptions = {}
   ) {
     this.#connector = connector;
+    this.#keepaliveIntervalMs =
+      options.keepaliveIntervalMs ?? DEFAULT_KEEPALIVE_INTERVAL_MS;
+    this.#keepaliveTimeoutMs =
+      options.keepaliveTimeoutMs ?? DEFAULT_KEEPALIVE_TIMEOUT_MS;
     this.#maxPendingRequests =
       options.maxPendingRequests ?? DEFAULT_MAX_PENDING_REQUESTS;
+    for (const [name, value] of [
+      ['keepaliveIntervalMs', this.#keepaliveIntervalMs],
+      ['keepaliveTimeoutMs', this.#keepaliveTimeoutMs],
+    ] as const) {
+      if (!Number.isSafeInteger(value) || value < 1) {
+        throw new Error(`${name} must be a positive safe integer`);
+      }
+    }
     if (
       !Number.isSafeInteger(this.#maxPendingRequests) ||
       this.#maxPendingRequests < 1
@@ -275,6 +295,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       return;
     }
     this.#state = 'stopping';
+    this.#clearKeepalive();
     this.#generation += 1;
     this.#abortController?.abort(new Error('Transport stopped'));
     this.#abortController = undefined;
@@ -301,7 +322,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       credentials,
       {
         onClose: close => this.#onClose(generation, close),
-        onRequest: request => this.#onRequest(request),
+        onRequest: request => this.#onRequest(generation, request),
       },
       controller.signal
     );
@@ -312,6 +333,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     this.#connection = connection;
     this.#reconnectAttempt = 0;
     this.#state = 'open';
+    this.#scheduleKeepalive(generation);
   }
 
   #onClose(generation: number, close: HeadlessTransportClose): void {
@@ -321,6 +343,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     captureDaemonError(new Error(close.reason), 'transport.close', {
       retry: close.retry,
     });
+    this.#clearKeepalive();
     this.#connection = undefined;
     if (!close.retry) {
       this.#failureReason = close.reason;
@@ -354,7 +377,12 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     }
   }
 
-  #onRequest(request: HeadlessIncomingRequest): void {
+  #onRequest(generation: number, request: HeadlessIncomingRequest): void {
+    if (generation !== this.#generation || this.#state === 'stopping') {
+      if (request.type === 'message') request.respond(503);
+      return;
+    }
+    this.#scheduleKeepalive(generation);
     if (this.#handler) {
       this.#dispatch(request);
       return;
@@ -394,6 +422,66 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       captureDaemonError(error, 'transport.request-handler');
       this.#failureReason =
         error instanceof Error ? error.message : String(error);
+    }
+  }
+
+  #scheduleKeepalive(generation: number): void {
+    this.#clearKeepalive();
+    if (
+      generation !== this.#generation ||
+      this.#state !== 'open' ||
+      !this.#connection?.keepalive
+    ) {
+      return;
+    }
+    this.#keepaliveTimer = setTimeout(() => {
+      this.#keepaliveTimer = undefined;
+      void this.#runKeepalive(generation);
+    }, this.#keepaliveIntervalMs);
+    this.#keepaliveTimer.unref();
+  }
+
+  #clearKeepalive(): void {
+    if (this.#keepaliveTimer) clearTimeout(this.#keepaliveTimer);
+    this.#keepaliveTimer = undefined;
+  }
+
+  async #runKeepalive(generation: number): Promise<void> {
+    const controller = this.#abortController;
+    const connection = this.#connection;
+    if (
+      generation !== this.#generation ||
+      !controller ||
+      controller.signal.aborted ||
+      this.#state !== 'open' ||
+      !connection?.keepalive
+    ) {
+      return;
+    }
+    try {
+      await connection.keepalive(controller.signal, this.#keepaliveTimeoutMs);
+      this.#scheduleKeepalive(generation);
+    } catch (error) {
+      if (
+        controller.signal.aborted ||
+        generation !== this.#generation ||
+        connection !== this.#connection
+      ) {
+        return;
+      }
+      captureDaemonError(error, 'transport.keepalive');
+      this.#failureReason =
+        error instanceof Error ? error.message : String(error);
+      this.#clearKeepalive();
+      this.#generation += 1;
+      this.#connection = undefined;
+      this.#state = 'reconnecting';
+      try {
+        await connection.disconnect();
+      } catch (disconnectError) {
+        captureDaemonError(disconnectError, 'transport.keepalive-disconnect');
+      }
+      void this.#reconnect();
     }
   }
 }
@@ -465,6 +553,22 @@ export function createLibsignalTransportConnector({
           await connection.disconnect();
         },
         fetch: connection.fetch.bind(connection),
+        async keepalive(abortSignal, timeoutMs) {
+          const response = await connection.fetch(
+            {
+              headers: [],
+              path: '/v1/keepalive',
+              timeoutMillis: timeoutMs,
+              verb: 'GET',
+            },
+            { abortSignal }
+          );
+          if (response.status < 200 || response.status >= 300) {
+            throw new Error(
+              `Signal transport keepalive returned HTTP ${response.status}`
+            );
+          }
+        },
         localPort: connection.connectionInfo().localPort,
         sendMessage: connection.sendMessage.bind(connection),
       };
