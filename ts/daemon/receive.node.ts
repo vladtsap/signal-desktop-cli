@@ -114,6 +114,86 @@ function getEnvelopeTypeName(type: number): string {
   }
 }
 
+function getReceiptTypeName(type: number | null): string {
+  switch (type) {
+    case Proto.ReceiptMessage.Type.DELIVERY:
+      return 'DELIVERY';
+    case Proto.ReceiptMessage.Type.READ:
+      return 'READ';
+    case Proto.ReceiptMessage.Type.VIEWED:
+      return 'VIEWED';
+    default:
+      return type == null ? 'UNKNOWN' : `UNKNOWN(${type})`;
+  }
+}
+
+function getTypingActionName(action: number | null): string {
+  switch (action) {
+    case Proto.TypingMessage.Action.STARTED:
+      return 'STARTED';
+    case Proto.TypingMessage.Action.STOPPED:
+      return 'STOPPED';
+    default:
+      return action == null ? 'UNKNOWN' : `UNKNOWN(${action})`;
+  }
+}
+
+function getInnerMessageDetails(plaintext: Uint8Array<ArrayBuffer>): Readonly<{
+  attachmentCount?: number;
+  dataKind?: string;
+  innerKind: string;
+  receiptType?: string;
+  typingAction?: string;
+}> {
+  const decoded = Proto.Content.decode(plaintext);
+  const content = decoded.content;
+  if (!content) {
+    return decoded.senderKeyDistributionMessage
+      ? { innerKind: 'sender-key-distribution' }
+      : { innerKind: 'empty' };
+  }
+  if (content.dataMessage) {
+    const { attachments } = content.dataMessage;
+    return {
+      attachmentCount: attachments.length,
+      dataKind:
+        attachments.length > 0
+          ? 'attachment'
+          : content.dataMessage.reaction
+            ? 'reaction'
+            : content.dataMessage.delete
+              ? 'delete'
+              : content.dataMessage.storyContext
+                ? 'story-reply'
+                : typeof content.dataMessage.body === 'string'
+                  ? 'text'
+                  : 'unknown',
+      innerKind: 'data-message',
+    };
+  }
+  if (content.receiptMessage) {
+    return {
+      innerKind: 'receipt-message',
+      receiptType: getReceiptTypeName(content.receiptMessage.type),
+    };
+  }
+  if (content.typingMessage) {
+    return {
+      innerKind: 'typing-message',
+      typingAction: getTypingActionName(content.typingMessage.action),
+    };
+  }
+  if (content.syncMessage) return { innerKind: 'sync-message' };
+  if (content.callMessage) return { innerKind: 'call-message' };
+  if (content.nullMessage) return { innerKind: 'null-message' };
+  if (content.decryptionErrorMessage) {
+    return { innerKind: 'decryption-error-message' };
+  }
+  if (content.storyMessage) return { innerKind: 'story-message' };
+  if (content.editMessage) return { innerKind: 'edit-message' };
+  return { innerKind: 'unknown' };
+}
+
 function stableEnvelopeId(body: Uint8Array<ArrayBuffer>): string {
   return createHash('sha256').update(body).digest('hex');
 }
@@ -697,6 +777,9 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         this.#unsupportedReason = error.message;
         consoleLogger.warn('HeadlessMessageReceiver: skipped staged envelope', {
           envelopeId: decrypted.envelope.id,
+          envelopeType: decrypted.envelope.type,
+          envelopeTypeName: getEnvelopeTypeName(decrypted.envelope.type),
+          ...getInnerMessageDetails(decrypted.plaintext),
           reason: error.message,
         });
         return;
