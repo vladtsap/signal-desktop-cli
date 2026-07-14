@@ -652,8 +652,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         quoteId <= 0 ||
         !authorAci ||
         !isAciString(authorAci) ||
-        message.quote.attachments.length > 0 ||
-        message.quote.bodyRanges.length > 0
+        message.quote.attachments.length > 0
       ) {
         throw new UnsupportedIncomingContentError(
           'Incoming quote is malformed or contains unsupported fields'
@@ -665,6 +664,9 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         id: quoteId,
         isViewOnce: false,
         referencedMessageNotFound: false,
+        // Webhooks expose quoted plain text only. Keep accepting a reply when
+        // Signal includes formatting for the quoted message, but intentionally
+        // omit that unsupported formatting from the retained quote.
         text: message.quote.text ?? '',
       };
     }

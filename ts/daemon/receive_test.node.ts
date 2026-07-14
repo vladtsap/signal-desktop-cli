@@ -316,20 +316,6 @@ for (const [name, quote] of [
       id: 999n,
     },
   ],
-  [
-    'formatted body range',
-    {
-      authorAci: OUR_ACI,
-      bodyRanges: [
-        {
-          associatedValue: { style: Proto.BodyRange.Style.BOLD },
-          length: 4,
-          start: 0,
-        },
-      ],
-      id: 999n,
-    },
-  ],
 ] as const) {
   void test(`retains a quote with an unsupported ${name}`, async () => {
     const plaintext = Proto.Content.encode({
@@ -355,6 +341,44 @@ for (const [name, quote] of [
     await harness.receiver.stop();
   });
 }
+
+void test('persists a quoted reply with formatting while omitting it', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: {
+        body: 'formatted reply',
+        quote: {
+          authorAci: OUR_ACI,
+          bodyRanges: [
+            {
+              associatedValue: { style: Proto.BodyRange.Style.BOLD },
+              length: 8,
+              start: 0,
+            },
+          ],
+          id: 999n,
+          text: 'formatted original',
+        },
+        timestamp: 1234n,
+      },
+    },
+  } as never);
+  const harness = makeHarness({ plaintext });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(harness.staged.size, 0);
+  assert.deepEqual(harness.saved[0]?.quote, {
+    attachments: [],
+    authorAci: OUR_ACI,
+    id: 999,
+    isViewOnce: false,
+    referencedMessageNotFound: false,
+    text: 'formatted original',
+  });
+  await harness.receiver.stop();
+});
 
 void test('retries persistence from staged plaintext without decrypting twice', async () => {
   const harness = makeHarness({ saveFailureCount: 1 });
