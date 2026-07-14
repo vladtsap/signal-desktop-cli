@@ -15,6 +15,7 @@ import { dirname, join } from 'node:path';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import { z } from 'zod';
 import type { HeadlessSql } from './sql.node.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 
 const FORMAT_VERSION = 1;
 const OUTBOX_FILE = 'headless-webhook-outbox.enc';
@@ -414,7 +415,8 @@ export class DurableWebhookOutbox {
     this.#timer = setTimeout(() => {
       this.#timer = undefined;
       // oxlint-disable-next-line promise/prefer-await-to-then -- timer must contain delivery failures
-      void this.#serialize(() => this.#deliverOne()).catch(() => {
+      void this.#serialize(() => this.#deliverOne()).catch(error => {
+        captureDaemonError(error, 'webhook.delivery-loop');
         this.#schedule(1_000);
       });
     }, delayMs);
@@ -446,6 +448,7 @@ export class DurableWebhookOutbox {
     this.#abortController = controller;
     const timeout = setTimeout(() => controller.abort(), this.#timeoutMs);
     let succeeded = false;
+    let deliveryError: unknown;
     try {
       const response = await this.#fetch(this.#url, {
         body,
@@ -455,20 +458,30 @@ export class DurableWebhookOutbox {
         signal: controller.signal,
       });
       succeeded = response.status >= 200 && response.status < 300;
-    } catch {
+      if (!succeeded) {
+        deliveryError = new Error(
+          `Webhook delivery returned HTTP ${response.status}`
+        );
+      }
+    } catch (error) {
+      deliveryError = error;
       // Network errors and timeouts remain durable and are retried.
     } finally {
       clearTimeout(timeout);
     }
     try {
       if (!this.#running) return;
+      if (deliveryError) {
+        captureDaemonError(deliveryError, 'webhook.post');
+      }
       if (succeeded) {
         try {
           await this.#markRead?.(
             entry.update.message.message_id,
             controller.signal
           );
-        } catch {
+        } catch (error) {
+          captureDaemonError(error, 'webhook.read-actions');
           if (this.#running) await this.#retry(entry);
           return;
         }

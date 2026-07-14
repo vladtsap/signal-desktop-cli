@@ -15,6 +15,7 @@ import type {
 
 import { getUserAgent } from '../util/getUserAgent.node.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 
 export type HeadlessTransportCredentials = Readonly<{
   password: string;
@@ -317,6 +318,9 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     if (generation !== this.#generation || this.#state === 'stopping') {
       return;
     }
+    captureDaemonError(new Error(close.reason), 'transport.close', {
+      retry: close.retry,
+    });
     this.#connection = undefined;
     if (!close.retry) {
       this.#failureReason = close.reason;
@@ -343,6 +347,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       if (controller.signal.aborted) {
         return;
       }
+      captureDaemonError(error, 'transport.reconnect');
       this.#failureReason =
         error instanceof Error ? error.message : String(error);
       void this.#reconnect();
@@ -356,6 +361,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     }
     if (this.#pendingRequests.length >= this.#maxPendingRequests) {
       const reason = `Incoming Signal request queue exceeded ${this.#maxPendingRequests}`;
+      captureDaemonError(new Error(reason), 'transport.incoming-overflow');
       this.#failureReason = reason;
       this.#state = 'failed';
       this.#abortController?.abort(new Error(reason));
@@ -385,6 +391,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     try {
       await handler(request);
     } catch (error) {
+      captureDaemonError(error, 'transport.request-handler');
       this.#failureReason =
         error instanceof Error ? error.message : String(error);
     }

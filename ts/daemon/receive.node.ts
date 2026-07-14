@@ -51,6 +51,7 @@ import {
 import { bytesToUuid } from '../util/uuidToBytes.std.ts';
 import { Zone } from '../util/Zone.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
 import type {
   HeadlessIncomingRequest,
@@ -481,6 +482,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       await this.#accept(request.body);
       request.respond(200);
     } catch (error) {
+      captureDaemonError(error, 'receiver.process-envelope');
       consoleLogger.error(
         'HeadlessMessageReceiver: failed to process incoming Signal envelope',
         Errors.toLogFormat(error)

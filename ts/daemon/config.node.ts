@@ -14,6 +14,7 @@ const emptyAsUndefined = <Schema extends z.ZodType>(schema: Schema) =>
   z.preprocess(value => (value === '' ? undefined : value), schema.optional());
 
 const environmentSchema = z.object({
+  SENTRY_DSN: emptyAsUndefined(z.string().url()),
   SIGNAL_API_HOST: z.string().min(1).default('127.0.0.1'),
   SIGNAL_API_PORT: z.coerce.number().int().min(1).max(65_535).default(8080),
   SIGNAL_API_TOKEN: emptyAsUndefined(z.string().min(16)),
@@ -62,6 +63,7 @@ export type DaemonConfig = Readonly<{
   connect: boolean;
   logLevel: 'debug' | 'info' | 'warn' | 'error';
   profileLockPath: string;
+  sentryDsn?: string;
   shutdownTimeoutMs: number;
   storagePath: string;
   webhookMaxPending: number;
@@ -97,6 +99,7 @@ export function loadDaemonConfig(
     connect: parsed.SIGNAL_DAEMON_CONNECT,
     logLevel: parsed.SIGNAL_DAEMON_LOG_LEVEL,
     profileLockPath,
+    ...(parsed.SENTRY_DSN ? { sentryDsn: parsed.SENTRY_DSN } : {}),
     shutdownTimeoutMs: parsed.SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS,
     storagePath,
     webhookMaxPending: parsed.SIGNAL_WEBHOOK_MAX_PENDING,

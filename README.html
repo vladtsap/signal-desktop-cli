@@ -633,6 +633,7 @@ chmod 600 .env</code></pre>
 SIGNAL_API_TOKEN=replace-with-at-least-16-random-characters
 SIGNAL_WEBHOOK_URL=https://example.com/signal/webhook
 SIGNAL_WEBHOOK_SECRET=replace-with-at-least-16-random-characters
+SENTRY_DSN=https://public-key@organization.ingest.sentry.io/project-id
 
 R2_ACCOUNT_ID=your-cloudflare-account-id
 R2_BUCKET=your-private-bucket
@@ -1660,6 +1661,11 @@ docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
                 <td>debug, info, warn, or error.</td>
               </tr>
               <tr>
+                <td><code>SENTRY_DSN</code></td>
+                <td>unset</td>
+                <td>Optional daemon-wide Sentry error reporting.</td>
+              </tr>
+              <tr>
                 <td><code>SIGNAL_WEBHOOK_URL</code></td>
                 <td>unset</td>
                 <td>
@@ -1696,6 +1702,18 @@ docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
               </tr>
             </tbody>
           </table>
+          <p>
+            When <code>SENTRY_DSN</code> is set, the daemon reports uncaught
+            exceptions, unhandled promise rejections, startup and shutdown
+            failures, and handled background failures from webhook delivery/read
+            actions, Signal receive and transport processing, and pre-key
+            maintenance. Events include the daemon release and an operation tag.
+            API requests, HTTP headers, webhook payloads, Signal message
+            content, and HTTP breadcrumbs are deliberately excluded. Sentry is
+            disabled when the variable is unset. Retryable failures may produce
+            an event for each failed attempt, subject to Sentry's own rate
+            limits.
+          </p>
           <p>
             If the daemon exceeds <code>SIGNAL_MEMORY_LIMIT</code>, its cgroup
             OOM-kills the container, commonly with exit code 137. Compose then

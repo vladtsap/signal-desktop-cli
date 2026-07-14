@@ -90,6 +90,7 @@ SIGNAL_UI_PASSWORD=vncpass8
 SIGNAL_API_TOKEN=replace-with-at-least-16-random-characters
 SIGNAL_WEBHOOK_URL=https://example.com/signal/webhook
 SIGNAL_WEBHOOK_SECRET=replace-with-at-least-16-random-characters
+SENTRY_DSN=https://public-key@organization.ingest.sentry.io/project-id
 
 R2_ACCOUNT_ID=your-cloudflare-account-id
 R2_BUCKET=your-private-bucket
@@ -515,6 +516,7 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 | `SIGNAL_DAEMON_CONNECT`             | `true`  | `true`/`false` or `1`/`0`; controls Signal network connection.                       |
 | `SIGNAL_DAEMON_LOG_LEVEL`           | `info`  | Parsed values: `debug`, `info`, `warn`, `error`. Reserved for daemon logging policy. |
 | `SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS` | `30000` | Graceful internal shutdown deadline, 1,000–120,000 ms.                               |
+| `SENTRY_DSN`                        | unset   | Optional Sentry DSN for daemon-wide operational error reporting.                     |
 | `SIGNAL_WEBHOOK_URL`                | unset   | HTTP(S) destination; exact GET 200 required at startup when set.                     |
 | `SIGNAL_WEBHOOK_SECRET`             | unset   | HMAC secret, minimum 16 characters.                                                  |
 | `SIGNAL_WEBHOOK_TIMEOUT_MS`         | `10000` | Startup GET and POST attempt timeout, 1,000–120,000 ms.                              |
@@ -523,6 +525,8 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 | `SIGNAL_PIDS_LIMIT`                 | `128`   | Compose daemon process limit.                                                        |
 
 Compose sets `SIGNAL_API_HOST=0.0.0.0` inside the container but publishes it only on host `127.0.0.1`.
+
+When `SENTRY_DSN` is set, the daemon reports uncaught exceptions, unhandled promise rejections, startup and shutdown failures, and handled background failures from webhook delivery/read actions, Signal receive and transport processing, and pre-key maintenance. Events include the daemon release and an operation tag. API requests, HTTP headers, webhook payloads, Signal message content, and HTTP breadcrumbs are deliberately excluded; Sentry is disabled when the variable is unset. Retryable failures may produce an event for each failed attempt, subject to Sentry's own rate limits.
 
 If the daemon exceeds `SIGNAL_MEMORY_LIMIT`, the container's cgroup OOM-kills it (commonly reported as exit code 137). Because the service uses `restart: unless-stopped`, Docker then restarts it. The database and webhook outbox are durable, but an API send interrupted at that exact moment can have an ambiguous outcome and there is no deduplication key for safely replaying it. Increase the limit or override/remove `mem_limit` in a private Compose override if normal workloads repeatedly reach it.
 

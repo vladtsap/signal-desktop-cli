@@ -8,10 +8,16 @@ import localProductionConfig from '../../config/local-production.json' with { ty
 import { loadDaemonConfig } from './config.node.ts';
 import { HeadlessControlService } from './api.node.ts';
 import { waitForTermination } from './lifecycle.node.ts';
+import {
+  captureDaemonError,
+  closeDaemonMonitoring,
+  initializeDaemonMonitoring,
+} from './monitoring.node.ts';
 import { DaemonRuntime } from './runtime.node.ts';
 
-async function main(): Promise<void> {
-  const config = loadDaemonConfig();
+async function main(
+  config: ReturnType<typeof loadDaemonConfig>
+): Promise<void> {
   const transport = (
     await import('./transport.node.ts')
   ).createHeadlessTransportRuntime(packageJson.version);
@@ -73,14 +79,22 @@ async function main(): Promise<void> {
 
 async function run(): Promise<void> {
   try {
-    await main();
+    const config = loadDaemonConfig();
+    initializeDaemonMonitoring({
+      ...(config.sentryDsn ? { dsn: config.sentryDsn } : {}),
+      release: `signal-desktop-cli@${packageJson.version}`,
+    });
+    await main(config);
   } catch (error) {
+    captureDaemonError(error, 'daemon.run');
     // oxlint-disable-next-line no-console
     console.error(
       'signal-daemon: startup failed:',
       error instanceof Error ? error.message : error
     );
     process.exitCode = 1;
+  } finally {
+    await closeDaemonMonitoring();
   }
 }
 

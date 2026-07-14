@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 import { Emoji } from '../axo/emoji.std.ts';
 import type { DaemonConfig } from './config.node.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import type { DaemonStatus, RuntimeServiceContext } from './runtime.node.ts';
@@ -277,7 +278,8 @@ export class HeadlessControlService {
   async #settleHandler(handler: Promise<void>): Promise<void> {
     try {
       await handler;
-    } catch {
+    } catch (error) {
+      captureDaemonError(error, 'api.response');
       // The request handler normally converts failures to JSON. A socket can
       // still disappear while writing that response during shutdown.
     } finally {
@@ -382,6 +384,14 @@ export class HeadlessControlService {
         this.#controllers.delete(controller);
       }
     } catch (error) {
+      if (
+        !(error instanceof HeadlessSendError) ||
+        !['invalid-request', 'recipient-not-found', 'unsupported'].includes(
+          error.code
+        )
+      ) {
+        captureDaemonError(error, 'api.request');
+      }
       const classified =
         error instanceof HeadlessSendError
           ? error

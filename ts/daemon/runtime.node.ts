@@ -3,6 +3,7 @@
 import type { DaemonConfig } from './config.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 import {
   getBuildExpirationStatus,
   type BuildExpirationStatus,
@@ -266,6 +267,7 @@ export class DaemonRuntime {
     try {
       await this.#dependencies.protocolRuntime?.stop();
     } catch (error) {
+      captureDaemonError(error, 'runtime.expired-transport-stop');
       this.#reason = `Build expired and Signal transport shutdown failed: ${
         error instanceof Error ? error.message : String(error)
       }`;
