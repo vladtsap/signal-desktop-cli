@@ -29,15 +29,16 @@ Implemented:
 - the upstream Signal Desktop linking UI in Xvfb/fluxbox/noVNC;
 - a headless authenticated Signal transport with reconnect handling;
 - automatic ACI/PNI prekey replenishment and signed/PQ key rotation;
-- direct encrypted text receive, SQLCipher persistence, and durable webhooks;
-- direct encrypted text send with durable local status and existing-session reuse;
+- direct encrypted text and quoted-reply receive, SQLCipher persistence, and durable webhooks;
+- direct encrypted text send with quoted replies, native formatting, durable local status, and existing-session reuse;
+- outbound emoji reactions to locally retained messages;
 - unencrypted, immutable, checksummed R2 snapshots with staged restore; and
 - a 90-day reproducible build lifetime with expiration visible at `/readyz`.
 
 Not implemented:
 
 - registration without the mobile Signal app;
-- groups, attachments, previews, quotes, reactions, deletes, stories, or calls;
+- groups, attachments, previews, incoming reactions, reaction removal, deletes, stories, or calls;
 - sync transcripts or general multi-device history synchronization;
 - group/sender-key receive processing;
 - a public-internet API gateway, webhook management API, or polling API; and

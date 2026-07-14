@@ -561,11 +561,13 @@
           </div>
           <div class="notice warn">
             <strong>Current scope:</strong> direct one-to-one text receive and
-            send only. Groups, attachments, calls, reactions, stories, sync
-            transcripts, and disappearing-message delivery are not implemented.
-            Unsupported content does not produce webhooks. Unsupported
-            ciphertext payloads are retained in encrypted staging; empty
-            unsupported control envelopes are acknowledged without staging
+            send, quoted replies, native outbound text formatting, and outbound
+            emoji reactions to locally retained messages. Groups, attachments,
+            previews, incoming reactions, reaction removal, deletes, stories,
+            calls, sync transcripts, and disappearing-message delivery are not
+            implemented. Unsupported content does not produce webhooks.
+            Unsupported ciphertext payloads are retained in encrypted staging;
+            empty unsupported control envelopes are acknowledged without staging
             because they contain no payload to preserve.
           </div>
           <div class="notice">
