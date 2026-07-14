@@ -429,9 +429,18 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     if (typeof maxCounter === 'number') this.#receivedAtCounter = maxCounter;
     this.#stopping = false;
     this.#transport.setRequestHandler(request => this.#enqueue(request));
+    consoleLogger.info('HeadlessMessageReceiver: starting', {
+      maxPendingRequests: this.#maxPendingRequests,
+      receivedAtCounter: this.#receivedAtCounter,
+    });
     try {
       await this.#transport.start(context);
+      consoleLogger.info('HeadlessMessageReceiver: started');
     } catch (error) {
+      consoleLogger.error(
+        'HeadlessMessageReceiver: failed to start',
+        Errors.toLogFormat(error)
+      );
       this.#stopping = true;
       this.#transport.setRequestHandler(null);
       try {
@@ -445,19 +454,48 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
   }
 
   public async stop(): Promise<void> {
+    consoleLogger.info('HeadlessMessageReceiver: stopping', {
+      pendingRequests: this.#pending,
+    });
     this.#stopping = true;
     this.#transport.setRequestHandler(null);
     await this.#transport.stop();
     await this.#tail;
     this.#stores = undefined;
+    consoleLogger.info('HeadlessMessageReceiver: stopped');
   }
 
   async #enqueue(request: HeadlessIncomingRequest): Promise<void> {
     if (this.#stopping || this.#pending >= this.#maxPendingRequests) {
-      if (request.type === 'message') request.respond(503);
+      if (request.type === 'message') {
+        consoleLogger.warn(
+          'HeadlessMessageReceiver: rejected Signal envelope',
+          {
+            maxPendingRequests: this.#maxPendingRequests,
+            pendingRequests: this.#pending,
+            reason: this.#stopping ? 'stopping' : 'receive-queue-full',
+            status: 503,
+          }
+        );
+        request.respond(503);
+      }
       return;
     }
     this.#pending += 1;
+    if (request.type === 'message') {
+      consoleLogger.info('HeadlessMessageReceiver: queued Signal envelope', {
+        envelopeId: request.body ? stableEnvelopeId(request.body) : undefined,
+        envelopeSize: request.body?.byteLength,
+        pendingRequests: this.#pending,
+      });
+    } else {
+      consoleLogger.info(
+        'HeadlessMessageReceiver: received queue-empty event',
+        {
+          pendingRequests: this.#pending,
+        }
+      );
+    }
     // oxlint-disable-next-line promise/prefer-await-to-then, signal-desktop/no-then -- ordered receive tail
     const operation = this.#tail.then(() => this.#handle(request));
     // oxlint-disable promise/prefer-await-to-then -- keep receive tail usable after failures
@@ -472,20 +510,35 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
 
   async #handle(request: HeadlessIncomingRequest): Promise<void> {
     if (request.type === 'queue-empty') {
+      consoleLogger.info('HeadlessMessageReceiver: handled queue-empty event');
       return;
     }
     if (!request.body) {
+      consoleLogger.warn('HeadlessMessageReceiver: rejected Signal envelope', {
+        reason: 'missing-body',
+        status: 400,
+      });
       request.respond(400);
       return;
     }
+    const envelopeId = stableEnvelopeId(request.body);
+    const startedAt = Date.now();
     try {
       await this.#accept(request.body);
       request.respond(200);
+      consoleLogger.info(
+        'HeadlessMessageReceiver: acknowledged Signal envelope',
+        {
+          durationMs: Date.now() - startedAt,
+          envelopeId,
+          status: 200,
+        }
+      );
     } catch (error) {
       captureDaemonError(error, 'receiver.process-envelope');
       consoleLogger.error(
         'HeadlessMessageReceiver: failed to process incoming Signal envelope',
-        Errors.toLogFormat(error)
+        { envelopeId, error: Errors.toLogFormat(error) }
       );
       request.respond(500);
     }
@@ -502,6 +555,9 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     let decrypted: DecryptedEnvelope;
     const cachedItem = cached[0];
     if (cachedItem && !cachedItem.isEncrypted) {
+      consoleLogger.info('HeadlessMessageReceiver: resumed staged envelope', {
+        envelopeId: id,
+      });
       const envelope = fromUnprocessed(cachedItem);
       strictAssert(
         envelope.sourceServiceId,
@@ -515,6 +571,14 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     } else {
       this.#receivedAtCounter += 1;
       const envelope = decodeEnvelope(body, stores, this.#receivedAtCounter);
+      consoleLogger.info(
+        'HeadlessMessageReceiver: decrypting Signal envelope',
+        {
+          envelopeId: envelope.id,
+          envelopeType: envelope.type,
+          sourceDevice: envelope.sourceDevice,
+        }
+      );
       const zone = new Zone('HeadlessMessageReceiver.decrypt', {
         pendingKyberPreKeysToRemove: true,
         pendingPreKeysToRemove: true,
@@ -546,6 +610,21 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
                 ),
                 { zone }
               );
+              consoleLogger.warn(
+                'HeadlessMessageReceiver: staged unsupported Signal envelope',
+                {
+                  envelopeId: envelope.id,
+                  reason: error.message,
+                }
+              );
+            } else {
+              consoleLogger.warn(
+                'HeadlessMessageReceiver: acknowledged unsupported empty Signal envelope',
+                {
+                  envelopeId: envelope.id,
+                  reason: error.message,
+                }
+              );
             }
             return { unsupported: error } as const;
           }
@@ -564,6 +643,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       );
       if ('unsupported' in outcome) {
         this.#unsupportedReason = outcome.unsupported.message;
+        consoleLogger.warn('HeadlessMessageReceiver: skipped Signal envelope', {
+          envelopeId: id,
+          reason: outcome.unsupported.message,
+        });
         return;
       }
       decrypted = outcome.result;
@@ -578,6 +661,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         // unsupported-but-valid plaintext durably so a future implementation
         // can process it without advancing the libsignal session again.
         this.#unsupportedReason = error.message;
+        consoleLogger.warn('HeadlessMessageReceiver: skipped staged envelope', {
+          envelopeId: decrypted.envelope.id,
+          reason: error.message,
+        });
         return;
       }
       throw error;
@@ -677,6 +764,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         candidate.get('sourceDevice') === envelope.sourceDevice
     );
     if (duplicate) {
+      consoleLogger.info('HeadlessMessageReceiver: found duplicate message', {
+        envelopeId: envelope.id,
+        messageId: duplicate.attributes.id,
+      });
       await this.#onPersistedMessage?.(duplicate.attributes);
       return;
     }
@@ -709,7 +800,22 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       stores.messageCache.create(attributes)
     );
     await stores.messageCache.saveMessage(model, { forceSave: true });
+    consoleLogger.info(
+      'HeadlessMessageReceiver: persisted incoming text message',
+      {
+        envelopeId: envelope.id,
+        hasQuote: Boolean(quote),
+        messageId: model.attributes.id,
+      }
+    );
     await this.#onPersistedMessage?.(model.attributes);
+    consoleLogger.info(
+      'HeadlessMessageReceiver: handed message to webhook outbox',
+      {
+        envelopeId: envelope.id,
+        messageId: model.attributes.id,
+      }
+    );
   }
 }
 

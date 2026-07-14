@@ -14,6 +14,8 @@ import type {
 } from '@signalapp/libsignal-client/dist/net/Chat.js';
 
 import { getUserAgent } from '../util/getUserAgent.node.ts';
+import * as Errors from '../types/errors.std.ts';
+import { consoleLogger } from '../util/consoleLogger.std.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 
@@ -213,6 +215,13 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     handler: ((request: HeadlessIncomingRequest) => Promise<void> | void) | null
   ): void {
     this.#handler = handler ?? undefined;
+    consoleLogger.info(
+      'AuthenticatedHeadlessTransport: request handler updated',
+      {
+        active: this.#handler != null,
+        pendingRequests: this.#pendingRequests.length,
+      }
+    );
     if (!this.#handler || this.#pendingRequests.length === 0) {
       return;
     }
@@ -278,14 +287,20 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     this.#failureReason = undefined;
     this.#abortController = new AbortController();
     this.#state = 'connecting';
+    consoleLogger.info('AuthenticatedHeadlessTransport: connecting');
     try {
       await this.#connect(false);
+      consoleLogger.info('AuthenticatedHeadlessTransport: connected');
     } catch (error) {
       this.#state = 'failed';
       this.#failureReason =
         error instanceof Error ? error.message : String(error);
       this.#abortController.abort(error);
       this.#abortController = undefined;
+      consoleLogger.error(
+        'AuthenticatedHeadlessTransport: initial connection failed',
+        Errors.toLogFormat(error)
+      );
       throw error;
     }
   }
@@ -295,6 +310,9 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       return;
     }
     this.#state = 'stopping';
+    consoleLogger.info('AuthenticatedHeadlessTransport: stopping', {
+      pendingRequests: this.#pendingRequests.length,
+    });
     this.#clearKeepalive();
     this.#generation += 1;
     this.#abortController?.abort(new Error('Transport stopped'));
@@ -307,6 +325,7 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       await connection.disconnect();
     }
     this.#state = 'stopped';
+    consoleLogger.info('AuthenticatedHeadlessTransport: stopped');
   }
 
   async #connect(isReconnect: boolean): Promise<void> {
@@ -333,6 +352,9 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     this.#connection = connection;
     this.#reconnectAttempt = 0;
     this.#state = 'open';
+    consoleLogger.info('AuthenticatedHeadlessTransport: connection opened', {
+      reconnect: isReconnect,
+    });
     this.#scheduleKeepalive(generation);
   }
 
@@ -343,6 +365,10 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     captureDaemonError(new Error(close.reason), 'transport.close', {
       retry: close.retry,
     });
+    consoleLogger.warn('AuthenticatedHeadlessTransport: connection closed', {
+      reason: close.reason,
+      retry: close.retry,
+    });
     this.#clearKeepalive();
     this.#connection = undefined;
     if (!close.retry) {
@@ -350,6 +376,12 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       this.#state = 'failed';
       this.#abortController?.abort(new Error(close.reason));
       this.#abortController = undefined;
+      consoleLogger.error(
+        'AuthenticatedHeadlessTransport: connection is terminal',
+        {
+          reason: close.reason,
+        }
+      );
       return;
     }
     void this.#reconnect();
@@ -363,6 +395,9 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
     this.#state = 'reconnecting';
     const attempt = this.#reconnectAttempt;
     this.#reconnectAttempt += 1;
+    consoleLogger.info('AuthenticatedHeadlessTransport: reconnecting', {
+      attempt: attempt + 1,
+    });
     try {
       await this.#reconnectDelay(attempt, controller.signal);
       await this.#connect(true);
@@ -373,23 +408,50 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       captureDaemonError(error, 'transport.reconnect');
       this.#failureReason =
         error instanceof Error ? error.message : String(error);
+      consoleLogger.warn(
+        'AuthenticatedHeadlessTransport: reconnect attempt failed',
+        { attempt: attempt + 1, error: Errors.toLogFormat(error) }
+      );
       void this.#reconnect();
     }
   }
 
   #onRequest(generation: number, request: HeadlessIncomingRequest): void {
     if (generation !== this.#generation || this.#state === 'stopping') {
-      if (request.type === 'message') request.respond(503);
+      if (request.type === 'message') {
+        consoleLogger.warn(
+          'AuthenticatedHeadlessTransport: rejected stale incoming request',
+          {
+            status: 503,
+          }
+        );
+        request.respond(503);
+      }
       return;
     }
     this.#scheduleKeepalive(generation);
     if (this.#handler) {
+      if (request.type === 'message') {
+        consoleLogger.info(
+          'AuthenticatedHeadlessTransport: received Signal envelope',
+          {
+            envelopeSize: request.body?.byteLength,
+          }
+        );
+      }
       this.#dispatch(request);
       return;
     }
     if (this.#pendingRequests.length >= this.#maxPendingRequests) {
       const reason = `Incoming Signal request queue exceeded ${this.#maxPendingRequests}`;
       captureDaemonError(new Error(reason), 'transport.incoming-overflow');
+      consoleLogger.error(
+        'AuthenticatedHeadlessTransport: incoming request queue overflow',
+        {
+          maxPendingRequests: this.#maxPendingRequests,
+          pendingRequests: this.#pendingRequests.length,
+        }
+      );
       this.#failureReason = reason;
       this.#state = 'failed';
       this.#abortController?.abort(new Error(reason));
@@ -402,6 +464,13 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       return;
     }
     this.#pendingRequests.push(request);
+    consoleLogger.info(
+      'AuthenticatedHeadlessTransport: buffered incoming request',
+      {
+        pendingRequests: this.#pendingRequests.length,
+        type: request.type,
+      }
+    );
   }
 
   #dispatch(request: HeadlessIncomingRequest): void {
@@ -422,6 +491,10 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       captureDaemonError(error, 'transport.request-handler');
       this.#failureReason =
         error instanceof Error ? error.message : String(error);
+      consoleLogger.error(
+        'AuthenticatedHeadlessTransport: request handler failed',
+        Errors.toLogFormat(error)
+      );
     }
   }
 
@@ -459,7 +532,9 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       return;
     }
     try {
+      consoleLogger.info('AuthenticatedHeadlessTransport: running keepalive');
       await connection.keepalive(controller.signal, this.#keepaliveTimeoutMs);
+      consoleLogger.info('AuthenticatedHeadlessTransport: keepalive succeeded');
       this.#scheduleKeepalive(generation);
     } catch (error) {
       if (
@@ -476,6 +551,10 @@ export class AuthenticatedHeadlessTransport implements HeadlessTransportRuntime 
       this.#generation += 1;
       this.#connection = undefined;
       this.#state = 'reconnecting';
+      consoleLogger.warn(
+        'AuthenticatedHeadlessTransport: keepalive failed; reconnecting',
+        Errors.toLogFormat(error)
+      );
       try {
         await connection.disconnect();
       } catch (disconnectError) {

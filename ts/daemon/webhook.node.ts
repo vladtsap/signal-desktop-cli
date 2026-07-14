@@ -14,6 +14,8 @@ import { dirname, join } from 'node:path';
 
 import type { MessageAttributesType } from '../model-types.d.ts';
 import { z } from 'zod';
+import * as Errors from '../types/errors.std.ts';
+import { consoleLogger } from '../util/consoleLogger.std.ts';
 import type { HeadlessSql } from './sql.node.ts';
 import { captureDaemonError } from './monitoring.node.ts';
 
@@ -248,7 +250,13 @@ export class DurableWebhookOutbox {
   }
 
   public async checkEndpoint(): Promise<void> {
-    if (!this.#url) return;
+    if (!this.#url) {
+      consoleLogger.info('DurableWebhookOutbox: webhook delivery is disabled');
+      return;
+    }
+    consoleLogger.info('DurableWebhookOutbox: checking webhook endpoint', {
+      timeoutMs: this.#timeoutMs,
+    });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.#timeoutMs);
     try {
@@ -268,6 +276,15 @@ export class DurableWebhookOutbox {
           `Webhook startup check returned HTTP ${response.status}; expected 200`
         );
       }
+      consoleLogger.info('DurableWebhookOutbox: webhook endpoint is ready', {
+        status: response.status,
+      });
+    } catch (error) {
+      consoleLogger.error(
+        'DurableWebhookOutbox: webhook endpoint startup check failed',
+        Errors.toLogFormat(error)
+      );
+      throw error;
     } finally {
       clearTimeout(timeout);
     }
@@ -281,6 +298,9 @@ export class DurableWebhookOutbox {
         throw new Error('Webhook outbox exceeds the maximum encrypted size');
       }
       this.#state = this.#decrypt(await readFile(this.#filePath, 'utf8'));
+      consoleLogger.info('DurableWebhookOutbox: loaded durable state', {
+        pendingCount: this.#state.entries.length,
+      });
     } catch (error) {
       if (
         !(error instanceof Error && 'code' in error && error.code === 'ENOENT')
@@ -297,18 +317,32 @@ export class DurableWebhookOutbox {
         entries: [],
         version: FORMAT_VERSION,
       });
+      consoleLogger.info('DurableWebhookOutbox: initialized durable state', {
+        cursorCreated: cursor != null,
+        pendingCount: 0,
+      });
       return;
     }
     await this.#reconcile();
+    consoleLogger.info('DurableWebhookOutbox: reconciled durable state', {
+      pendingCount: this.#state.entries.length,
+    });
   }
 
   public start(): void {
     if (!this.#url || this.#running) return;
     this.#running = true;
+    consoleLogger.info('DurableWebhookOutbox: started', {
+      pendingCount: this.#state.entries.length,
+    });
     this.#schedule(0);
   }
 
   public async stop(): Promise<void> {
+    consoleLogger.info('DurableWebhookOutbox: stopping', {
+      pendingCount: this.#state.entries.length,
+      readActions: this.#readActions.size,
+    });
     this.#running = false;
     if (this.#timer) clearTimeout(this.#timer);
     this.#timer = undefined;
@@ -321,6 +355,9 @@ export class DurableWebhookOutbox {
       ...(this.#deliveryPromise ? [this.#deliveryPromise] : []),
       ...this.#readActions,
     ]);
+    consoleLogger.info('DurableWebhookOutbox: stopped', {
+      pendingCount: this.#state.entries.length,
+    });
   }
 
   public enqueue(message: MessageAttributesType): Promise<void> {
@@ -331,14 +368,37 @@ export class DurableWebhookOutbox {
         this.#state.cursor &&
         compareCursor(cursor, this.#state.cursor) <= 0
       ) {
+        consoleLogger.info(
+          'DurableWebhookOutbox: skipped already-cursored message',
+          {
+            messageId: message.id,
+          }
+        );
         return;
       }
       const update = toWebhookUpdate(message);
       if (!update || !this.#url || this.#isGroup(message.conversationId)) {
         await this.#commit({ ...this.#state, cursor });
+        let reason: string;
+        if (!update) {
+          reason = 'unsupported-message';
+        } else if (!this.#url) {
+          reason = 'webhook-disabled';
+        } else {
+          reason = 'group-conversation';
+        }
+        consoleLogger.info('DurableWebhookOutbox: skipped webhook enqueue', {
+          messageId: message.id,
+          reason,
+        });
         return;
       }
       if (this.#state.entries.length >= this.#maxPending) {
+        consoleLogger.error('DurableWebhookOutbox: webhook outbox is full', {
+          maxPending: this.#maxPending,
+          messageId: message.id,
+          pendingCount: this.#state.entries.length,
+        });
         throw new Error('Webhook outbox is full');
       }
       if (
@@ -346,6 +406,12 @@ export class DurableWebhookOutbox {
           entry => entry.update.message.message_id === message.id
         )
       ) {
+        consoleLogger.info(
+          'DurableWebhookOutbox: skipped duplicate webhook enqueue',
+          {
+            messageId: message.id,
+          }
+        );
         return;
       }
       await this.#commit({
@@ -355,6 +421,11 @@ export class DurableWebhookOutbox {
           { attempts: 0, nextAttemptAt: this.#now(), update },
         ],
         version: FORMAT_VERSION,
+      });
+      consoleLogger.info('DurableWebhookOutbox: queued webhook delivery', {
+        messageId: message.id,
+        pendingCount: this.#state.entries.length,
+        webhookUpdateId: update.webhook_update_id,
       });
       this.#schedule(0);
     });
@@ -384,8 +455,12 @@ export class DurableWebhookOutbox {
 
   async #reconcile(): Promise<void> {
     let nextState = this.#state;
+    let enqueued = 0;
+    let skipped = 0;
+    let blockedByCapacity = false;
     for (const { cursor, message } of await this.#allMessages()) {
       if (nextState.cursor && compareCursor(cursor, nextState.cursor) <= 0) {
+        skipped += 1;
         continue;
       }
       if (
@@ -394,6 +469,7 @@ export class DurableWebhookOutbox {
         !this.#isGroup(message.conversationId) &&
         nextState.entries.length >= this.#maxPending
       ) {
+        blockedByCapacity = true;
         break;
       }
       const update =
@@ -410,8 +486,21 @@ export class DurableWebhookOutbox {
           : nextState.entries,
         version: FORMAT_VERSION,
       };
+      if (update) {
+        enqueued += 1;
+      } else {
+        skipped += 1;
+      }
     }
     await this.#commit(nextState);
+    if (enqueued > 0 || blockedByCapacity) {
+      consoleLogger.info('DurableWebhookOutbox: reconciled incoming messages', {
+        blockedByCapacity,
+        enqueued,
+        pendingCount: this.#state.entries.length,
+        skipped,
+      });
+    }
   }
 
   #isGroup(conversationId: string): boolean {
@@ -438,6 +527,10 @@ export class DurableWebhookOutbox {
       nextDelay = await this.#deliverOne();
     } catch (error) {
       captureDaemonError(error, 'webhook.delivery-loop');
+      consoleLogger.error(
+        'DurableWebhookOutbox: delivery loop failed; retrying in 1000ms',
+        Errors.toLogFormat(error)
+      );
       nextDelay = 1_000;
     } finally {
       this.#delivering = false;
@@ -457,6 +550,12 @@ export class DurableWebhookOutbox {
     }
     const wait = entry.nextAttemptAt - this.#now();
     if (wait > 0) {
+      consoleLogger.info('DurableWebhookOutbox: waiting before webhook retry', {
+        attempt: entry.attempts,
+        messageId: entry.update.message.message_id,
+        retryInMs: wait,
+        webhookUpdateId: entry.update.webhook_update_id,
+      });
       return wait;
     }
     const body = JSON.stringify(entry.update);
@@ -473,6 +572,12 @@ export class DurableWebhookOutbox {
     let succeeded = false;
     let deliveryError: unknown;
     try {
+      consoleLogger.info('DurableWebhookOutbox: delivering webhook', {
+        attempt: entry.attempts + 1,
+        messageId: entry.update.message.message_id,
+        pendingCount: this.#state.entries.length,
+        webhookUpdateId: entry.update.webhook_update_id,
+      });
       const response = await this.#fetch(this.#url, {
         body,
         headers,
@@ -481,6 +586,12 @@ export class DurableWebhookOutbox {
         signal: controller.signal,
       });
       succeeded = response.status >= 200 && response.status < 300;
+      consoleLogger.info('DurableWebhookOutbox: webhook response received', {
+        attempt: entry.attempts + 1,
+        messageId: entry.update.message.message_id,
+        status: response.status,
+        webhookUpdateId: entry.update.webhook_update_id,
+      });
       if (!succeeded) {
         deliveryError = new Error(
           `Webhook delivery returned HTTP ${response.status}`
@@ -496,6 +607,15 @@ export class DurableWebhookOutbox {
       if (!this.#running) return undefined;
       if (deliveryError) {
         captureDaemonError(deliveryError, 'webhook.post');
+        consoleLogger.warn(
+          'DurableWebhookOutbox: webhook delivery failed; keeping update for retry',
+          {
+            attempt: entry.attempts + 1,
+            error: Errors.toLogFormat(deliveryError),
+            messageId: entry.update.message.message_id,
+            webhookUpdateId: entry.update.webhook_update_id,
+          }
+        );
       }
       if (succeeded) {
         await this.#serialize(async () => {
@@ -507,6 +627,12 @@ export class DurableWebhookOutbox {
           await this.#reconcile();
         });
         this.#startReadAction(entry.update.message.message_id);
+        consoleLogger.info('DurableWebhookOutbox: webhook delivery succeeded', {
+          attempt: entry.attempts + 1,
+          messageId: entry.update.message.message_id,
+          pendingCount: this.#state.entries.length,
+          webhookUpdateId: entry.update.webhook_update_id,
+        });
         return 0;
       }
       return await this.#serialize(() => this.#retry(entry));
@@ -528,16 +654,37 @@ export class DurableWebhookOutbox {
         ...this.#state.entries.slice(1),
       ],
     });
+    consoleLogger.info('DurableWebhookOutbox: scheduled webhook retry', {
+      attempts,
+      messageId: entry.update.message.message_id,
+      retryInMs: delay,
+      webhookUpdateId: entry.update.webhook_update_id,
+    });
     return delay;
   }
 
   #startReadAction(messageId: string): void {
     const markRead = this.#markRead;
-    if (!markRead || !this.#running) return;
+    if (!markRead || !this.#running) {
+      consoleLogger.info(
+        'DurableWebhookOutbox: skipped post-webhook read action',
+        {
+          messageId,
+          reason: !markRead ? 'read-actions-unavailable' : 'outbox-stopped',
+        }
+      );
+      return;
+    }
     const controller = new AbortController();
     this.#readControllers.add(controller);
     const action = this.#runReadAction(markRead, messageId, controller);
     this.#readActions.add(action);
+    consoleLogger.info(
+      'DurableWebhookOutbox: started post-webhook read action',
+      {
+        messageId,
+      }
+    );
     // oxlint-disable-next-line promise/prefer-await-to-then -- detach bounded side effect
     void action.finally(() => {
       this.#readActions.delete(action);
@@ -569,8 +716,18 @@ export class DurableWebhookOutbox {
         await markRead(messageId, controller.signal);
       })();
       await Promise.race([readAction, aborted]);
+      consoleLogger.info(
+        'DurableWebhookOutbox: post-webhook read action succeeded',
+        {
+          messageId,
+        }
+      );
     } catch (error) {
       captureDaemonError(error, 'webhook.read-actions');
+      consoleLogger.warn(
+        'DurableWebhookOutbox: post-webhook read action failed',
+        { error: Errors.toLogFormat(error), messageId }
+      );
     } finally {
       clearTimeout(timeout);
     }

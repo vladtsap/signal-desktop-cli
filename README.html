@@ -1424,6 +1424,34 @@ networks:
             and not delivered as a webhook flood. If no URL is configured, the
             cursor advances without building a pending queue.
           </div>
+
+          <h3>Delivery diagnostics</h3>
+          <p>
+            The <code>signal</code> container writes lifecycle diagnostics to
+            stdout. Inspect the live stream with
+            <code>docker compose logs --timestamps --follow signal</code>. Every
+            incoming envelope is logged as it is received, queued, decrypted or
+            resumed from staging, persisted, handed to the outbox, acknowledged
+            to Signal, skipped, rejected, or failed. Webhook diagnostics record
+            durable-state load and reconciliation, enqueue and skip reasons,
+            capacity backpressure, every POST attempt, HTTP status, retry delay,
+            successful durable removal, and post-webhook read-action results.
+            Transport diagnostics cover connection lifecycle, reconnect
+            attempts, keepalive checks, request buffering, and queue overflow.
+          </p>
+          <p>
+            Use <code>messageId</code> and <code>webhookUpdateId</code> to
+            correlate an incoming message with its delivery attempts;
+            <code>envelopeId</code> correlates the Signal receive path. Logs
+            intentionally omit Signal message text, webhook payloads,
+            credentials, webhook secrets, and HMAC signatures. A
+            <code>skipped</code> event includes its explicit reason (for example
+            unsupported content, group conversation, disabled webhook, or an
+            already-advanced cursor); rejected envelopes include the Signal
+            acknowledgement status. A failed webhook attempt stays durable and
+            is followed by a <code>scheduled webhook retry</code>
+            entry with its attempt count and delay.
+          </p>
         </section>
 
         <section id="switching">

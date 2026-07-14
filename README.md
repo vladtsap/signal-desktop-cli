@@ -442,6 +442,12 @@ The first daemon initialization creates a cursor at the newest existing incoming
 
 Consumers must still be idempotent: a crash after accepting a POST but before the daemon records the 2xx can cause the same `webhook_update_id` to be sent again.
 
+### Delivery diagnostics
+
+The `signal` container writes lifecycle diagnostics to stdout, so inspect the live stream with `docker compose logs --timestamps --follow signal`. Every incoming envelope is logged as it is received, queued, decrypted or resumed from staging, persisted, handed to the outbox, acknowledged to Signal, skipped, rejected, or failed. Webhook diagnostics record durable-state load/reconciliation, enqueue and skip reasons, capacity backpressure, every POST attempt, HTTP status, retry delay, successful durable removal, and post-webhook read-action results. Transport diagnostics cover connection lifecycle, reconnect attempts, keepalive checks, request buffering, and queue overflow.
+
+Use `messageId` and `webhookUpdateId` to correlate an incoming message with its delivery attempts; `envelopeId` correlates the Signal receive path. Logs intentionally omit Signal message text, webhook payloads, credentials, webhook secrets, and HMAC signatures. A `skipped` event includes its explicit reason (for example unsupported content, group conversation, disabled webhook, or an already-advanced cursor); rejected envelopes include the Signal acknowledgement status. A failed webhook attempt stays durable and is followed by a `scheduled webhook retry` entry with its attempt count and delay.
+
 ## Moving the profile again
 
 The same stop/snapshot/restore sequence applies in either direction—including remote back to the original computer—and for every later migration. The current profile owner is always the source; the stopped machine that will take ownership is the destination:
