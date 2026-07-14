@@ -114,7 +114,7 @@ void test('startup endpoint check fails on network errors', async () => {
 });
 
 async function waitFor(check: () => boolean): Promise<void> {
-  const deadline = Date.now() + 4_000;
+  const deadline = Date.now() + 8_000;
   while (!check()) {
     if (Date.now() > deadline) throw new Error('Timed out waiting for webhook');
     // oxlint-disable-next-line eslint/no-await-in-loop -- polling must be sequential
@@ -431,13 +431,14 @@ void test('delivery commit failure retains and redelivers the entry', async () =
   }
 });
 
-void test('read-marking failure retains and redelivers the entry', async () => {
+void test('read-marking failures redeliver with exponential backoff', async () => {
   const storagePath = await mkdtemp(
     join(tmpdir(), 'signal-webhook-read-failure-')
   );
   const messages = new Array<MessageAttributesType>();
   let deliveries = 0;
   let markReadCalls = 0;
+  const markReadTimes = new Array<number>();
   const outbox = new DurableWebhookOutbox(fakeSql(messages), {
     fetch: async () => {
       deliveries += 1;
@@ -445,7 +446,8 @@ void test('read-marking failure retains and redelivers the entry', async () => {
     },
     markRead: () => {
       markReadCalls += 1;
-      if (markReadCalls === 1) throw new Error('simulated read failure');
+      markReadTimes.push(Date.now());
+      if (markReadCalls <= 2) throw new Error('simulated read failure');
     },
     maxPending: 10,
     profileKey: '67'.repeat(32),
@@ -459,11 +461,13 @@ void test('read-marking failure retains and redelivers the entry', async () => {
     messages.push(value);
     await outbox.enqueue(value);
     outbox.start();
-    await waitFor(() => deliveries === 1 && markReadCalls === 1);
+    await waitFor(() => deliveries === 2 && markReadCalls === 2);
     assert.equal(outbox.pendingCount, 1);
     await waitFor(
-      () => deliveries === 2 && markReadCalls === 2 && outbox.pendingCount === 0
+      () => deliveries === 3 && markReadCalls === 3 && outbox.pendingCount === 0
     );
+    assert.ok((markReadTimes[1] ?? 0) - (markReadTimes[0] ?? 0) >= 900);
+    assert.ok((markReadTimes[2] ?? 0) - (markReadTimes[1] ?? 0) >= 1_900);
   } finally {
     await outbox.stop();
     await rm(storagePath, { force: true, recursive: true });

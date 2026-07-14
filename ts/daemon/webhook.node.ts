@@ -463,10 +463,15 @@ export class DurableWebhookOutbox {
     try {
       if (!this.#running) return;
       if (succeeded) {
-        await this.#markRead?.(
-          entry.update.message.message_id,
-          controller.signal
-        );
+        try {
+          await this.#markRead?.(
+            entry.update.message.message_id,
+            controller.signal
+          );
+        } catch {
+          if (this.#running) await this.#retry(entry);
+          return;
+        }
         await this.#commit({
           ...this.#state,
           entries: this.#state.entries.slice(1),
@@ -475,22 +480,25 @@ export class DurableWebhookOutbox {
         this.#schedule(0);
         return;
       }
-      const attempts = entry.attempts + 1;
-      const replacement = {
-        ...entry,
-        attempts,
-        nextAttemptAt: this.#now() + retryDelay(attempts),
-      };
-      await this.#commit({
-        ...this.#state,
-        entries: [replacement, ...this.#state.entries.slice(1)],
-      });
-      this.#schedule(retryDelay(attempts));
+      await this.#retry(entry);
     } finally {
       if (this.#abortController === controller) {
         this.#abortController = undefined;
       }
     }
+  }
+
+  async #retry(entry: Entry): Promise<void> {
+    const attempts = entry.attempts + 1;
+    const delay = retryDelay(attempts);
+    await this.#commit({
+      ...this.#state,
+      entries: [
+        { ...entry, attempts, nextAttemptAt: this.#now() + delay },
+        ...this.#state.entries.slice(1),
+      ],
+    });
+    this.#schedule(delay);
   }
 
   #serialize(operation: () => Promise<void>): Promise<void> {
