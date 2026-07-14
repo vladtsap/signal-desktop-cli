@@ -519,6 +519,7 @@
           <a href="#link">Link your account</a>
           <a href="#local">Run locally</a>
           <a href="#r2">Move through R2</a>
+          <a href="#api-reference">API reference</a>
           <a href="#send">Send messages</a>
           <a href="#webhooks">Receive webhooks</a>
           <a href="#switching">Switch UI/headless</a>
@@ -799,8 +800,341 @@ curl --fail http://127.0.0.1:8080/readyz</code></pre>
           </p>
         </section>
 
+        <section id="api-reference">
+          <h2>5. HTTP API reference</h2>
+          <p>
+            The control API is available at
+            <code>http://127.0.0.1:${SIGNAL_API_PORT:-8080}</code> on the Docker
+            host. Compose publishes it only to loopback. Use the service name
+            and a private shared Compose network when calling it from another
+            container; do not expose it publicly without a separate
+            TLS/authentication gateway and network controls.
+          </p>
+          <p>
+            All successful and error responses are JSON with
+            <code>Content-Type: application/json; charset=utf-8</code>.
+            <code>GET /healthz</code> and <code>GET /readyz</code> do not
+            require authentication. Every <code>POST /v1/...</code> request
+            requires <code>Authorization: Bearer ${SIGNAL_API_TOKEN}</code> and
+            <code>Content-Type: application/json</code>; request bodies are
+            limited to 64 KiB.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Authentication</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GET</code></td>
+                <td><code>/healthz</code></td>
+                <td>No</td>
+                <td>Check that the local control process is running.</td>
+              </tr>
+              <tr>
+                <td><code>GET</code></td>
+                <td><code>/readyz</code></td>
+                <td>No</td>
+                <td>Check whether the profile and Signal runtime can send.</td>
+              </tr>
+              <tr>
+                <td><code>POST</code></td>
+                <td><code>/v1/messages</code></td>
+                <td>Bearer token</td>
+                <td>Send a direct text message.</td>
+              </tr>
+              <tr>
+                <td><code>POST</code></td>
+                <td><code>/v1/reactions</code></td>
+                <td>Bearer token</td>
+                <td>
+                  Add or replace this account's reaction on a retained direct
+                  message.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3><code>GET /healthz</code></h3>
+          <p>
+            Use this liveness endpoint to determine whether the local control
+            process is running. It has no request body.
+          </p>
+          <div class="code-wrap">
+            <pre><code>curl --fail http://127.0.0.1:8080/healthz</code></pre>
+          </div>
+          <div class="code-wrap">
+            <pre><code>{ "status": "ok" }</code></pre>
+          </div>
+
+          <h3><code>GET /readyz</code></h3>
+          <p>
+            Use this readiness endpoint before sending. It has no request body
+            and returns HTTP 200 only when <code>ready</code> is
+            <code>true</code>; otherwise it returns HTTP 503 with the same
+            response shape. <code>reason</code> is optional and is present when
+            the daemon has a diagnostic reason for not being ready.
+          </p>
+          <div class="code-wrap">
+            <pre><code>curl --fail-with-body http://127.0.0.1:8080/readyz</code></pre>
+          </div>
+          <div class="code-wrap">
+            <pre><code>{
+  "buildExpiration": {
+    "createdAt": 1783960000000,
+    "createdAtIso": "2026-07-13T16:26:40.000Z",
+    "daysRemaining": 89.5,
+    "expired": false,
+    "expiresAt": 1791736000000,
+    "expiresAtIso": "2026-10-11T16:26:40.000Z",
+    "validityDays": 90
+  },
+  "connected": true,
+  "databaseReady": true,
+  "linked": true,
+  "phase": "ready",
+  "ready": true
+}</code></pre>
+          </div>
+
+          <h3><code>POST /v1/messages</code></h3>
+          <p>
+            Send one direct text message. The request object is strict: fields
+            not listed below, including <code>idempotency_key</code>, are
+            rejected. Each accepted request creates a new outgoing message ID,
+            so retrying an ambiguous request can send a duplicate.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Required</th>
+                <th>Type</th>
+                <th>Rules</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>destination</code></td>
+                <td>Yes</td>
+                <td>string</td>
+                <td>
+                  An international E164 number (<code>+</code> followed by 7–15
+                  digits) already mapped in the restored profile, or a lowercase
+                  Signal ACI.
+                </td>
+              </tr>
+              <tr>
+                <td><code>body</code></td>
+                <td>Yes</td>
+                <td>string</td>
+                <td>Text to send, 1–32,768 characters.</td>
+              </tr>
+              <tr>
+                <td><code>parse_mode</code></td>
+                <td>No</td>
+                <td>string</td>
+                <td>
+                  Exact value <code>Markdown</code>. Enables
+                  <code>**bold**</code>, <code>_italic_</code>,
+                  <code>~~strikethrough~~</code>, <code>`monospace`</code>, and
+                  <code>||spoiler||</code>; without it, <code>body</code> is
+                  sent unchanged.
+                </td>
+              </tr>
+              <tr>
+                <td><code>quote_message_id</code></td>
+                <td>No</td>
+                <td>string</td>
+                <td>
+                  Opaque <code>message.message_id</code> from an earlier
+                  webhook. The message must still exist locally and belong to
+                  the destination conversation.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-wrap">
+            <pre><code>curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "body": "**hello** from the headless client",
+    "parse_mode": "Markdown",
+    "quote_message_id": "incoming-message-uuid"
+  }' \
+  http://127.0.0.1:8080/v1/messages</code></pre>
+          </div>
+          <div class="code-wrap">
+            <pre><code>{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "messageId": "00000000-0000-0000-0000-000000000000",
+  "status": "sent",
+  "timestamp": 1783960000000
+}</code></pre>
+          </div>
+          <p>
+            Formatting markers are removed from the sent text. Formatting can be
+            nested, a backslash escapes the next character, and unmatched
+            markers remain literal. Signal may repair a recipient device-list
+            mismatch and retransmit the same request once after Signal
+            explicitly rejects the first encrypted payload; other transport
+            failures are not automatically retried.
+          </p>
+
+          <h3><code>POST /v1/reactions</code></h3>
+          <p>
+            Add one supported emoji reaction to a locally retained direct
+            message, or replace this account's existing reaction on that
+            message. Reaction removal is not exposed. The request object is
+            strict.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Required</th>
+                <th>Type</th>
+                <th>Rules</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>destination</code></td>
+                <td>Yes</td>
+                <td>string</td>
+                <td>
+                  E164 number already mapped in the restored profile, or a
+                  lowercase Signal ACI.
+                </td>
+              </tr>
+              <tr>
+                <td><code>message_id</code></td>
+                <td>Yes</td>
+                <td>string</td>
+                <td>
+                  Opaque <code>message.message_id</code> from an earlier
+                  webhook. The target must still exist locally and belong to the
+                  destination conversation.
+                </td>
+              </tr>
+              <tr>
+                <td><code>emoji</code></td>
+                <td>Yes</td>
+                <td>string</td>
+                <td>One Signal-supported emoji.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-wrap">
+            <pre><code>curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "message_id": "incoming-message-id",
+    "emoji": "👍"
+  }' \
+  http://127.0.0.1:8080/v1/reactions</code></pre>
+          </div>
+          <div class="code-wrap">
+            <pre><code>{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "emoji": "👍",
+  "messageId": "incoming-message-id",
+  "status": "sent",
+  "timestamp": 1783960000000
+}</code></pre>
+          </div>
+
+          <h3>Error responses</h3>
+          <p>
+            The API returns this error object for failed sends and unknown
+            routes:
+          </p>
+          <div class="code-wrap">
+            <pre><code>{
+  "error": {
+    "code": "not-connected",
+    "message": "Signal service is not connected",
+    "retryable": true
+  }
+}</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Error code</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>400</td>
+                <td><code>invalid-request</code></td>
+                <td>
+                  The JSON, content type, body size, or strict request
+                  validation failed.
+                </td>
+              </tr>
+              <tr>
+                <td>401</td>
+                <td><code>unauthorized</code></td>
+                <td>Bearer authentication is missing or invalid.</td>
+              </tr>
+              <tr>
+                <td>404</td>
+                <td>
+                  <code>not-found</code> / <code>recipient-not-found</code>
+                </td>
+                <td>
+                  The endpoint does not exist, or an E164 destination has no
+                  local ACI mapping.
+                </td>
+              </tr>
+              <tr>
+                <td>409</td>
+                <td><code>identity</code> / <code>send-failed</code></td>
+                <td>
+                  Signal rejected delivery permanently or a safety-number
+                  identity condition needs attention.
+                </td>
+              </tr>
+              <tr>
+                <td>422</td>
+                <td><code>unsupported</code></td>
+                <td>The requested Signal content is unsupported.</td>
+              </tr>
+              <tr>
+                <td>429</td>
+                <td><code>rate-limited</code></td>
+                <td>Signal temporarily limited the request.</td>
+              </tr>
+              <tr>
+                <td>502</td>
+                <td><code>network</code> / <code>device-mismatch</code></td>
+                <td>
+                  Temporary Signal delivery failure; retry only when
+                  <code>retryable</code> is <code>true</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>503</td>
+                <td><code>not-connected</code></td>
+                <td>The daemon is not ready or connected to Signal.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
         <section id="send">
-          <h2>5. Send a direct text message</h2>
+          <h2>6. Send a direct text message</h2>
           <p>
             The message endpoints <code>POST /v1/messages</code> and
             <code>POST /v1/reactions</code> require authentication. Health
@@ -935,7 +1269,47 @@ networks:
         </section>
 
         <section id="webhooks">
-          <h2>6. Receive incoming webhooks</h2>
+          <h2>7. Receive incoming webhooks</h2>
+          <p>
+            The daemon calls the configured <code>SIGNAL_WEBHOOK_URL</code> in
+            two ways. Your endpoint must support both methods when webhooks are
+            enabled:
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Purpose</th>
+                <th>Method</th>
+                <th>Request</th>
+                <th>Successful response</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Startup check</td>
+                <td><code>GET</code></td>
+                <td>No body and no webhook signature.</td>
+                <td>Exactly HTTP 200; the response body is ignored.</td>
+              </tr>
+              <tr>
+                <td>Message delivery</td>
+                <td><code>POST</code></td>
+                <td>
+                  JSON body shown below. When
+                  <code>SIGNAL_WEBHOOK_SECRET</code> is set, includes
+                  <code>X-Signal-Webhook-Signature</code>.
+                </td>
+                <td>Any HTTP 2xx; the response body is ignored.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            For example, a delivery consumer can acknowledge an accepted update
+            without a body:
+          </p>
+          <div class="code-wrap">
+            <pre><code>HTTP/1.1 204 No Content</code></pre>
+          </div>
           <p>
             Set <code>SIGNAL_WEBHOOK_URL</code> before starting the daemon.
             During every startup, before Signal and the control API become
@@ -1043,7 +1417,7 @@ networks:
         </section>
 
         <section id="switching">
-          <h2>7. Switch between headless and GUI modes</h2>
+          <h2>8. Switch between headless and GUI modes</h2>
           <p>Stop one owner fully before starting the other.</p>
 
           <h3>Headless → GUI</h3>
@@ -1065,7 +1439,7 @@ docker compose up -d signal</code></pre>
         </section>
 
         <section id="operations">
-          <h2>8. Routine operations</h2>
+          <h2>9. Routine operations</h2>
 
           <h3>Logs and status</h3>
           <div class="code-wrap">
@@ -1114,7 +1488,7 @@ docker compose up -d signal</code></pre>
         </section>
 
         <section id="updates">
-          <h2>9. Update from upstream</h2>
+          <h2>10. Update from upstream</h2>
           <p>
             Builds expire exactly 90 days after image build time. Signal may
             also remotely shorten GUI validity. The official fork policy is a
@@ -1175,7 +1549,7 @@ docker pull ghcr.io/vladtsap/signal-desktop-cli:FULL_COMMIT_SHA</code></pre>
         </section>
 
         <section id="troubleshooting">
-          <h2>10. Troubleshooting</h2>
+          <h2>11. Troubleshooting</h2>
 
           <details>
             <summary><code>/readyz</code> returns 503</summary>

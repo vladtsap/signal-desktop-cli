@@ -186,6 +186,150 @@ curl --fail http://127.0.0.1:8080/readyz
 
 If `SIGNAL_DAEMON_CONNECT=false`, the daemon opens the offline profile and API without connecting to Signal. In that mode `ready` can be true while `connected` is false, but sends still fail because there is no transport.
 
+## HTTP API reference
+
+The control API is available at `http://127.0.0.1:${SIGNAL_API_PORT:-8080}` on the Docker host. Compose publishes it only to loopback. Use the service name and a private shared Compose network when calling it from another container; do not expose it publicly without a separate TLS/authentication gateway and network controls.
+
+All successful and error responses are JSON with `Content-Type: application/json; charset=utf-8`. `GET /healthz` and `GET /readyz` do not require authentication. Every `POST /v1/...` request requires `Authorization: Bearer ${SIGNAL_API_TOKEN}` and `Content-Type: application/json`; request bodies are limited to 64 KiB.
+
+| Method | Path            | Authentication | Purpose                                                              |
+| ------ | --------------- | -------------- | -------------------------------------------------------------------- |
+| `GET`  | `/healthz`      | No             | Check that the local control process is running.                     |
+| `GET`  | `/readyz`       | No             | Check whether the profile and Signal runtime can send.               |
+| `POST` | `/v1/messages`  | Bearer token   | Send a direct text message.                                          |
+| `POST` | `/v1/reactions` | Bearer token   | Add or replace this account's reaction on a retained direct message. |
+
+### `GET /healthz`
+
+Use this liveness endpoint to determine whether the local control process is running. It has no request body.
+
+```sh
+curl --fail http://127.0.0.1:8080/healthz
+```
+
+```json
+{ "status": "ok" }
+```
+
+### `GET /readyz`
+
+Use this readiness endpoint before sending. It has no request body and returns HTTP 200 only when `ready` is `true`; otherwise it returns HTTP 503 with the same response shape. `reason` is optional and is present when the daemon has a diagnostic reason for not being ready.
+
+```sh
+curl --fail-with-body http://127.0.0.1:8080/readyz
+```
+
+```json
+{
+  "buildExpiration": {
+    "createdAt": 1783960000000,
+    "createdAtIso": "2026-07-13T16:26:40.000Z",
+    "daysRemaining": 89.5,
+    "expired": false,
+    "expiresAt": 1791736000000,
+    "expiresAtIso": "2026-10-11T16:26:40.000Z",
+    "validityDays": 90
+  },
+  "connected": true,
+  "databaseReady": true,
+  "linked": true,
+  "phase": "ready",
+  "ready": true
+}
+```
+
+### `POST /v1/messages`
+
+Send one direct text message. The request object is strict: fields not listed below, including `idempotency_key`, are rejected. Each accepted request creates a new outgoing message ID, so retrying an ambiguous request can send a duplicate.
+
+| Field              | Required | Type   | Rules                                                                                                                                 |
+| ------------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- | --- | ------- | --- | ---------------------------------------- |
+| `destination`      | Yes      | string | An international E164 number (`+` followed by 7–15 digits) already mapped in the restored profile, or a lowercase Signal ACI.         |
+| `body`             | Yes      | string | Text to send, 1–32,768 characters.                                                                                                    |
+| `parse_mode`       | No       | string | Exact value `Markdown`. Enables `**bold**`, `_italic_`, `~~strikethrough~~`, `` `monospace` ``, and `                                 |     | spoiler |     | `; without it, `body` is sent unchanged. |
+| `quote_message_id` | No       | string | Opaque `message.message_id` from an earlier webhook. The message must still exist locally and belong to the destination conversation. |
+
+```sh
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "body": "**hello** from the headless client",
+    "parse_mode": "Markdown",
+    "quote_message_id": "incoming-message-uuid"
+  }' \
+  http://127.0.0.1:8080/v1/messages
+```
+
+```json
+{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "messageId": "00000000-0000-0000-0000-000000000000",
+  "status": "sent",
+  "timestamp": 1783960000000
+}
+```
+
+Formatting markers are removed from the sent text. Formatting can be nested, a backslash escapes the next character, and unmatched markers remain literal. Signal may repair a recipient device-list mismatch and retransmit the same request once after Signal explicitly rejects the first encrypted payload; other transport failures are not automatically retried.
+
+### `POST /v1/reactions`
+
+Add one supported emoji reaction to a locally retained direct message, or replace this account's existing reaction on that message. Reaction removal is not exposed. The request object is strict.
+
+| Field         | Required | Type   | Rules                                                                                                                                |
+| ------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `destination` | Yes      | string | E164 number already mapped in the restored profile, or a lowercase Signal ACI.                                                       |
+| `message_id`  | Yes      | string | Opaque `message.message_id` from an earlier webhook. The target must still exist locally and belong to the destination conversation. |
+| `emoji`       | Yes      | string | One Signal-supported emoji.                                                                                                          |
+
+```sh
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "message_id": "incoming-message-id",
+    "emoji": "👍"
+  }' \
+  http://127.0.0.1:8080/v1/reactions
+```
+
+```json
+{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "emoji": "👍",
+  "messageId": "incoming-message-id",
+  "status": "sent",
+  "timestamp": 1783960000000
+}
+```
+
+### Error responses
+
+The API returns this error object for failed sends and unknown routes:
+
+```json
+{
+  "error": {
+    "code": "not-connected",
+    "message": "Signal service is not connected",
+    "retryable": true
+  }
+}
+```
+
+| Status | Error code                          | Meaning                                                                                     |
+| ------ | ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| 400    | `invalid-request`                   | The JSON, content type, body size, or strict request validation failed.                     |
+| 401    | `unauthorized`                      | Bearer authentication is missing or invalid.                                                |
+| 404    | `not-found` / `recipient-not-found` | The endpoint does not exist, or an E164 destination has no local ACI mapping.               |
+| 409    | `identity` / `send-failed`          | Signal rejected delivery permanently or a safety-number identity condition needs attention. |
+| 422    | `unsupported`                       | The requested Signal content is unsupported.                                                |
+| 429    | `rate-limited`                      | Signal temporarily limited the request.                                                     |
+| 502    | `network` / `device-mismatch`       | Temporary Signal delivery failure; retry only when `retryable` is `true`.                   |
+| 503    | `not-connected`                     | The daemon is not ready or connected to Signal.                                             |
+
 ## Send a text message
 
 The message endpoints `POST /v1/messages` and `POST /v1/reactions` require authentication. Health endpoints do not require authentication. When `SIGNAL_DAEMON_CONNECT=true`, startup requires `SIGNAL_API_TOKEN` with at least 16 characters.
@@ -241,6 +385,19 @@ The target must exist locally and belong to the destination conversation. Sendin
 The API is bound to host loopback by Compose. To call it from another container, attach both services to a private Compose network with an override and use the service name; keep bearer authentication and do not publish the endpoint publicly without a separate TLS/authentication gateway and network controls.
 
 ## Incoming webhooks
+
+The daemon calls the configured `SIGNAL_WEBHOOK_URL` in two ways. Your endpoint must support both methods when webhooks are enabled:
+
+| Purpose          | Method | Request                                                                                            | Successful response                             |
+| ---------------- | ------ | -------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Startup check    | `GET`  | No body and no webhook signature.                                                                  | Exactly HTTP 200; the response body is ignored. |
+| Message delivery | `POST` | JSON body shown below. When `SIGNAL_WEBHOOK_SECRET` is set, includes `X-Signal-Webhook-Signature`. | Any HTTP 2xx; the response body is ignored.     |
+
+For example, a delivery consumer can acknowledge an accepted update without a body:
+
+```text
+HTTP/1.1 204 No Content
+```
 
 Set `SIGNAL_WEBHOOK_URL` to an HTTP or HTTPS endpoint. During every daemon startup, before the Signal transport and control API become ready, the daemon sends a bodyless GET request to that exact URL. Startup continues only for an exact HTTP 200 response. Redirects are not followed; timeouts, network errors, and every other status fail startup. The GET carries no webhook HMAC signature. With Compose's `restart: unless-stopped`, Docker keeps restarting a failed daemon until the endpoint returns 200. No startup check is made when `SIGNAL_WEBHOOK_URL` is unset.
 
