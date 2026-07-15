@@ -75,11 +75,15 @@ import { openLinkInWebBrowser } from '../util/openLinkInWebBrowser.dom.ts';
 import { usePreviousDeprecated } from '../hooks/usePrevious.std.ts';
 import { tw } from '../axo/tw.dom.tsx';
 import { CONTACT_SUPPORT_URL } from '../util/contactSupport.dom.tsx';
+import type { BadgeType } from '../badges/types.std.ts';
+import { BadgeImage } from './BadgeImage.dom.tsx';
+import { SpinnerV2 } from './SpinnerV2.dom.tsx';
 
 export type PropsDataType = {
   i18n: LocalizerType;
   initialCurrency: string;
   isOnline: boolean;
+  badge: BadgeType | undefined;
   donationAmountsConfig: ReadonlyDeep<OneTimeDonationHumanAmounts> | undefined;
   lastError: DonationErrorType | undefined;
   validCurrencies: ReadonlyArray<string>;
@@ -117,6 +121,7 @@ export function PreferencesDonateFlow({
   i18n,
   initialCurrency,
   isOnline,
+  badge,
   donationAmountsConfig,
   lastError,
   validCurrencies,
@@ -397,7 +402,12 @@ export function PreferencesDonateFlow({
     strictAssert(amount, 'Amount is required for payment processor form');
     innerContent = (
       <>
-        <CardFormHero i18n={i18n} amount={amount} currency={currency} />
+        <CardFormHero
+          i18n={i18n}
+          badge={badge}
+          amount={amount}
+          currency={currency}
+        />
         <button
           className={tw(
             'flex',
@@ -441,7 +451,12 @@ export function PreferencesDonateFlow({
     strictAssert(amount, 'Amount is required for payment card form');
     innerContent = (
       <>
-        <CardFormHero i18n={i18n} amount={amount} currency={currency} />
+        <CardFormHero
+          i18n={i18n}
+          badge={badge}
+          amount={amount}
+          currency={currency}
+        />
         <hr className="PreferencesDonations__separator PreferencesDonations__separator--card-form" />
         <CardForm
           amount={amount}
@@ -464,7 +479,12 @@ export function PreferencesDonateFlow({
       workflow?.type !== donationStateSchema.enum.PAYPAL_INTENT;
     innerContent = (
       <>
-        <CardFormHero i18n={i18n} amount={amount} currency={currency} />
+        <CardFormHero
+          i18n={i18n}
+          badge={badge}
+          amount={amount}
+          currency={currency}
+        />
         <hr className="PreferencesDonations__separator PreferencesDonations__separator--card-form" />
         <div className={tw('my-4 flex min-w-[400px] py-4 type-body-large')}>
           <div className={tw('flex grow items-center')}>
@@ -1123,6 +1143,7 @@ function CardForm({
 }
 
 type CardFormHeroProps = {
+  badge: BadgeType | undefined;
   amount: HumanDonationAmount;
   currency: string;
   i18n: LocalizerType;
@@ -1130,6 +1151,7 @@ type CardFormHeroProps = {
 
 // Similar to <DonationHero> or renderDonationHero
 function CardFormHero({
+  badge,
   amount,
   currency,
   i18n,
@@ -1141,7 +1163,11 @@ function CardFormHero({
   return (
     <>
       <div className="PreferencesDonations__avatar">
-        <div className="DonationCardFormHero__Badge" />
+        {badge ? (
+          <BadgeImage badge={badge} size={72} />
+        ) : (
+          <SpinnerV2 size={72} strokeWidth={4} variant="brand" />
+        )}
       </div>
       <div className="PreferencesDonations__title">
         {i18n('icu:DonateFlow__card-form-title-donate-with-amount', {

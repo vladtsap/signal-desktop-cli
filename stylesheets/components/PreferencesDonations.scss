@@ -252,20 +252,8 @@
 
     // Currently only one time donations are possible
     &__icon {
-      @include mixins.light-theme {
-        background: url('../images/rocket-36-light.svg');
-      }
-      @include mixins.dark-theme {
-        background: url('../images/rocket-36-dark.svg');
-      }
-
-      & {
-        width: 36px;
-        height: 36px;
-        background-size: 100%;
-        border-radius: 18px;
-        flex-shrink: 0;
-      }
+      display: flex;
+      align-items: center;
     }
 
     &__details {
@@ -474,12 +462,6 @@
 
 .PreferencesDonations__badge-icon {
   display: flex;
-  width: 40px;
-  height: 40px;
-  background-size: 100%;
-
-  // Currently only one time donations are possible
-  background-image: url('../images/rocket-160.svg');
 }
 
 .PreferencesDonations__badge-info {

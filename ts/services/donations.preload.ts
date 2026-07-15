@@ -693,7 +693,7 @@ export async function _createPaymentIntent({
     const payload = {
       currency: currencyType,
       amount: paymentAmount,
-      level: 1,
+      level: BOOST_LEVEL,
       paymentMethod: 'CARD',
       donationPermitBase64,
     };

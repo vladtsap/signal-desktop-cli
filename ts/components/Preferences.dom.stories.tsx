@@ -61,6 +61,8 @@ import type { NotificationProfileIdString } from '../types/NotificationProfile.s
 import type { ExportResultType } from '../services/backups/types.std.ts';
 import { BackupLevel } from '../services/backups/types.std.ts';
 import { Emoji } from '../axo/emoji.std.ts';
+import type { BadgeType } from '../badges/types.std.ts';
+import { BadgeCategory } from '../badges/BadgeCategory.std.ts';
 
 const { shuffle } = lodash;
 
@@ -138,6 +140,32 @@ const validateBackupResult: ExportResultType = {
     fixedDirectMessages: 9,
     unknownConversationReferences: {},
   },
+};
+
+const donationBadge: BadgeType = {
+  id: 'BOOST',
+  category: BadgeCategory.Donor,
+  name: 'Signal Boost',
+  descriptionTemplate:
+    '{short_name} supported Signal with a donation. Signal is a nonprofit with no advertisers or investors, supported only by people like you.',
+  images: [
+    {
+      dark: {
+        localPath: 'fixtures/badges/rocket/rocket-160.svg',
+        url: 'file:///fixtures/badges/rocket/rocket-36-dark.svg',
+      },
+      light: {
+        localPath: 'fixtures/badges/rocket/rocket-36-light.svg',
+        url: 'file:///fixtures/badges/rocket/rocket-36-light.svg',
+      },
+    },
+    {
+      transparent: {
+        localPath: 'fixtures/badges/rocket/rocket-160.svg',
+        url: 'file:///fixtures/badges/rocket/rocket-160.svg',
+      },
+    },
+  ],
 };
 
 const donationAmountsConfig = {
@@ -274,7 +302,7 @@ function renderDonationsPane(props: {
       lastError={undefined}
       workflow={props.workflow}
       didResumeWorkflowAtStartup={false}
-      badge={undefined}
+      myBadge={undefined}
       color={props.me.color}
       firstName={props.me.firstName}
       profileAvatarUrl={props.me.profileAvatarUrl}
@@ -286,7 +314,7 @@ function renderDonationsPane(props: {
       showToast={props.showToast}
       theme={ThemeType.light}
       updateLastError={action('updateLastError')}
-      donationBadge={undefined}
+      donationBadge={donationBadge}
       fetchBadgeData={async () => undefined}
       me={props.me}
       myProfileChanged={action('myProfileChanged')}
