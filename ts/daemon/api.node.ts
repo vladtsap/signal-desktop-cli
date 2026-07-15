@@ -7,7 +7,10 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 
 import { z } from 'zod';
 
+import { Emoji } from '../axo/emoji.std.ts';
 import type { DaemonConfig } from './config.node.ts';
+import { elapsedMs, logDaemonError, logDaemonEvent } from './logging.std.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import type { DaemonStatus, RuntimeServiceContext } from './runtime.node.ts';
@@ -30,6 +33,15 @@ const sendSchema = z
   .object({
     body: z.string().min(1).max(32_768),
     destination: destinationSchema,
+    parse_mode: z.literal('Markdown').optional(),
+    quote_message_id: z.string().min(1).max(256).optional(),
+  })
+  .strict();
+const reactionSchema = z
+  .object({
+    destination: destinationSchema,
+    emoji: z.string().refine(Emoji.isEmoji, { message: 'invalid emoji' }),
+    message_id: z.string().min(1).max(256),
   })
   .strict();
 
@@ -41,7 +53,10 @@ export type ControlServiceOptions = Readonly<{
   createSendService?: (
     transport: HeadlessSendTransport,
     stores: HeadlessProtocolStores
-  ) => Pick<HeadlessSendService, 'sendText'>;
+  ) => Pick<
+    HeadlessSendService,
+    'markReadAfterWebhook' | 'sendReaction' | 'sendText'
+  >;
   getStatus: () => DaemonStatus;
 }>;
 
@@ -160,7 +175,12 @@ export class HeadlessControlService {
   readonly #activeHandlers = new Set<Promise<void>>();
   readonly #controllers = new Set<AbortController>();
   #outbox: DurableWebhookOutbox | undefined;
-  #sendService: Pick<HeadlessSendService, 'sendText'> | undefined;
+  #sendService:
+    | Pick<
+        HeadlessSendService,
+        'markReadAfterWebhook' | 'sendReaction' | 'sendText'
+      >
+    | undefined;
   #server: Server | undefined;
 
   public constructor(
@@ -176,6 +196,7 @@ export class HeadlessControlService {
   }
 
   public async prepare(context: RuntimeServiceContext): Promise<void> {
+    const prepareStartedAt = Date.now();
     if (this.#config.connect && !this.#config.apiToken) {
       throw new Error(
         'SIGNAL_API_TOKEN (at least 16 characters) is required when SIGNAL_DAEMON_CONNECT=true'
@@ -192,6 +213,8 @@ export class HeadlessControlService {
               conversationId
             ),
           maxPending: this.#config.webhookMaxPending,
+          markRead: (messageId, signal) =>
+            this.#sendService?.markReadAfterWebhook(messageId, signal),
           profileKey: context.profileSqlKey,
           ...(this.#config.webhookSecret
             ? { secret: this.#config.webhookSecret }
@@ -202,6 +225,10 @@ export class HeadlessControlService {
         });
     await this.#outbox.prepare();
     await this.#outbox.checkEndpoint();
+    logDaemonEvent('info', 'api.prepared', {
+      durationMs: elapsedMs(prepareStartedAt),
+      webhookEnabled: this.#config.webhookUrl != null,
+    });
   }
 
   public async start(): Promise<void> {
@@ -223,6 +250,10 @@ export class HeadlessControlService {
     });
     this.#server = server;
     this.#outbox.start();
+    logDaemonEvent('info', 'api.started', {
+      host: this.#config.apiHost,
+      port: this.#config.apiPort,
+    });
   }
 
   public handleIncoming(message: MessageAttributesType): Promise<void> {
@@ -232,6 +263,7 @@ export class HeadlessControlService {
   }
 
   public async stop(): Promise<void> {
+    const stopStartedAt = Date.now();
     const server = this.#server;
     this.#server = undefined;
     for (const controller of this.#controllers) controller.abort();
@@ -246,18 +278,44 @@ export class HeadlessControlService {
     await this.#outbox?.stop();
     this.#outbox = undefined;
     this.#sendService = undefined;
+    logDaemonEvent('info', 'api.stopped', {
+      durationMs: elapsedMs(stopStartedAt),
+    });
   }
 
   #trackHandler(request: IncomingMessage, response: ServerResponse): void {
-    const handler = this.#handle(request, response);
+    const handler = this.#handleAndLog(request, response);
     this.#activeHandlers.add(handler);
     void this.#settleHandler(handler);
+  }
+
+  async #handleAndLog(
+    request: IncomingMessage,
+    response: ServerResponse
+  ): Promise<void> {
+    const startedAt = Date.now();
+    try {
+      await this.#handle(request, response);
+    } finally {
+      logDaemonEvent(
+        response.statusCode >= 500 ? 'warn' : 'info',
+        'api.request.completed',
+        {
+          durationMs: elapsedMs(startedAt),
+          method: request.method,
+          path: request.url,
+          status: response.statusCode,
+        }
+      );
+    }
   }
 
   async #settleHandler(handler: Promise<void>): Promise<void> {
     try {
       await handler;
-    } catch {
+    } catch (error) {
+      captureDaemonError(error, 'api.response');
+      logDaemonError('api.response.failed', error);
       // The request handler normally converts failures to JSON. A socket can
       // still disappear while writing that response during shutdown.
     } finally {
@@ -279,7 +337,10 @@ export class HeadlessControlService {
         json(response, status.ready ? 200 : 503, status);
         return;
       }
-      if (request.method !== 'POST' || request.url !== '/v1/messages') {
+      if (
+        request.method !== 'POST' ||
+        (request.url !== '/v1/messages' && request.url !== '/v1/reactions')
+      ) {
         json(response, 404, {
           error: { code: 'not-found', message: 'Not found' },
         });
@@ -292,8 +353,18 @@ export class HeadlessControlService {
         });
         return;
       }
-      const parsed = sendSchema.safeParse(await readJson(request));
-      if (!parsed.success) {
+      const body = await readJson(request);
+      const validation =
+        request.url === '/v1/reactions'
+          ? ({
+              kind: 'reaction' as const,
+              result: reactionSchema.safeParse(body),
+            } as const)
+          : ({
+              kind: 'message' as const,
+              result: sendSchema.safeParse(body),
+            } as const);
+      if (!validation.result.success) {
         throw new HeadlessSendError(
           'Invalid send request',
           'invalid-request',
@@ -319,23 +390,63 @@ export class HeadlessControlService {
             true
           );
         }
-        const result = await sendService.sendText(
-          {
-            body: parsed.data.body,
-            destination: parsed.data.destination,
-          },
-          controller.signal
-        );
+        const result =
+          validation.kind === 'reaction'
+            ? await sendService.sendReaction(
+                {
+                  destination: validation.result.data.destination,
+                  emoji: validation.result.data.emoji,
+                  messageId: validation.result.data.message_id,
+                },
+                controller.signal
+              )
+            : await sendService.sendText(
+                {
+                  body: validation.result.data.body,
+                  destination: validation.result.data.destination,
+                  ...(validation.result.data.parse_mode
+                    ? { parseMode: validation.result.data.parse_mode }
+                    : {}),
+                  ...(validation.result.data.quote_message_id
+                    ? {
+                        quoteMessageId: validation.result.data.quote_message_id,
+                      }
+                    : {}),
+                },
+                controller.signal
+              );
         json(response, 200, result);
       } finally {
         this.#controllers.delete(controller);
       }
     } catch (error) {
+      if (
+        !(error instanceof HeadlessSendError) ||
+        !['invalid-request', 'recipient-not-found', 'unsupported'].includes(
+          error.code
+        )
+      ) {
+        captureDaemonError(error, 'api.request');
+      }
       const classified =
         error instanceof HeadlessSendError
           ? error
           : new HeadlessSendError('Send failed', 'send-failed', false);
-      json(response, sendErrorStatus(classified), {
+      const status = sendErrorStatus(classified);
+      logDaemonEvent(
+        ['invalid-request', 'recipient-not-found', 'unsupported'].includes(
+          classified.code
+        )
+          ? 'info'
+          : 'warn',
+        'api.request.failed',
+        {
+          code: classified.code,
+          retryable: classified.retryable,
+          status,
+        }
+      );
+      json(response, status, {
         error: {
           code: classified.code,
           message: publicSendErrorMessage(classified.code),

@@ -42,11 +42,16 @@ import type { ServiceIdString } from '../types/ServiceId.std.ts';
 import { isPniString, normalizeServiceId } from '../types/ServiceId.std.ts';
 import * as Errors from '../types/errors.std.ts';
 import { strictAssert } from '../util/assert.std.ts';
-import { consoleLogger } from '../util/consoleLogger.std.ts';
-import { fromServiceIdBinaryOrString } from '../util/ServiceId.node.ts';
+import { isAciString } from '../util/isAciString.std.ts';
+import {
+  fromAciUuidBytesOrString,
+  fromServiceIdBinaryOrString,
+} from '../util/ServiceId.node.ts';
 import { bytesToUuid } from '../util/uuidToBytes.std.ts';
 import { Zone } from '../util/Zone.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { captureDaemonError } from './monitoring.node.ts';
+import { daemonLogger as consoleLogger, elapsedMs } from './logging.std.ts';
 import type { ProtocolRuntime } from './runtime.node.ts';
 import type {
   HeadlessIncomingRequest,
@@ -89,6 +94,105 @@ export type HeadlessReceiveOptions = Readonly<{
 }>;
 
 export class UnsupportedIncomingContentError extends Error {}
+
+function getEnvelopeTypeName(type: number): string {
+  switch (type) {
+    case Proto.Envelope.Type.UNKNOWN:
+      return 'UNKNOWN';
+    case Proto.Envelope.Type.DOUBLE_RATCHET:
+      return 'DOUBLE_RATCHET';
+    case Proto.Envelope.Type.PREKEY_MESSAGE:
+      return 'PREKEY_MESSAGE';
+    case Proto.Envelope.Type.SERVER_DELIVERY_RECEIPT:
+      return 'SERVER_DELIVERY_RECEIPT';
+    case Proto.Envelope.Type.UNIDENTIFIED_SENDER:
+      return 'UNIDENTIFIED_SENDER';
+    case Proto.Envelope.Type.PLAINTEXT_CONTENT:
+      return 'PLAINTEXT_CONTENT';
+    default:
+      return `UNKNOWN(${type})`;
+  }
+}
+
+function getReceiptTypeName(type: number | null): string {
+  switch (type) {
+    case Proto.ReceiptMessage.Type.DELIVERY:
+      return 'DELIVERY';
+    case Proto.ReceiptMessage.Type.READ:
+      return 'READ';
+    case Proto.ReceiptMessage.Type.VIEWED:
+      return 'VIEWED';
+    default:
+      return type == null ? 'UNKNOWN' : `UNKNOWN(${type})`;
+  }
+}
+
+function getTypingActionName(action: number | null): string {
+  switch (action) {
+    case Proto.TypingMessage.Action.STARTED:
+      return 'STARTED';
+    case Proto.TypingMessage.Action.STOPPED:
+      return 'STOPPED';
+    default:
+      return action == null ? 'UNKNOWN' : `UNKNOWN(${action})`;
+  }
+}
+
+function getInnerMessageDetails(plaintext: Uint8Array<ArrayBuffer>): Readonly<{
+  attachmentCount?: number;
+  dataKind?: string;
+  innerKind: string;
+  receiptType?: string;
+  typingAction?: string;
+}> {
+  const decoded = Proto.Content.decode(plaintext);
+  const content = decoded.content;
+  if (!content) {
+    return decoded.senderKeyDistributionMessage
+      ? { innerKind: 'sender-key-distribution' }
+      : { innerKind: 'empty' };
+  }
+  if (content.dataMessage) {
+    const { attachments } = content.dataMessage;
+    return {
+      attachmentCount: attachments.length,
+      dataKind:
+        attachments.length > 0
+          ? 'attachment'
+          : content.dataMessage.reaction
+            ? 'reaction'
+            : content.dataMessage.delete
+              ? 'delete'
+              : content.dataMessage.storyContext
+                ? 'story-reply'
+                : typeof content.dataMessage.body === 'string'
+                  ? 'text'
+                  : 'unknown',
+      innerKind: 'data-message',
+    };
+  }
+  if (content.receiptMessage) {
+    return {
+      innerKind: 'receipt-message',
+      receiptType: getReceiptTypeName(content.receiptMessage.type),
+    };
+  }
+  if (content.typingMessage) {
+    return {
+      innerKind: 'typing-message',
+      typingAction: getTypingActionName(content.typingMessage.action),
+    };
+  }
+  if (content.syncMessage) return { innerKind: 'sync-message' };
+  if (content.callMessage) return { innerKind: 'call-message' };
+  if (content.nullMessage) return { innerKind: 'null-message' };
+  if (content.decryptionErrorMessage) {
+    return { innerKind: 'decryption-error-message' };
+  }
+  if (content.storyMessage) return { innerKind: 'story-message' };
+  if (content.editMessage) return { innerKind: 'edit-message' };
+  return { innerKind: 'unknown' };
+}
 
 function stableEnvelopeId(body: Uint8Array<ArrayBuffer>): string {
   return createHash('sha256').update(body).digest('hex');
@@ -424,9 +528,18 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     if (typeof maxCounter === 'number') this.#receivedAtCounter = maxCounter;
     this.#stopping = false;
     this.#transport.setRequestHandler(request => this.#enqueue(request));
+    consoleLogger.info('HeadlessMessageReceiver: starting', {
+      maxPendingRequests: this.#maxPendingRequests,
+      receivedAtCounter: this.#receivedAtCounter,
+    });
     try {
       await this.#transport.start(context);
+      consoleLogger.info('HeadlessMessageReceiver: started');
     } catch (error) {
+      consoleLogger.error(
+        'HeadlessMessageReceiver: failed to start',
+        Errors.toLogFormat(error)
+      );
       this.#stopping = true;
       this.#transport.setRequestHandler(null);
       try {
@@ -440,19 +553,48 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
   }
 
   public async stop(): Promise<void> {
+    consoleLogger.info('HeadlessMessageReceiver: stopping', {
+      pendingRequests: this.#pending,
+    });
     this.#stopping = true;
     this.#transport.setRequestHandler(null);
     await this.#transport.stop();
     await this.#tail;
     this.#stores = undefined;
+    consoleLogger.info('HeadlessMessageReceiver: stopped');
   }
 
   async #enqueue(request: HeadlessIncomingRequest): Promise<void> {
     if (this.#stopping || this.#pending >= this.#maxPendingRequests) {
-      if (request.type === 'message') request.respond(503);
+      if (request.type === 'message') {
+        consoleLogger.warn(
+          'HeadlessMessageReceiver: rejected Signal envelope',
+          {
+            maxPendingRequests: this.#maxPendingRequests,
+            pendingRequests: this.#pending,
+            reason: this.#stopping ? 'stopping' : 'receive-queue-full',
+            status: 503,
+          }
+        );
+        request.respond(503);
+      }
       return;
     }
     this.#pending += 1;
+    if (request.type === 'message') {
+      consoleLogger.info('HeadlessMessageReceiver: queued Signal envelope', {
+        envelopeId: request.body ? stableEnvelopeId(request.body) : undefined,
+        envelopeSize: request.body?.byteLength,
+        pendingRequests: this.#pending,
+      });
+    } else {
+      consoleLogger.info(
+        'HeadlessMessageReceiver: received queue-empty event',
+        {
+          pendingRequests: this.#pending,
+        }
+      );
+    }
     // oxlint-disable-next-line promise/prefer-await-to-then, signal-desktop/no-then -- ordered receive tail
     const operation = this.#tail.then(() => this.#handle(request));
     // oxlint-disable promise/prefer-await-to-then -- keep receive tail usable after failures
@@ -467,19 +609,35 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
 
   async #handle(request: HeadlessIncomingRequest): Promise<void> {
     if (request.type === 'queue-empty') {
+      consoleLogger.info('HeadlessMessageReceiver: handled queue-empty event');
       return;
     }
     if (!request.body) {
+      consoleLogger.warn('HeadlessMessageReceiver: rejected Signal envelope', {
+        reason: 'missing-body',
+        status: 400,
+      });
       request.respond(400);
       return;
     }
+    const envelopeId = stableEnvelopeId(request.body);
+    const startedAt = Date.now();
     try {
       await this.#accept(request.body);
       request.respond(200);
+      consoleLogger.info(
+        'HeadlessMessageReceiver: acknowledged Signal envelope',
+        {
+          durationMs: Date.now() - startedAt,
+          envelopeId,
+          status: 200,
+        }
+      );
     } catch (error) {
+      captureDaemonError(error, 'receiver.process-envelope', { envelopeId });
       consoleLogger.error(
         'HeadlessMessageReceiver: failed to process incoming Signal envelope',
-        Errors.toLogFormat(error)
+        { envelopeId, error: Errors.toLogFormat(error) }
       );
       request.respond(500);
     }
@@ -496,6 +654,9 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     let decrypted: DecryptedEnvelope;
     const cachedItem = cached[0];
     if (cachedItem && !cachedItem.isEncrypted) {
+      consoleLogger.info('HeadlessMessageReceiver: resumed staged envelope', {
+        envelopeId: id,
+      });
       const envelope = fromUnprocessed(cachedItem);
       strictAssert(
         envelope.sourceServiceId,
@@ -509,6 +670,15 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
     } else {
       this.#receivedAtCounter += 1;
       const envelope = decodeEnvelope(body, stores, this.#receivedAtCounter);
+      const decryptStartedAt = Date.now();
+      consoleLogger.info(
+        'HeadlessMessageReceiver: decrypting Signal envelope',
+        {
+          envelopeId: envelope.id,
+          envelopeType: envelope.type,
+          sourceDevice: envelope.sourceDevice,
+        }
+      );
       const zone = new Zone('HeadlessMessageReceiver.decrypt', {
         pendingKyberPreKeysToRemove: true,
         pendingPreKeysToRemove: true,
@@ -540,6 +710,23 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
                 ),
                 { zone }
               );
+              consoleLogger.warn(
+                'HeadlessMessageReceiver: staged unsupported Signal envelope',
+                {
+                  envelopeId: envelope.id,
+                  reason: error.message,
+                }
+              );
+            } else {
+              consoleLogger.warn(
+                'HeadlessMessageReceiver: acknowledged unsupported empty Signal envelope',
+                {
+                  envelopeId: envelope.id,
+                  envelopeType: envelope.type,
+                  envelopeTypeName: getEnvelopeTypeName(envelope.type),
+                  reason: error.message,
+                }
+              );
             }
             return { unsupported: error } as const;
           }
@@ -558,20 +745,43 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       );
       if ('unsupported' in outcome) {
         this.#unsupportedReason = outcome.unsupported.message;
+        consoleLogger.warn('HeadlessMessageReceiver: skipped Signal envelope', {
+          envelopeId: id,
+          reason: outcome.unsupported.message,
+        });
         return;
       }
       decrypted = outcome.result;
+      consoleLogger.info('HeadlessMessageReceiver: decrypted Signal envelope', {
+        decryptDurationMs: elapsedMs(decryptStartedAt),
+        envelopeId: id,
+      });
     }
 
     try {
+      const persistStartedAt = Date.now();
       await this.#persistDirectText(decrypted);
       await stores.signalProtocolStore.removeUnprocessed(decrypted.envelope.id);
+      consoleLogger.info(
+        'HeadlessMessageReceiver: completed envelope persistence',
+        {
+          envelopeId: decrypted.envelope.id,
+          persistDurationMs: elapsedMs(persistStartedAt),
+        }
+      );
     } catch (error) {
       if (error instanceof UnsupportedIncomingContentError) {
         // The server may discard an envelope once it receives 200. Preserve
         // unsupported-but-valid plaintext durably so a future implementation
         // can process it without advancing the libsignal session again.
         this.#unsupportedReason = error.message;
+        consoleLogger.warn('HeadlessMessageReceiver: skipped staged envelope', {
+          envelopeId: decrypted.envelope.id,
+          envelopeType: decrypted.envelope.type,
+          envelopeTypeName: getEnvelopeTypeName(decrypted.envelope.type),
+          ...getInnerMessageDetails(decrypted.plaintext),
+          reason: error.message,
+        });
         return;
       }
       throw error;
@@ -616,7 +826,6 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       message.groupV2 ||
       message.attachments.length > 0 ||
       message.preview.length > 0 ||
-      message.quote ||
       message.reaction ||
       message.delete ||
       message.storyContext
@@ -625,6 +834,46 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         'Incoming data message contains unsupported fields'
       );
     }
+    let quote: MessageAttributesType['quote'];
+    if (message.quote) {
+      const quoteId = Number(message.quote.id);
+      let authorAci;
+      try {
+        authorAci = fromAciUuidBytesOrString(
+          message.quote.authorAciBinary,
+          message.quote.authorAci,
+          'HeadlessMessageReceiver.quote.authorAci'
+        );
+      } catch (error) {
+        throw new UnsupportedIncomingContentError(
+          'Incoming quote has a malformed author ACI',
+          { cause: error }
+        );
+      }
+      if (
+        message.quote.id == null ||
+        !Number.isSafeInteger(quoteId) ||
+        quoteId <= 0 ||
+        !authorAci ||
+        !isAciString(authorAci) ||
+        message.quote.attachments.length > 0
+      ) {
+        throw new UnsupportedIncomingContentError(
+          'Incoming quote is malformed or contains unsupported fields'
+        );
+      }
+      quote = {
+        attachments: [],
+        authorAci,
+        id: quoteId,
+        isViewOnce: false,
+        referencedMessageNotFound: false,
+        // Webhooks expose quoted plain text only. Keep accepting a reply when
+        // Signal includes formatting for the quoted message, but intentionally
+        // omit that unsupported formatting from the retained quote.
+        text: message.quote.text ?? '',
+      };
+    }
     const duplicate = await stores.messageCache.findBySentAt(
       envelope.timestamp,
       candidate =>
@@ -632,6 +881,10 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
         candidate.get('sourceDevice') === envelope.sourceDevice
     );
     if (duplicate) {
+      consoleLogger.info('HeadlessMessageReceiver: found duplicate message', {
+        envelopeId: envelope.id,
+        messageId: duplicate.attributes.id,
+      });
       await this.#onPersistedMessage?.(duplicate.attributes);
       return;
     }
@@ -647,6 +900,7 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       conversationId: conversation.id,
       decrypted_at: Date.now(),
       id: envelope.id,
+      ...(quote ? { quote } : {}),
       readStatus: ReadStatus.Unread,
       received_at: envelope.receivedAtCounter,
       received_at_ms: envelope.receivedAtDate,
@@ -663,7 +917,24 @@ export class HeadlessMessageReceiver implements ProtocolRuntime {
       stores.messageCache.create(attributes)
     );
     await stores.messageCache.saveMessage(model, { forceSave: true });
+    consoleLogger.info(
+      'HeadlessMessageReceiver: persisted incoming text message',
+      {
+        envelopeId: envelope.id,
+        hasQuote: Boolean(quote),
+        messageId: model.attributes.id,
+      }
+    );
+    const outboxStartedAt = Date.now();
     await this.#onPersistedMessage?.(model.attributes);
+    consoleLogger.info(
+      'HeadlessMessageReceiver: handed message to webhook outbox',
+      {
+        envelopeId: envelope.id,
+        messageId: model.attributes.id,
+        outboxDurationMs: elapsedMs(outboxStartedAt),
+      }
+    );
   }
 }
 

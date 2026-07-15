@@ -157,6 +157,84 @@ void test('transport reconnects after a retryable interruption', async () => {
   await transport.stop();
 });
 
+void test('transport reconnects when an authenticated keepalive fails', async () => {
+  const calls = new Array<ConnectCall>();
+  const disconnected = new Array<number>();
+  let keepaliveCalls = 0;
+  const transport = new AuthenticatedHeadlessTransport(
+    {
+      async connect(credentials, callbacks, signal) {
+        const index = calls.length;
+        calls.push({ callbacks, credentials, signal });
+        return {
+          disconnect() {
+            disconnected.push(index);
+          },
+          async keepalive() {
+            keepaliveCalls += 1;
+            if (index === 0) throw new Error('stale authenticated socket');
+          },
+        };
+      },
+    },
+    {
+      keepaliveIntervalMs: 1,
+      keepaliveTimeoutMs: 10,
+      reconnectDelay: async () => undefined,
+    }
+  );
+  await transport.start(startContext);
+  const received = new Array<number>();
+  transport.setRequestHandler(incoming => {
+    received.push(incoming.body?.[0] ?? -1);
+  });
+
+  const deadline = Date.now() + 1_000;
+  while (calls.length < 2) {
+    if (Date.now() > deadline) throw new Error('Keepalive did not reconnect');
+    // oxlint-disable-next-line eslint/no-await-in-loop -- polling observes the timer
+    await new Promise(resolve => setTimeout(resolve, 5));
+  }
+
+  assert.ok(keepaliveCalls >= 1);
+  assert.deepEqual(disconnected, [0]);
+  assert.equal(transport.connected, true);
+  assert.equal(transport.state, 'open');
+  assert.equal(transport.failureReason, 'stale authenticated socket');
+  const staleStatuses = new Array<number>();
+  calls[0]?.callbacks.onRequest({
+    ...request(9),
+    respond: status => staleStatuses.push(status),
+  });
+  await settle();
+  assert.deepEqual(received, []);
+  assert.deepEqual(staleStatuses, [503]);
+  await transport.stop();
+});
+
+void test('transport cancels the keepalive watchdog when stopped', async () => {
+  let keepaliveCalls = 0;
+  const transport = new AuthenticatedHeadlessTransport(
+    {
+      async connect() {
+        return {
+          disconnect() {
+            return undefined;
+          },
+          keepalive() {
+            keepaliveCalls += 1;
+          },
+        };
+      },
+    },
+    { keepaliveIntervalMs: 20, keepaliveTimeoutMs: 10 }
+  );
+  await transport.start(startContext);
+  await transport.stop();
+  await new Promise(resolve => setTimeout(resolve, 30));
+  assert.equal(keepaliveCalls, 0);
+});
+
 void test('transport retries a failed reconnect without failing the daemon', async () => {
   const { calls, reconnectAttempts, setNextConnectError, transport } =
     createHarness();

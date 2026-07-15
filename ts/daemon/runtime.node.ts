@@ -3,6 +3,8 @@
 import type { DaemonConfig } from './config.node.ts';
 import type { HeadlessSql } from './sql.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { logDaemonError, logDaemonEvent } from './logging.std.ts';
+import { captureDaemonError } from './monitoring.node.ts';
 import {
   getBuildExpirationStatus,
   type BuildExpirationStatus,
@@ -124,6 +126,7 @@ export class DaemonRuntime {
 
     try {
       this.#phase = 'opening-profile';
+      logDaemonEvent('info', 'runtime.profile.opening');
       const profile = await this.#dependencies.loadProfile(
         this.#config.storagePath
       );
@@ -133,6 +136,7 @@ export class DaemonRuntime {
         storagePath: profile.storagePath,
       });
       this.#phase = 'database-ready';
+      logDaemonEvent('info', 'runtime.database.ready');
 
       this.#protocolStores = await this.#dependencies.openProtocolStores(
         this.#sql
@@ -162,6 +166,7 @@ export class DaemonRuntime {
           'This daemon build has expired; rebuild from current upstream Signal Desktop';
         await this.#dependencies.controlService?.start();
         this.#phase = 'expired';
+        logDaemonEvent('warn', 'runtime.build.expired');
         return;
       }
 
@@ -180,6 +185,7 @@ export class DaemonRuntime {
       this.#phase = 'ready';
       this.#scheduleExpiration();
     } catch (error) {
+      logDaemonError('runtime.start.failed', error, { phase: this.#phase });
       this.#reason = error instanceof Error ? error.message : String(error);
       this.#phase = 'failed';
       try {
@@ -199,10 +205,12 @@ export class DaemonRuntime {
       return;
     }
     this.#phase = 'stopping';
+    logDaemonEvent('info', 'runtime.stopping');
     try {
       await this.#cleanup();
     } finally {
       this.#phase = 'stopped';
+      logDaemonEvent('info', 'runtime.stopped');
     }
   }
 
@@ -257,6 +265,7 @@ export class DaemonRuntime {
       this.#reason =
         'This daemon build has expired; rebuild from current upstream Signal Desktop';
       this.#phase = 'expired';
+      logDaemonEvent('warn', 'runtime.build.expired');
       void this.#stopExpiredTransport();
     }, delay);
     this.#expirationTimer.unref();
@@ -266,6 +275,8 @@ export class DaemonRuntime {
     try {
       await this.#dependencies.protocolRuntime?.stop();
     } catch (error) {
+      captureDaemonError(error, 'runtime.expired-transport-stop');
+      logDaemonError('runtime.expired-transport-stop.failed', error);
       this.#reason = `Build expired and Signal transport shutdown failed: ${
         error instanceof Error ? error.message : String(error)
       }`;

@@ -27,17 +27,18 @@ Implemented:
 
 - Linux `amd64` Docker images;
 - the upstream Signal Desktop linking UI in Xvfb/fluxbox/noVNC;
-- a headless authenticated Signal transport with reconnect handling;
+- a headless authenticated Signal transport with 30-second keepalive checks and automatic stale-socket reconnects;
 - automatic ACI/PNI prekey replenishment and signed/PQ key rotation;
-- direct encrypted text receive, SQLCipher persistence, and durable webhooks;
-- direct encrypted text send with durable local status and existing-session reuse;
+- direct encrypted text and quoted-reply receive, SQLCipher persistence, and durable webhooks;
+- direct encrypted text send with quoted replies, native formatting, durable local status, and existing-session reuse;
+- outbound emoji reactions to locally retained messages;
 - unencrypted, immutable, checksummed R2 snapshots with staged restore; and
 - a 90-day reproducible build lifetime with expiration visible at `/readyz`.
 
 Not implemented:
 
 - registration without the mobile Signal app;
-- groups, attachments, previews, quotes, reactions, deletes, stories, or calls;
+- groups, attachments, previews, incoming reactions, reaction removal, deletes, stories, or calls;
 - sync transcripts or general multi-device history synchronization;
 - group/sender-key receive processing;
 - a public-internet API gateway, webhook management API, or polling API; and
@@ -73,6 +74,8 @@ While connected, the daemon checks ACI and PNI server prekey inventories at star
 
 Clone this repository on every machine that will use the profile. Commands below run from the repository root.
 
+Docker BuildKit caches pnpm packages plus Node and Electron headers between builds. The source build runs all pending lifecycle scripts in one recursive pnpm rebuild, and native `node-gyp` work automatically uses every CPU available to Docker; increase Docker's CPU allocation if the image build does not use the expected cores.
+
 ## Configuration
 
 Create a local `.env` from the tracked, sanitized template. `.env` and its variants are ignored by Git, while `.env.example` remains tracked:
@@ -89,6 +92,7 @@ SIGNAL_UI_PASSWORD=vncpass8
 SIGNAL_API_TOKEN=replace-with-at-least-16-random-characters
 SIGNAL_WEBHOOK_URL=https://example.com/signal/webhook
 SIGNAL_WEBHOOK_SECRET=replace-with-at-least-16-random-characters
+SENTRY_DSN=https://public-key@organization.ingest.sentry.io/project-id
 
 R2_ACCOUNT_ID=your-cloudflare-account-id
 R2_BUCKET=your-private-bucket
@@ -185,9 +189,68 @@ curl --fail http://127.0.0.1:8080/readyz
 
 If `SIGNAL_DAEMON_CONNECT=false`, the daemon opens the offline profile and API without connecting to Signal. In that mode `ready` can be true while `connected` is false, but sends still fail because there is no transport.
 
-## Send a text message
+## HTTP API reference
 
-The only authenticated endpoint is `POST /v1/messages`. Health endpoints do not require authentication. When `SIGNAL_DAEMON_CONNECT=true`, startup requires `SIGNAL_API_TOKEN` with at least 16 characters.
+The control API is available at `http://127.0.0.1:${SIGNAL_API_PORT:-8080}` on the Docker host. Compose publishes it only to loopback. Use the service name and a private shared Compose network when calling it from another container; do not expose it publicly without a separate TLS/authentication gateway and network controls.
+
+All successful and error responses are JSON with `Content-Type: application/json; charset=utf-8`. `GET /healthz` and `GET /readyz` do not require authentication. Every `POST /v1/...` request requires `Authorization: Bearer ${SIGNAL_API_TOKEN}` and `Content-Type: application/json`; request bodies are limited to 64 KiB.
+
+| Method | Path            | Authentication | Purpose                                                              |
+| ------ | --------------- | -------------- | -------------------------------------------------------------------- |
+| `GET`  | `/healthz`      | No             | Check that the local control process is running.                     |
+| `GET`  | `/readyz`       | No             | Check whether the profile and Signal runtime can send.               |
+| `POST` | `/v1/messages`  | Bearer token   | Send a direct text message.                                          |
+| `POST` | `/v1/reactions` | Bearer token   | Add or replace this account's reaction on a retained direct message. |
+
+### `GET /healthz`
+
+Use this liveness endpoint to determine whether the local control process is running. It has no request body.
+
+```sh
+curl --fail http://127.0.0.1:8080/healthz
+```
+
+```json
+{ "status": "ok" }
+```
+
+### `GET /readyz`
+
+Use this readiness endpoint before sending. It has no request body and returns HTTP 200 only when `ready` is `true`; otherwise it returns HTTP 503 with the same response shape. `reason` is optional and is present when the daemon has a diagnostic reason for not being ready.
+
+```sh
+curl --fail-with-body http://127.0.0.1:8080/readyz
+```
+
+```json
+{
+  "buildExpiration": {
+    "createdAt": 1783960000000,
+    "createdAtIso": "2026-07-13T16:26:40.000Z",
+    "daysRemaining": 89.5,
+    "expired": false,
+    "expiresAt": 1791736000000,
+    "expiresAtIso": "2026-10-11T16:26:40.000Z",
+    "validityDays": 90
+  },
+  "connected": true,
+  "databaseReady": true,
+  "linked": true,
+  "phase": "ready",
+  "ready": true
+}
+```
+
+### `POST /v1/messages`
+
+Send one direct text message. The request object is strict: fields not listed below, including `idempotency_key`, are rejected. Each accepted request creates a new outgoing message ID, so retrying an ambiguous request can send a duplicate.
+
+| Field              | Required | Type   | Rules                                                                                                                                 |
+| ------------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- | --- | ------- | --- | ---------------------------------------- |
+| `destination`      | Yes      | string | An international E164 number (`+` followed by 7–15 digits) already mapped in the restored profile, or a lowercase Signal ACI.         |
+| `body`             | Yes      | string | Text to send, 1–32,768 characters.                                                                                                    |
+| `parse_mode`       | No       | string | Exact value `Markdown`. Enables `**bold**`, `_italic_`, `~~strikethrough~~`, `` `monospace` ``, and `                                 |     | spoiler |     | `; without it, `body` is sent unchanged. |
+| `quote_message_id` | No       | string | Opaque `message.message_id` from an earlier webhook. The message must still exist locally and belong to the destination conversation. |
 
 ```sh
 curl --fail-with-body \
@@ -195,7 +258,94 @@ curl --fail-with-body \
   -H 'Content-Type: application/json' \
   --data '{
     "destination": "+12025550123",
-    "body": "hello from the headless client"
+    "body": "**hello** from the headless client",
+    "parse_mode": "Markdown",
+    "quote_message_id": "incoming-message-uuid"
+  }' \
+  http://127.0.0.1:8080/v1/messages
+```
+
+```json
+{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "messageId": "00000000-0000-0000-0000-000000000000",
+  "status": "sent",
+  "timestamp": 1783960000000
+}
+```
+
+Formatting markers are removed from the sent text. Formatting can be nested, a backslash escapes the next character, and unmatched markers remain literal. Signal may repair a recipient device-list mismatch and retransmit the same request once after Signal explicitly rejects the first encrypted payload; other transport failures are not automatically retried.
+
+### `POST /v1/reactions`
+
+Add one supported emoji reaction to a locally retained direct message, or replace this account's existing reaction on that message. Reaction removal is not exposed. The request object is strict.
+
+| Field         | Required | Type   | Rules                                                                                                                                |
+| ------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `destination` | Yes      | string | E164 number already mapped in the restored profile, or a lowercase Signal ACI.                                                       |
+| `message_id`  | Yes      | string | Opaque `message.message_id` from an earlier webhook. The target must still exist locally and belong to the destination conversation. |
+| `emoji`       | Yes      | string | One Signal-supported emoji.                                                                                                          |
+
+```sh
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "message_id": "incoming-message-id",
+    "emoji": "👍"
+  }' \
+  http://127.0.0.1:8080/v1/reactions
+```
+
+```json
+{
+  "destination": "00000000-0000-0000-0000-000000000000",
+  "emoji": "👍",
+  "messageId": "incoming-message-id",
+  "status": "sent",
+  "timestamp": 1783960000000
+}
+```
+
+### Error responses
+
+The API returns this error object for failed sends and unknown routes:
+
+```json
+{
+  "error": {
+    "code": "not-connected",
+    "message": "Signal service is not connected",
+    "retryable": true
+  }
+}
+```
+
+| Status | Error code                          | Meaning                                                                                     |
+| ------ | ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| 400    | `invalid-request`                   | The JSON, content type, body size, or strict request validation failed.                     |
+| 401    | `unauthorized`                      | Bearer authentication is missing or invalid.                                                |
+| 404    | `not-found` / `recipient-not-found` | The endpoint does not exist, or an E164 destination has no local ACI mapping.               |
+| 409    | `identity` / `send-failed`          | Signal rejected delivery permanently or a safety-number identity condition needs attention. |
+| 422    | `unsupported`                       | The requested Signal content is unsupported.                                                |
+| 429    | `rate-limited`                      | Signal temporarily limited the request.                                                     |
+| 502    | `network` / `device-mismatch`       | Temporary Signal delivery failure; retry only when `retryable` is `true`.                   |
+| 503    | `not-connected`                     | The daemon is not ready or connected to Signal.                                             |
+
+## Send a text message
+
+The message endpoints `POST /v1/messages` and `POST /v1/reactions` require authentication. Health endpoints do not require authentication. When `SIGNAL_DAEMON_CONNECT=true`, startup requires `SIGNAL_API_TOKEN` with at least 16 characters.
+
+```sh
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "body": "**hello** from the headless client",
+    "parse_mode": "Markdown",
+    "quote_message_id": "incoming-message-uuid"
   }' \
   http://127.0.0.1:8080/v1/messages
 ```
@@ -213,11 +363,44 @@ A successful response has this shape:
 }
 ```
 
-`destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. These are the only accepted request fields, and request bodies are limited to 64 KiB. Each accepted POST creates a fresh outgoing message ID and performs one logical send operation. There is no application-level deduplication: sending an identical request again can produce a duplicate message. If Signal explicitly rejects the encrypted payload because the recipient device list changed, the daemon preserves unaffected sessions, repairs only missing, extra, stale, or registration-changed devices, and retransmits once inside the same POST. This bounded retry is safe because Signal rejected the first transmission before accepting it. A second device mismatch is returned as retryable HTTP 502. Other transport failures are never retried automatically: if the connection closes before the response arrives, the outcome is ambiguous.
+`destination` accepts an international E164 number (`+...`) or a lowercase Signal ACI. `body` must contain 1–32,768 characters. To send a Signal quoted reply, set optional `quote_message_id` to the opaque ID from an earlier webhook's `message.message_id`; the referenced message must still exist locally and belong to the destination conversation.
+
+Set optional `parse_mode` to the exact value `Markdown` to turn `**bold**`, `_italic_`, `~~strikethrough~~`, `` `monospace` ``, and `||spoiler||` into native Signal formatting ranges. Formatting markers are removed from the sent text, nesting is supported, and a backslash escapes the following character. Unmatched markers remain literal. Without `parse_mode`, the body is sent exactly as provided. No other request fields are accepted, and request bodies are limited to 64 KiB.
+
+Each accepted POST creates a fresh outgoing message ID and performs one logical send operation. There is no application-level deduplication: sending an identical request again can produce a duplicate message. If Signal explicitly rejects the encrypted payload because the recipient device list changed, the daemon preserves unaffected sessions, repairs only missing, extra, stale, or registration-changed devices, and retransmits once inside the same POST. This bounded retry is safe because Signal rejected the first transmission before accepting it. A second device mismatch is returned as retryable HTTP 502. Other transport failures are never retried automatically: if the connection closes before the response arrives, the outcome is ambiguous.
+
+To react to a locally retained message, call the authenticated `POST /v1/reactions` endpoint with the same destination, the webhook's opaque `message.message_id`, and one supported emoji:
+
+```sh
+curl --fail-with-body \
+  -H "Authorization: Bearer ${SIGNAL_API_TOKEN}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "destination": "+12025550123",
+    "message_id": "incoming-message-id",
+    "emoji": "👍"
+  }' \
+  http://127.0.0.1:8080/v1/reactions
+```
+
+The target must exist locally and belong to the destination conversation. Sending another reaction from this account replaces its locally stored reaction after Signal accepts the new reaction. Reaction removal is not currently exposed by the API.
 
 The API is bound to host loopback by Compose. To call it from another container, attach both services to a private Compose network with an override and use the service name; keep bearer authentication and do not publish the endpoint publicly without a separate TLS/authentication gateway and network controls.
 
 ## Incoming webhooks
+
+The daemon calls the configured `SIGNAL_WEBHOOK_URL` in two ways. Your endpoint must support both methods when webhooks are enabled:
+
+| Purpose          | Method | Request                                                                                            | Successful response                             |
+| ---------------- | ------ | -------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Startup check    | `GET`  | No body and no webhook signature.                                                                  | Exactly HTTP 200; the response body is ignored. |
+| Message delivery | `POST` | JSON body shown below. When `SIGNAL_WEBHOOK_SECRET` is set, includes `X-Signal-Webhook-Signature`. | Any HTTP 2xx; the response body is ignored.     |
+
+For example, a delivery consumer can acknowledge an accepted update without a body:
+
+```text
+HTTP/1.1 204 No Content
+```
 
 Set `SIGNAL_WEBHOOK_URL` to an HTTP or HTTPS endpoint. During every daemon startup, before the Signal transport and control API become ready, the daemon sends a bodyless GET request to that exact URL. Startup continues only for an exact HTTP 200 response. Redirects are not followed; timeouts, network errors, and every other status fail startup. The GET carries no webhook HMAC signature. With Compose's `restart: unless-stopped`, Docker keeps restarting a failed daemon until the endpoint returns 200. No startup check is made when `SIGNAL_WEBHOOK_URL` is unset.
 
@@ -231,12 +414,21 @@ After the startup check succeeds, each newly persisted, supported direct text me
     "date": 1783960000000,
     "text": "hello",
     "from": { "id": "sender-aci" },
-    "chat": { "id": "sender-aci", "type": "private" }
+    "chat": { "id": "sender-aci", "type": "private" },
+    "reply_to_message": {
+      "message_id": "1783959000000",
+      "date": 1783959000000,
+      "text": "quoted text",
+      "from": { "id": "quoted-author-aci" },
+      "chat": { "id": "sender-aci", "type": "private" }
+    }
   }
 }
 ```
 
 The IDs are strings. `date` is Signal's exact sent time in Unix milliseconds, matching the timestamp shown by Signal Desktop. Because only direct messages are supported, `chat.id` and `from.id` are both the sender's stable Signal ACI; that ACI can also be used as the send API's `destination`. `webhook_update_id` is a separate value deterministically derived from `message_id`, so consumers can deduplicate retries without relying on timestamps, which are not guaranteed to be unique. Queued outbox entries that still use the former `update_id` name are migrated automatically when loaded.
+
+For a quoted reply, `reply_to_message` contains Signal's quoted author, text, and target sent timestamp. Signal's quote protocol identifies the target by author and sent timestamp rather than by the receiving daemon's local message UUID, so the nested `message_id` is the target timestamp encoded as a string and `date` is the same value as a number. The field is omitted for messages without a quote. Quoted attachments are not yet supported by the headless receiver. Formatting on quoted text is ignored so that the reply itself is still delivered.
 
 When `SIGNAL_WEBHOOK_SECRET` is set, the request includes:
 
@@ -246,11 +438,17 @@ X-Signal-Webhook-Signature: sha256=HEX_HMAC_SHA256
 
 Verify the HMAC over the exact raw HTTP body with `SIGNAL_WEBHOOK_SECRET` and compare it in constant time before parsing or acting on the update.
 
-Delivery is ordered and at least once. Only a 2xx response removes the oldest entry. Network errors, redirects, timeouts, and non-2xx responses retry with exponential delays from 1 second to 5 minutes. The timeout defaults to 10 seconds. The encrypted outbox is stored as `headless-webhook-outbox.enc` in the profile, uses AES-256-GCM with a key derived from the SQLCipher profile key, and survives restarts and R2 transfers.
+Delivery is ordered and at least once. Only a 2xx response removes the oldest durable entry. The daemon then runs local read marking, read sync to the account's other linked devices, and—when the restored profile's read-receipt setting is enabled and the contact's message request has been accepted—a Signal read receipt to the contact. These post-webhook read actions run separately with the same bounded timeout: a failure is reported but never blocks durable enqueue, delays acknowledgement of later Signal envelopes, or redelivers an already-successful webhook. A process exit after durable webhook removal can leave the read actions incomplete. Network errors, redirects, timeouts, and non-2xx responses keep the entry queued and leave the message unread. Failed webhook requests retry with exponential delays from 1 second to 5 minutes. The timeout defaults to 10 seconds. The encrypted outbox is stored as `headless-webhook-outbox.enc` in the profile, uses AES-256-GCM with a key derived from the SQLCipher profile key, and survives restarts and R2 transfers.
 
 The first daemon initialization creates a cursor at the newest existing incoming message, so linking/restoring historical messages does not flood a newly configured webhook. Subsequent startup reconciliation closes the crash window between SQL message persistence and outbox enqueue. If no webhook URL is configured, incoming text remains in Signal's encrypted database and the webhook cursor advances without accumulating deliveries. `SIGNAL_WEBHOOK_MAX_PENDING` is the maximum number of durable, undelivered webhook updates, not the number of messages retained in Signal's database. When the outbox reaches it, the daemon stops acknowledging newly received supported messages until space is available, causing Signal to retry them; startup reconciliation also pauses at the full queue. No queued update is silently evicted. The encrypted outbox file is additionally capped at 128 MiB.
 
 Consumers must still be idempotent: a crash after accepting a POST but before the daemon records the 2xx can cause the same `webhook_update_id` to be sent again.
+
+### Delivery diagnostics
+
+The `signal` container writes one JSON event per line to stdout/stderr, so inspect the live stream with `docker compose logs --timestamps --follow signal`. Every event has stable `timestamp`, `level`, and dot-separated `event` fields, followed by safe event-specific fields. Every incoming envelope is logged as it is received, queued, decrypted or resumed from staging, persisted, handed to the outbox, acknowledged to Signal, skipped, rejected, or failed. Webhook diagnostics record durable-state load/reconciliation, enqueue and skip reasons, capacity backpressure, every POST attempt, HTTP status, retry delay, successful durable removal, and post-webhook read-action results. Transport diagnostics cover connection lifecycle, reconnect attempts, keepalive checks, request buffering, and queue overflow. API and runtime lifecycle events use the same format.
+
+Use `messageId` and `webhookUpdateId` to correlate an incoming message with its delivery attempts; `envelopeId` correlates the Signal receive path. `durationMs`, `decryptDurationMs`, `persistDurationMs`, and `outboxDurationMs` identify slow stages. Logs intentionally omit Signal message text, webhook payloads, credentials, webhook secrets, and HMAC signatures. A `skipped` event includes its explicit reason (for example unsupported content, group conversation, disabled webhook, or an already-advanced cursor); rejected envelopes include the Signal acknowledgement status. A failed webhook attempt stays durable and is followed by a `scheduled webhook retry` entry with its attempt count and delay.
 
 ## Moving the profile again
 
@@ -300,7 +498,7 @@ Run them through `docker compose --profile tools run --rm state ...`; do not inv
 - Treat R2 read access as full access to the linked Signal Desktop profile. Keep the bucket private, scope credentials narrowly, and rotate credentials if they leak.
 - To roll back, stop all profile users, verify the chosen older UUID, `pull UUID --replace`, and start one runtime. Messages and protocol state newer than that snapshot are discarded locally and may not be replayable by Signal.
 - If daemon startup says the profile is unlinked, restore a known-good linked snapshot or relink through a fresh UI profile. Do not edit `config.json`, the SQLCipher database, or protocol sessions manually.
-- If readiness remains green but incoming webhooks stop, check `docker compose logs signal` for `HeadlessMessageReceiver: failed to process incoming Signal envelope`. Failed envelopes are rejected to Signal for retry rather than acknowledged; investigate the logged decrypt or persistence error. A recipient device-list mismatch during an API send is repaired selectively and must not reset unaffected inbound sessions.
+- If readiness remains green but incoming webhooks stop, the authenticated transport probes `/v1/keepalive` every 30 seconds and reconnects a socket that times out or returns a non-2xx response. Webhook POSTs and post-webhook read actions do not hold the durable enqueue queue; a slow endpoint or read receipt therefore cannot prevent acknowledgement of later Signal envelopes. Check `docker compose logs signal` for `HeadlessMessageReceiver: failed to process incoming Signal envelope`; failed envelopes are rejected to Signal for retry rather than acknowledged, so investigate the logged decrypt or persistence error. A recipient device-list mismatch during an API send is repaired selectively and must not reset unaffected inbound sessions.
 - If the profile lock is busy, find and stop the owning UI, daemon, or state container. Do not delete the lock file to bypass an active owner.
 - Never run `docker compose down -v` unless permanent deletion of the local profile is intended.
 
@@ -326,14 +524,17 @@ Before every ownership transfer, verify: source stopped; snapshot UUID recorded;
 | `SIGNAL_DAEMON_CONNECT`             | `true`  | `true`/`false` or `1`/`0`; controls Signal network connection.                       |
 | `SIGNAL_DAEMON_LOG_LEVEL`           | `info`  | Parsed values: `debug`, `info`, `warn`, `error`. Reserved for daemon logging policy. |
 | `SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS` | `30000` | Graceful internal shutdown deadline, 1,000–120,000 ms.                               |
+| `SENTRY_DSN`                        | unset   | Optional Sentry DSN for daemon-wide operational error reporting.                     |
 | `SIGNAL_WEBHOOK_URL`                | unset   | HTTP(S) destination; exact GET 200 required at startup when set.                     |
 | `SIGNAL_WEBHOOK_SECRET`             | unset   | HMAC secret, minimum 16 characters.                                                  |
 | `SIGNAL_WEBHOOK_TIMEOUT_MS`         | `10000` | Startup GET and POST attempt timeout, 1,000–120,000 ms.                              |
 | `SIGNAL_WEBHOOK_MAX_PENDING`        | `1000`  | Durable undelivered updates, 1–10,000; a full queue applies receive backpressure.    |
-| `SIGNAL_MEMORY_LIMIT`               | `512m`  | Hard Compose daemon memory limit.                                                    |
+| `SIGNAL_MEMORY_LIMIT`               | `768m`  | Hard Compose daemon memory limit.                                                    |
 | `SIGNAL_PIDS_LIMIT`                 | `128`   | Compose daemon process limit.                                                        |
 
 Compose sets `SIGNAL_API_HOST=0.0.0.0` inside the container but publishes it only on host `127.0.0.1`.
+
+When `SENTRY_DSN` is set, the daemon reports uncaught exceptions, unhandled promise rejections, startup and shutdown failures, and handled daemon failures from API responses, SQL/database operations, webhook delivery/read actions, Signal receive and transport processing, runtime expiration, and pre-key maintenance. Events include the daemon release, an operation tag, and safe correlation metadata such as message/update IDs and retry attempt—never message text. API requests, HTTP headers, webhook payloads, Signal message content, and HTTP breadcrumbs are deliberately excluded; Sentry is disabled when the variable is unset. Retryable failures may produce an event for each failed attempt, subject to Sentry's own rate limits.
 
 If the daemon exceeds `SIGNAL_MEMORY_LIMIT`, the container's cgroup OOM-kills it (commonly reported as exit code 137). Because the service uses `restart: unless-stopped`, Docker then restarts it. The database and webhook outbox are durable, but an API send interrupted at that exact moment can have an ambiguous outcome and there is no deduplication key for safely replaying it. Increase the limit or override/remove `mem_limit` in a private Compose override if normal workloads repeatedly reach it.
 

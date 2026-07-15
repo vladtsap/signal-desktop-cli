@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { SignalService as Proto } from '../protobuf/index.std.ts';
 import type { UnprocessedType } from '../textsecure/Types.d.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
+import { uuidToBytes } from '../util/uuidToBytes.std.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
 import {
   HeadlessMessageReceiver,
@@ -56,7 +57,8 @@ class FakeTransport implements HeadlessTransportRuntime {
 }
 
 function makeEnvelope(
-  content: Uint8Array<ArrayBuffer> = Uint8Array.from([1, 2, 3])
+  content: Uint8Array<ArrayBuffer> = Uint8Array.from([1, 2, 3]),
+  type = Proto.Envelope.Type.DOUBLE_RATCHET
 ): Uint8Array<ArrayBuffer> {
   return Proto.Envelope.encode({
     clientTimestamp: 1234n,
@@ -66,7 +68,7 @@ function makeEnvelope(
     serverTimestamp: 1300n,
     sourceDeviceId: 2,
     sourceServiceId: SENDER_ACI,
-    type: Proto.Envelope.Type.DOUBLE_RATCHET,
+    type,
   } as never);
 }
 
@@ -204,6 +206,181 @@ void test('acknowledges only after direct text is durably saved', async () => {
   await harness.receiver.stop();
 });
 
+void test('persists quoted reply context for webhook delivery', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: {
+        body: 'reply body',
+        quote: {
+          authorAci: OUR_ACI,
+          id: 999n,
+          text: 'original body',
+        },
+        timestamp: 1234n,
+      },
+    },
+  } as never);
+  const harness = makeHarness({ plaintext });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.deepEqual(harness.saved[0]?.quote, {
+    attachments: [],
+    authorAci: OUR_ACI,
+    id: 999,
+    isViewOnce: false,
+    referencedMessageNotFound: false,
+    text: 'original body',
+  });
+  await harness.receiver.stop();
+});
+
+void test('persists a quote with a binary author ACI', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: {
+        body: 'binary author reply',
+        quote: {
+          authorAciBinary: uuidToBytes(OUR_ACI),
+          id: 999n,
+          text: 'binary author original',
+        },
+        timestamp: 1234n,
+      },
+    },
+  } as never);
+  const harness = makeHarness({ plaintext });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(
+    (harness.saved[0]?.quote as { authorAci?: string } | undefined)?.authorAci,
+    OUR_ACI
+  );
+  assert.equal(harness.staged.size, 0);
+  await harness.receiver.stop();
+});
+
+for (const [name, quote, unsupportedReason] of [
+  [
+    'string',
+    { authorAci: 'not-an-aci', id: 999n },
+    'Incoming quote is malformed or contains unsupported fields',
+  ],
+  [
+    'binary',
+    { authorAciBinary: Uint8Array.of(1), id: 999n },
+    'Incoming quote is malformed or contains unsupported fields',
+  ],
+  [
+    'PNI-prefixed string',
+    { authorAci: 'PNI:cccccccc-cccc-4ccc-8ccc-cccccccccccc', id: 999n },
+    'Incoming quote has a malformed author ACI',
+  ],
+] as const) {
+  void test(`retains a quote with a malformed ${name} author ACI`, async () => {
+    const plaintext = Proto.Content.encode({
+      content: {
+        dataMessage: {
+          body: 'reply body',
+          quote,
+          timestamp: 1234n,
+        },
+      },
+    } as never);
+    const harness = makeHarness({ plaintext });
+    await start(harness);
+    const { incoming, statuses } = request();
+    await harness.transport.emit(incoming);
+    assert.deepEqual(statuses, [200]);
+    assert.equal(harness.saved.length, 0);
+    assert.equal(harness.staged.size, 1);
+    assert.equal(harness.receiver.unsupportedReason, unsupportedReason);
+    await harness.receiver.stop();
+  });
+}
+
+for (const [name, quote] of [
+  ['missing timestamp', { authorAci: OUR_ACI }],
+  ['zero timestamp', { authorAci: OUR_ACI, id: 0n }],
+  [
+    'unsafe timestamp',
+    { authorAci: OUR_ACI, id: BigInt(Number.MAX_SAFE_INTEGER) + 1n },
+  ],
+  [
+    'attachment',
+    {
+      attachments: [{ contentType: 'image/png' }],
+      authorAci: OUR_ACI,
+      id: 999n,
+    },
+  ],
+] as const) {
+  void test(`retains a quote with an unsupported ${name}`, async () => {
+    const plaintext = Proto.Content.encode({
+      content: {
+        dataMessage: {
+          body: 'unsupported quote',
+          quote,
+          timestamp: 1234n,
+        },
+      },
+    } as never);
+    const harness = makeHarness({ plaintext });
+    await start(harness);
+    const { incoming, statuses } = request();
+    await harness.transport.emit(incoming);
+    assert.deepEqual(statuses, [200]);
+    assert.equal(harness.saved.length, 0);
+    assert.equal(harness.staged.size, 1);
+    assert.equal(
+      harness.receiver.unsupportedReason,
+      'Incoming quote is malformed or contains unsupported fields'
+    );
+    await harness.receiver.stop();
+  });
+}
+
+void test('persists a quoted reply with formatting while omitting it', async () => {
+  const plaintext = Proto.Content.encode({
+    content: {
+      dataMessage: {
+        body: 'formatted reply',
+        quote: {
+          authorAci: OUR_ACI,
+          bodyRanges: [
+            {
+              associatedValue: { style: Proto.BodyRange.Style.BOLD },
+              length: 8,
+              start: 0,
+            },
+          ],
+          id: 999n,
+          text: 'formatted original',
+        },
+        timestamp: 1234n,
+      },
+    },
+  } as never);
+  const harness = makeHarness({ plaintext });
+  await start(harness);
+  const { incoming, statuses } = request();
+  await harness.transport.emit(incoming);
+  assert.deepEqual(statuses, [200]);
+  assert.equal(harness.staged.size, 0);
+  assert.deepEqual(harness.saved[0]?.quote, {
+    attachments: [],
+    authorAci: OUR_ACI,
+    id: 999,
+    isViewOnce: false,
+    referencedMessageNotFound: false,
+    text: 'formatted original',
+  });
+  await harness.receiver.stop();
+});
+
 void test('retries persistence from staged plaintext without decrypting twice', async () => {
   const harness = makeHarness({ saveFailureCount: 1 });
   await start(harness);
@@ -260,7 +437,12 @@ void test('acknowledges unsupported empty control envelopes without staging null
     ),
   });
   await start(harness);
-  const { incoming, statuses } = request(makeEnvelope(new Uint8Array()));
+  const { incoming, statuses } = request(
+    makeEnvelope(
+      new Uint8Array(),
+      Proto.Envelope.Type.SERVER_DELIVERY_RECEIPT
+    )
+  );
   await harness.transport.emit(incoming);
   assert.deepEqual(statuses, [200]);
   assert.equal(harness.saved.length, 0);

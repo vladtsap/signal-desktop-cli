@@ -27,11 +27,26 @@ RUN corepack enable \
     && corepack prepare pnpm@11.5.2 --activate
 
 WORKDIR /src
+
+# Keep dependency resolution independent from the application source. Pending
+# lifecycle scripts are rebuilt below after all source files are present.
+COPY .pnpmfile.mjs package.json package.schema.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages ./packages
+COPY sticker-creator ./sticker-creator
+COPY patches ./patches
+
+RUN --mount=type=cache,id=pnpm-store-amd64,target=/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile --ignore-scripts --store-dir /pnpm/store
+
 COPY . .
 
 RUN date +%s > "${SIGNAL_BUILD_EPOCH_FILE}"
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store-amd64,target=/pnpm/store,sharing=locked \
+    --mount=type=cache,id=node-gyp-amd64,target=/root/.cache/node-gyp,sharing=locked \
+    --mount=type=cache,id=electron-gyp-amd64,target=/root/.electron-gyp,sharing=locked \
+    --mount=type=cache,id=electron-download-amd64,target=/root/.cache/electron,sharing=locked \
+    JOBS=MAX pnpm rebuild --pending --recursive --store-dir /pnpm/store
 
 FROM source-build AS ui-build
 
@@ -126,9 +141,12 @@ ENTRYPOINT ["/usr/local/bin/signal-state"]
 
 FROM source-build AS daemon-runtime
 
-RUN pnpm run build:protobuf \
-    && pnpm run build:emoji-data \
-    && pnpm run get-expire-time \
+RUN pnpm run build:protobuf & protobuf_pid=$!; \
+    pnpm run build:emoji-data & emoji_pid=$!; \
+    pnpm run get-expire-time & expire_time_pid=$!; \
+    wait "$protobuf_pid" \
+    && wait "$emoji_pid" \
+    && wait "$expire_time_pid" \
     && pnpm run build:rolldown:prod
 
 RUN node scripts/copy-daemon-runtime.mjs bundles /daemon-runtime/bundles \

@@ -15,18 +15,24 @@ import {
   processPreKeyBundle,
   signalEncrypt,
 } from '@signalapp/libsignal-client';
+import { randomBytes, randomInt } from 'node:crypto';
 import { v4 as uuidV4 } from 'uuid';
 import { z } from 'zod';
 
+import { Emoji } from '../axo/emoji.std.ts';
 import { Sessions, IdentityKeys } from '../LibSignalStores.node.ts';
 import type { MessageAttributesType } from '../model-types.d.ts';
+import { SeenStatus } from '../MessageSeenStatus.std.ts';
+import { ReadStatus } from '../messages/MessageReadStatus.std.ts';
 import { SendStatus } from '../messages/MessageSendState.std.ts';
 import { SignalService as Proto } from '../protobuf/index.std.ts';
 import { Address } from '../types/Address.std.ts';
 import { QualifiedAddress } from '../types/QualifiedAddress.std.ts';
 import type { AciString } from '../types/ServiceId.std.ts';
 import { isAciString } from '../util/isAciString.std.ts';
+import { toAciObject } from '../util/ServiceId.node.ts';
 import type { HeadlessProtocolStores } from './protocol_stores.node.ts';
+import { parseMarkdownBody } from './markdown.std.ts';
 import type {
   HeadlessOutboundMessage,
   HeadlessSendTransport,
@@ -93,11 +99,27 @@ export type SendTextRequest = Readonly<{
   body: string;
   destination: string;
   groupId?: string;
+  parseMode?: 'Markdown';
+  quoteMessageId?: string;
   story?: boolean;
 }>;
 
 export type SendTextResult = Readonly<{
   destination: AciString;
+  messageId: string;
+  status: 'sent';
+  timestamp: number;
+}>;
+
+export type SendReactionRequest = Readonly<{
+  destination: string;
+  emoji: string;
+  messageId: string;
+}>;
+
+export type SendReactionResult = Readonly<{
+  destination: AciString;
+  emoji: Emoji.Variant;
   messageId: string;
   status: 'sent';
   timestamp: number;
@@ -143,6 +165,10 @@ function padMessage(message: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
   return result;
 }
 
+function syncMessagePadding(): Uint8Array<ArrayBuffer> {
+  return Uint8Array.from(randomBytes(randomInt(1, 513)));
+}
+
 function createLibsignalSendCrypto(
   stores: HeadlessProtocolStores
 ): HeadlessSendCrypto {
@@ -161,8 +187,12 @@ function createLibsignalSendCrypto(
   return {
     async establishSessions({ destination, keys }) {
       const identityKey = PublicKey.deserialize(fromBase64(keys.identityKey));
+      const remoteDevices =
+        destination === ourAci
+          ? keys.devices.filter(device => device.deviceId !== ourDeviceId)
+          : keys.devices;
       await Promise.all(
-        keys.devices.map(async device => {
+        remoteDevices.map(async device => {
           const remoteAddress = ProtocolAddress.new(
             destination,
             device.deviceId
@@ -206,10 +236,14 @@ function createLibsignalSendCrypto(
       );
     },
     async encrypt({ destination, plaintext }) {
-      const deviceIds = await stores.signalProtocolStore.getDeviceIds({
+      const storedDeviceIds = await stores.signalProtocolStore.getDeviceIds({
         ourServiceId: ourAci,
         serviceId: destination,
       });
+      const deviceIds =
+        destination === ourAci
+          ? storedDeviceIds.filter(deviceId => deviceId !== ourDeviceId)
+          : storedDeviceIds;
       return Promise.all(
         deviceIds.map(async deviceId => {
           const remoteAddress = ProtocolAddress.new(destination, deviceId);
@@ -243,10 +277,14 @@ function createLibsignalSendCrypto(
       );
     },
     async hasSessions(destination) {
-      const deviceIds = await stores.signalProtocolStore.getDeviceIds({
+      const storedDeviceIds = await stores.signalProtocolStore.getDeviceIds({
         ourServiceId: ourAci,
         serviceId: destination,
       });
+      const deviceIds =
+        destination === ourAci
+          ? storedDeviceIds.filter(deviceId => deviceId !== ourDeviceId)
+          : storedDeviceIds;
       if (deviceIds.length === 0) {
         return false;
       }
@@ -374,6 +412,88 @@ export class HeadlessSendService {
     signal?: AbortSignal
   ): Promise<SendTextResult> {
     this.#validate(request);
+    const messageId = uuidV4();
+    return this.#enqueue(request.destination, () =>
+      this.#send(request, messageId, signal)
+    );
+  }
+
+  public sendReaction(
+    request: SendReactionRequest,
+    signal?: AbortSignal
+  ): Promise<SendReactionResult> {
+    if (!request.messageId) {
+      throw new HeadlessSendError(
+        'messageId is required',
+        'invalid-request',
+        false
+      );
+    }
+    if (!Emoji.isEmoji(request.emoji)) {
+      throw new HeadlessSendError(
+        'emoji must be one supported emoji',
+        'invalid-request',
+        false
+      );
+    }
+    return this.#enqueue(request.destination, () =>
+      this.#sendReaction(
+        { ...request, emoji: request.emoji as Emoji.Variant },
+        signal
+      )
+    );
+  }
+
+  public async markReadAfterWebhook(
+    messageId: string,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const message = await this.#stores.messageCache.getOrLoadById(messageId);
+    if (!message || message.get('type') !== 'incoming') return;
+
+    message.set({
+      readStatus: ReadStatus.Read,
+      seenStatus: SeenStatus.Seen,
+    });
+    await this.#stores.messageCache.saveMessage(message);
+
+    const senderAci = message.get('sourceServiceId');
+    const timestamp = message.get('sent_at');
+    if (
+      !senderAci ||
+      !isAciString(senderAci) ||
+      !Number.isSafeInteger(timestamp)
+    )
+      return;
+
+    const sends = new Array<Promise<void>>();
+    if (
+      this.#stores.itemStorage.get('read-receipt-setting') &&
+      this.#stores.conversationController.isConversationAccepted(
+        message.get('conversationId')
+      )
+    ) {
+      sends.push(
+        this.#enqueue(senderAci, () =>
+          this.#sendReadReceipt(senderAci, timestamp, signal)
+        )
+      );
+    }
+    if (this.#stores.conversationController.doWeHaveOtherDevices()) {
+      const ourAci = this.#stores.itemStorage.user.getCheckedAci();
+      sends.push(
+        this.#enqueue(ourAci, () =>
+          this.#sendReadSync(ourAci, senderAci, timestamp, signal)
+        )
+      );
+    }
+    await Promise.all(sends);
+  }
+
+  #enqueue<Result>(
+    destination: string,
+    send: () => Promise<Result>
+  ): Promise<Result> {
     const maxPending = this.#options.maxPending ?? 100;
     if (this.#pending >= maxPending) {
       throw new HeadlessSendError(
@@ -383,33 +503,20 @@ export class HeadlessSendService {
       );
     }
     this.#pending += 1;
-    const messageId = uuidV4();
     const previousDestination =
-      this.#destinationQueues.get(request.destination) ?? Promise.resolve();
-    const operation = this.#runQueued(
-      previousDestination,
-      request,
-      messageId,
-      signal
-    );
-    this.#destinationQueues.set(request.destination, operation);
-    return this.#completeQueued(operation, request.destination);
+      this.#destinationQueues.get(destination) ?? Promise.resolve();
+    const operation = (async () => {
+      await Promise.allSettled([previousDestination]);
+      return send();
+    })();
+    this.#destinationQueues.set(destination, operation);
+    return this.#completeQueued(operation, destination);
   }
 
-  async #runQueued(
-    previousDestination: Promise<unknown>,
-    request: SendTextRequest,
-    messageId: string,
-    signal?: AbortSignal
-  ): Promise<SendTextResult> {
-    await Promise.allSettled([previousDestination]);
-    return this.#send(request, messageId, signal);
-  }
-
-  async #completeQueued(
-    operation: Promise<SendTextResult>,
+  async #completeQueued<Result>(
+    operation: Promise<Result>,
     destination: string
-  ): Promise<SendTextResult> {
+  ): Promise<Result> {
     try {
       return await operation;
     } finally {
@@ -417,6 +524,107 @@ export class HeadlessSendService {
       if (this.#destinationQueues.get(destination) === operation) {
         this.#destinationQueues.delete(destination);
       }
+    }
+  }
+
+  async #sendReaction(
+    request: SendReactionRequest & { emoji: Emoji.Variant },
+    signal?: AbortSignal
+  ): Promise<SendReactionResult> {
+    if (!this.#transport.connected) {
+      throw new HeadlessSendError(
+        'Signal transport is not connected',
+        'not-connected',
+        true
+      );
+    }
+    const destination = this.#resolveDestination(request.destination);
+    const conversation = this.#stores.conversationController.lookupOrCreate({
+      reason: 'HeadlessSendService.reaction',
+      serviceId: destination,
+    });
+    if (!conversation) {
+      throw new HeadlessSendError(
+        'Could not create recipient',
+        'send-failed',
+        false
+      );
+    }
+    await conversation.initialPromise;
+    const target = await this.#stores.messageCache.getOrLoadById(
+      request.messageId
+    );
+    if (!target || target.get('conversationId') !== conversation.id) {
+      throw new HeadlessSendError(
+        'Reaction target was not found in the destination conversation',
+        'invalid-request',
+        false
+      );
+    }
+    const targetAuthorAci =
+      target.get('type') === 'outgoing'
+        ? this.#stores.itemStorage.user.getCheckedAci()
+        : target.get('sourceServiceId');
+    if (!targetAuthorAci || !isAciString(targetAuthorAci)) {
+      throw new HeadlessSendError(
+        'Reaction target has no Signal author',
+        'invalid-request',
+        false
+      );
+    }
+    const timestamp = (this.#options.now ?? Date.now)();
+    try {
+      if (!(await this.#crypto.hasSessions(destination))) {
+        const keys = await this.#fetchKeys(destination, signal);
+        await this.#crypto.establishSessions({ destination, keys });
+      }
+      const content = Proto.Content.encode({
+        content: {
+          dataMessage: {
+            reaction: {
+              emoji: request.emoji,
+              remove: false,
+              targetAuthorAci,
+              targetSentTimestamp: BigInt(target.get('sent_at')),
+            },
+            timestamp: BigInt(timestamp),
+          } as unknown as Proto.DataMessage.Params,
+        },
+        pniSignatureMessage: null,
+        senderKeyDistributionMessage: null,
+      });
+      await this.#transmitWithDeviceRepair(
+        destination,
+        padMessage(content),
+        timestamp,
+        signal
+      );
+      const ourConversationId =
+        this.#stores.conversationController.getOurConversationIdOrThrow();
+      target.set({
+        reactions: [
+          ...(target.get('reactions') ?? []).filter(
+            reaction => reaction.fromId !== ourConversationId
+          ),
+          {
+            emoji: request.emoji,
+            fromId: ourConversationId,
+            isSentByConversationId: { [conversation.id]: true },
+            targetTimestamp: target.get('sent_at'),
+            timestamp,
+          },
+        ],
+      });
+      await this.#stores.messageCache.saveMessage(target);
+      return {
+        destination,
+        emoji: request.emoji,
+        messageId: request.messageId,
+        status: 'sent',
+        timestamp,
+      };
+    } catch (error) {
+      throw classifySendError(error);
     }
   }
 
@@ -484,7 +692,8 @@ export class HeadlessSendService {
     destination: AciString,
     plaintext: Uint8Array<ArrayBuffer>,
     timestamp: number,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    urgent = true
   ): Promise<void> {
     const messages = await this.#crypto.encrypt({ destination, plaintext });
     if (messages.length === 0)
@@ -494,7 +703,7 @@ export class HeadlessSendService {
       messages,
       signal,
       timestamp,
-      urgent: true,
+      urgent,
     });
   }
 
@@ -502,10 +711,11 @@ export class HeadlessSendService {
     destination: AciString,
     plaintext: Uint8Array<ArrayBuffer>,
     timestamp: number,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    urgent = true
   ): Promise<void> {
     try {
-      await this.#transmit(destination, plaintext, timestamp, signal);
+      await this.#transmit(destination, plaintext, timestamp, signal, urgent);
       return;
     } catch (error) {
       if (!LibSignalErrorBase.is(error, ErrorCode.MismatchedDevices)) {
@@ -522,7 +732,92 @@ export class HeadlessSendService {
         keys,
         staleDevices: entry.staleDevices,
       });
-      await this.#transmit(destination, plaintext, timestamp, signal);
+      await this.#transmit(destination, plaintext, timestamp, signal, urgent);
+    }
+  }
+
+  async #sendReadReceipt(
+    senderAci: AciString,
+    readTimestamp: number,
+    signal?: AbortSignal
+  ): Promise<void> {
+    await this.#sendProtocolMessage(
+      senderAci,
+      {
+        content: {
+          receiptMessage: {
+            timestamp: [BigInt(readTimestamp)],
+            type: Proto.ReceiptMessage.Type.READ,
+          },
+        },
+        pniSignatureMessage: null,
+        senderKeyDistributionMessage: null,
+      },
+      signal,
+      false
+    );
+  }
+
+  async #sendReadSync(
+    ourAci: AciString,
+    senderAci: AciString,
+    readTimestamp: number,
+    signal?: AbortSignal
+  ): Promise<void> {
+    await this.#sendProtocolMessage(
+      ourAci,
+      {
+        content: {
+          syncMessage: {
+            content: null,
+            padding: syncMessagePadding(),
+            read: [
+              {
+                senderAci: null,
+                senderAciBinary: toAciObject(senderAci).getRawUuidBytes(),
+                timestamp: BigInt(readTimestamp),
+              },
+            ],
+            stickerPackOperation: null,
+            viewed: null,
+          },
+        },
+        pniSignatureMessage: null,
+        senderKeyDistributionMessage: null,
+      },
+      signal,
+      true
+    );
+  }
+
+  async #sendProtocolMessage(
+    destination: AciString,
+    content: Proto.Content.Params,
+    signal: AbortSignal | undefined,
+    urgent: boolean
+  ): Promise<void> {
+    if (!this.#transport.connected) {
+      throw new HeadlessSendError(
+        'Signal transport is not connected',
+        'not-connected',
+        true
+      );
+    }
+    try {
+      if (!(await this.#crypto.hasSessions(destination))) {
+        const keys = await this.#fetchKeys(destination, signal);
+        await this.#crypto.establishSessions({ destination, keys });
+      }
+      const timestamp = (this.#options.now ?? Date.now)();
+      await this.#transmitWithDeviceRepair(
+        destination,
+        padMessage(Proto.Content.encode(content)),
+        timestamp,
+        signal,
+        urgent
+      );
+    } catch (error) {
+      throw classifySendError(error);
     }
   }
 
@@ -552,12 +847,65 @@ export class HeadlessSendService {
     await conversation.initialPromise;
 
     const timestamp = (this.#options.now ?? Date.now)();
+    const formatted =
+      request.parseMode === 'Markdown'
+        ? parseMarkdownBody(request.body)
+        : { body: request.body, bodyRanges: [] };
+    let quote: MessageAttributesType['quote'];
+    if (request.quoteMessageId) {
+      const quotedMessage = await this.#stores.messageCache.getOrLoadById(
+        request.quoteMessageId
+      );
+      if (!quotedMessage) {
+        throw new HeadlessSendError(
+          'Quoted message was not found',
+          'invalid-request',
+          false
+        );
+      }
+      if (quotedMessage.get('conversationId') !== conversation.id) {
+        throw new HeadlessSendError(
+          'Quoted message belongs to a different conversation',
+          'invalid-request',
+          false
+        );
+      }
+      const authorAci =
+        quotedMessage.get('type') === 'outgoing'
+          ? this.#stores.itemStorage.user.getCheckedAci()
+          : quotedMessage.get('sourceServiceId');
+      if (!authorAci || !isAciString(authorAci)) {
+        throw new HeadlessSendError(
+          'Quoted message has no Signal author',
+          'invalid-request',
+          false
+        );
+      }
+      quote = {
+        attachments: [],
+        authorAci,
+        id: quotedMessage.get('sent_at'),
+        isViewOnce: false,
+        messageId: quotedMessage.id,
+        referencedMessageNotFound: false,
+        text: quotedMessage.get('body') ?? '',
+      };
+    }
     const attributes: MessageAttributesType = {
-      body: request.body,
+      body: formatted.body,
+      ...(formatted.bodyRanges.length > 0
+        ? { bodyRanges: formatted.bodyRanges }
+        : {}),
       conversationId: conversation.id,
       id: messageId,
       received_at: timestamp,
       received_at_ms: timestamp,
+      ...(formatted.bodyRanges.length > 0
+        ? {
+            requiredProtocolVersion: Proto.DataMessage.ProtocolVersion.MENTIONS,
+          }
+        : {}),
+      ...(quote ? { quote } : {}),
       sendStateByConversationId: {
         [conversation.id]: {
           status: SendStatus.Pending,
@@ -585,9 +933,30 @@ export class HeadlessSendService {
         await this.#crypto.establishSessions({ destination, keys });
       }
       const dataMessage = {
-        body: request.body,
+        body: formatted.body,
+        bodyRanges: formatted.bodyRanges.map(range => ({
+          associatedValue: { style: range.style },
+          length: range.length,
+          start: range.start,
+        })),
+        requiredProtocolVersion:
+          formatted.bodyRanges.length > 0
+            ? Proto.DataMessage.ProtocolVersion.MENTIONS
+            : 0,
+        ...(quote
+          ? {
+              quote: {
+                attachments: [],
+                authorAci: quote.authorAci,
+                bodyRanges: [],
+                id: BigInt(quote.id ?? 0),
+                text: quote.text ?? '',
+                type: Proto.DataMessage.Quote.Type.NORMAL,
+              },
+            }
+          : {}),
         timestamp: BigInt(timestamp),
-      } as Proto.DataMessage.Params;
+      } as unknown as Proto.DataMessage.Params;
       const content = Proto.Content.encode({
         content: { dataMessage },
         pniSignatureMessage: null,

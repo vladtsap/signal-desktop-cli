@@ -14,6 +14,7 @@ services:
       SIGNAL_DAEMON_LOG_LEVEL: ${SIGNAL_DAEMON_LOG_LEVEL:-info}
       SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS: ${SIGNAL_DAEMON_SHUTDOWN_TIMEOUT_MS:-30000}
       SIGNAL_PROFILE_LOCK_PATH: /var/lib/signal-state/.signal-desktop-cli.lock
+      SENTRY_DSN: ${SENTRY_DSN:-}
       SIGNAL_STORAGE_PATH: /var/lib/signal-state/profile
       SIGNAL_WEBHOOK_MAX_PENDING: ${SIGNAL_WEBHOOK_MAX_PENDING:-1000}
       SIGNAL_WEBHOOK_SECRET: ${SIGNAL_WEBHOOK_SECRET:-}
@@ -24,7 +25,7 @@ services:
       - '127.0.0.1:${SIGNAL_API_PORT:-8080}:${SIGNAL_API_PORT:-8080}'
     cap_drop:
       - ALL
-    mem_limit: ${SIGNAL_MEMORY_LIMIT:-512m}
+    mem_limit: ${SIGNAL_MEMORY_LIMIT:-768m}
     pids_limit: ${SIGNAL_PIDS_LIMIT:-128}
     read_only: true
     restart: unless-stopped

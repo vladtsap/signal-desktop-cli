@@ -8,10 +8,17 @@ import localProductionConfig from '../../config/local-production.json' with { ty
 import { loadDaemonConfig } from './config.node.ts';
 import { HeadlessControlService } from './api.node.ts';
 import { waitForTermination } from './lifecycle.node.ts';
+import { logDaemonError, logDaemonEvent } from './logging.std.ts';
+import {
+  captureDaemonError,
+  closeDaemonMonitoring,
+  initializeDaemonMonitoring,
+} from './monitoring.node.ts';
 import { DaemonRuntime } from './runtime.node.ts';
 
-async function main(): Promise<void> {
-  const config = loadDaemonConfig();
+async function main(
+  config: ReturnType<typeof loadDaemonConfig>
+): Promise<void> {
   const transport = (
     await import('./transport.node.ts')
   ).createHeadlessTransportRuntime(packageJson.version);
@@ -59,12 +66,17 @@ async function main(): Promise<void> {
   services.runtime = runtime;
 
   await runtime.start();
-  // oxlint-disable-next-line no-console
-  console.info('signal-daemon: ready', runtime.getStatus());
+  const status = runtime.getStatus();
+  logDaemonEvent('info', 'daemon.ready', {
+    connected: status.connected,
+    databaseReady: status.databaseReady,
+    linked: status.linked,
+    phase: status.phase,
+    ready: status.ready,
+  });
   await waitForTermination({
     onSignal(signal) {
-      // oxlint-disable-next-line no-console
-      console.info(`signal-daemon: received ${signal}; checkpointing database`);
+      logDaemonEvent('info', 'daemon.shutdown.requested', { signal });
     },
     shutdownTimeoutMs: config.shutdownTimeoutMs,
     stop: () => runtime.stop(),
@@ -73,14 +85,18 @@ async function main(): Promise<void> {
 
 async function run(): Promise<void> {
   try {
-    await main();
+    const config = loadDaemonConfig();
+    initializeDaemonMonitoring({
+      ...(config.sentryDsn ? { dsn: config.sentryDsn } : {}),
+      release: `signal-desktop-cli@${packageJson.version}`,
+    });
+    await main(config);
   } catch (error) {
-    // oxlint-disable-next-line no-console
-    console.error(
-      'signal-daemon: startup failed:',
-      error instanceof Error ? error.message : error
-    );
+    captureDaemonError(error, 'daemon.run');
+    logDaemonError('daemon.run.failed', error);
     process.exitCode = 1;
+  } finally {
+    await closeDaemonMonitoring();
   }
 }
 
