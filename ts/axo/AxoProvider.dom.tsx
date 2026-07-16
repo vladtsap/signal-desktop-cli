@@ -8,7 +8,7 @@ import { AxoIntl } from './_internal/AxoIntl.dom.tsx';
 
 export type AxoProviderProps = Readonly<{
   /** Text direction for the application. */
-  dir: 'ltr' | 'rtl';
+  dir: AxoIntl.Direction;
   /** Localized strings used by Axo components. */
   messages: AxoIntl.Messages;
   children: ReactNode;

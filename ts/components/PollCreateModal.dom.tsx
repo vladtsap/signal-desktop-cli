@@ -384,7 +384,7 @@ export function PollCreateModal({
               </div>
             </div>
 
-            <div className={tw('mt-8 h-[0.5px] bg-border-primary')} />
+            <hr className={tw('mt-8 border-t-[0.5px] border-primary')} />
 
             <label className={tw('mt-6 flex items-center gap-3')}>
               <span className={tw('grow type-body-large')}>
@@ -401,7 +401,7 @@ export function PollCreateModal({
                 role="status"
                 className={tw('mt-4 text-center type-body-medium')}
               >
-                <span className={tw('text-color-label-destructive')}>
+                <span className={tw('text-destructive')}>
                   <AxoSymbol.InlineGlyph symbol="error" label={null} />
                 </span>{' '}
                 {validationErrorMessages[0]}
@@ -411,11 +411,11 @@ export function PollCreateModal({
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={onClose}>
+            <AxoDialog.Action variant="strong-secondary" onClick={onClose}>
               {i18n('icu:cancel')}
             </AxoDialog.Action>
             <AxoDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={handleSend}
               disabled={!allowSend}
             >

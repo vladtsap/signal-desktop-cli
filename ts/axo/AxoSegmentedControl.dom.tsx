@@ -147,7 +147,7 @@ export namespace ExperimentalAxoSegmentedControl {
      */
     value: string;
     /**
-     * Should be an `ItemText`, optionally followed by an `ExperimentalItemBadge`.
+     * Should be an `ItemText`, optionally followed by an `ItemBadge`.
      */
     children: ReactNode;
   }>;
@@ -156,9 +156,9 @@ export namespace ExperimentalAxoSegmentedControl {
    * An item in the group.
    */
   export const Item: FC<ItemProps> = memo(props => {
-    const { value, children, ...rest } = props;
+    const { ref, value, children, ...rest } = props;
     return (
-      <ToggleGroup.Item asChild ref={props.ref} value={value} {...rest}>
+      <ToggleGroup.Item asChild ref={ref} value={value} {...rest}>
         <ExperimentalAxoBaseSegmentedControl.Item value={value}>
           {children}
         </ExperimentalAxoBaseSegmentedControl.Item>
@@ -203,19 +203,15 @@ export namespace ExperimentalAxoSegmentedControl {
    * --------------------------------------------------------------------------
    */
 
-  export type ExperimentalItemBadgeProps =
-    ExperimentalAxoBaseSegmentedControl.ExperimentalItemBadgeProps;
+  export type ItemBadgeProps =
+    ExperimentalAxoBaseSegmentedControl.ItemBadgeProps;
 
   /**
    * A badge shown on an item, typically for unread counts.
    */
-  export const ExperimentalItemBadge: FC<ExperimentalItemBadgeProps> = memo(
-    props => {
-      return (
-        <ExperimentalAxoBaseSegmentedControl.ExperimentalItemBadge {...props} />
-      );
-    }
-  );
+  export const ItemBadge: FC<ItemBadgeProps> = memo(props => {
+    return <ExperimentalAxoBaseSegmentedControl.ItemBadge {...props} />;
+  });
 
-  ExperimentalItemBadge.displayName = 'AxoSegmentedControl.ItemBadge';
+  ItemBadge.displayName = 'AxoSegmentedControl.ItemBadge';
 }

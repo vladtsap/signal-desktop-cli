@@ -351,7 +351,7 @@ export function CallsTab({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={onClearCallHistory}
         >
           {i18n('icu:CallsTab__ConfirmClearCallHistory__ConfirmButton')}

@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "Elimina"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "Aggiungi a un gruppo"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "Segna tutto come già letto"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "Non fissare la chat"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "Puoi fissare un massimo di 4 chat"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, one {Puoi fissare solo fino a {maxPinnedConversations,number} chat} other {Puoi fissare solo fino a {maxPinnedConversations,number} chat}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "Il pacchetto di adesivi potrebbe non essere installato"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "Disponibile"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "Installato"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "Nessun pacchetto di adesivi installato"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "Nessun pacchetto di adesivi, aggiungine di nuovi per inviarli nelle tue chat."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "Nessun adesivo degli artisti di Signal disponibile"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "Adesivi che hai ricevuto"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "Condivisi con te"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "Quando ti viene inviato un adesivo in chat, il relativo pacchetto lo troverai qui."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "Gli adesivi dei messaggi in arrivo appariranno qui"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "Installa"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "Rimuovi"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "Pacchetto di adesivi"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "Aggiungi un adesivo"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "Annulla"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "Inserisci chiave"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "Salva la tua chiave di ripristino"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "La tua chiave di ripristino"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "Questa chiave ti servirà per recuperare il tuo account e i tuoi dati. Salvala in un posto sicuro. Se la perdi, non potremo aiutarti a ripristinare il tuo account. <learnMoreLink>Scopri di più.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "Questa chiave ti servirà per recuperare il tuo account e i tuoi dati. Salvala in un posto sicuro e non condividerla mai con altre persone. Signal non ti invierà mai un messaggio per chiederti la chiave di ripristino. <learnMoreLink>Scopri di più.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "Non condividere la chiave di ripristino"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>Signal non ti invierà mai un messaggio</strong> per chiederti la chiave di ripristino. Non rispondere mai a una chat che cerca di impersonare il team di Signal. Salva la tua chiave di ripristino in un posto sicuro e non condividerla mai con altre persone. <learnMoreLink>Scopri di più.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "Capito"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "Non condividere la chiave"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "Non condividere la tua chiave di ripristino con altre persone. Se ne entrano in possesso, potranno prendere controllo del tuo account. <strong>Signal non ti invierà mai un messaggio</strong> per chiederti la chiave di ripristino. Non rispondere mai a una chat che cerca di impersonare il team di Signal."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "Non condividere la tua chiave di ripristino con altre persone. Se ne entrano in possesso, potranno prendere controllo del tuo account. <strong>Signal non ti invierà mai un messaggio</strong> per chiederti la chiave di ripristino. Non rispondere mai a una chat che cerca di impersonare il team di Signal. <learnMoreLink>Scopri di più.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "Non condividere"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "Copia la chiave"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "Conferma la tua chiave di ripristino"
@@ -6749,403 +6743,403 @@
     "messageformat": "Non è stato possibile aggiornare Signal Desktop, anche se è presente una nuova versione. Vai su {downloadUrl} e installa manualmente la nuova versione, poi contatta la nostra assistenza oppure inviaci una segnalazione per informarci dell'accaduto."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "Logo Signal"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "Indietro"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "Numero di telefono"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "Inserisci il tuo numero di telefono per verificare l'account."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "Potrebbero essere applicate le tariffe standard del tuo operatore telefonico."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "Riprova tra {duration}"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "Numero di telefono"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "Continua"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "Il numero di telefono inserito sopra è corretto?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "Modifica numero"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "Sì"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "Verifichiamo che tu non sia un bot"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "Per aiutare a prevenire lo spam su Signal, completa il processo di verifica. Dopodiché potrai proseguire con la tua registrazione."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "Riprova la verifica"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "Verifica nel browser"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "Verifica tra {duration}"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "Serve un'ulteriore verifica"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "Ti chiediamo di completare un altro CAPTCHA per procedere con la registrazione."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "Riprova la verifica"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "Riprova più tardi"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "Impossibile completare la verifica in questo momento."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "Riprova tra {duration}"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "Errore nella verifica"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "Prova di nuovo per proseguire con la registrazione."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "Riprova"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "Codice di verifica"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "Inserisci il codice che abbiamo inviato a {phoneNumber}"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "Continua"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "Rinvia il codice"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "Rinvia codice tra {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "Chiamami"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "Chiamami tra {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "Numero errato?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "Problemi con la registrazione?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "Codice errato"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "Il codice che hai inserito è sbagliato. Controlla il codice di 6 cifre inserito e riprova."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "Il codice non è valido"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "Il codice che hai inserito non è valido. Prova a rinviare il codice e ritenta."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "Rinvia il codice"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "Modifica numero"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "Impossibile inviare SMS"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "Non è stato possibile inviare il codice di verifica via SMS. Prova a richiedere l'invio del codice tramite chiamata vocale."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "Chiamata vocale"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "Riprova più tardi"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "Hai provato a inserire il codice troppe volte. Prova di nuovo tra {duration}."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "Troppi tentativi"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "Hai provato a inserire il codice troppe volte. Prova a rinviare il codice e ritenta."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "Rinvia il codice"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "Modifica numero"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "Impossibile effettuare la chiamata"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "Non è stato possibile chiamare il numero di telefono che hai inserito. Assicurati che il numero sia corretto e riprova."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "Impossibile inviare il codice"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "Non è possibile inviare un codice di verifica al numero di telefono che hai inserito. Assicurati che il numero inserito sia valido o prova con un altro."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "Riprova più tardi"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "Si è verificato un errore e non è stato possibile inviare il codice di verifica. Prova di nuovo tra {duration}."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "Imposta il tuo profilo"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "I profili sono visibili alle persone a cui invii i messaggi, ai tuoi contatti e ai gruppi."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "Scopri di più"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "Aggiungi foto"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "Nome (obbligatorio)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "Cognome (facoltativo)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "Chi può trovarmi tramite numero di telefono"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "Modifica"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "Fatto"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "Continua"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "Il tuo avatar"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "Inserisci il tuo PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "Inserisci il PIN che hai creato per il tuo account. Questo PIN è diverso dal tuo codice di verifica SMS. <needHelp>Hai bisogno di aiuto?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "Inserisci il tuo PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN errato"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, one {PIN errato. {triesRemaining,number} tentativo rimanente.} other {PIN errato. {triesRemaining,number} tentativi rimanenti.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "Hai bisogno di aiuto?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "Il tuo PIN è un codice di almeno 4 cifre creato da te e può essere numerico o alfanumerico. Se non ricordi il tuo PIN, puoi crearne uno nuovo. Puoi registrarti e usare il tuo account ma perderai alcune impostazioni salvate, per esempio le informazioni del tuo profilo. <learnMore>Scopri di più</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "Il tuo PIN è un codice di almeno 4 cifre creato da te e può essere numerico o alfanumerico. Se non ricordi il PIN, dovrai attendere 7 giorni per registrare di nuovo il tuo account. <learnMore>Scopri di più</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "Salta e crea un nuovo PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "Contatta l'assistenza"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN errato"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {Hai ancora {triesRemaining,number} tentativo. Se esaurisci i tentativi, puoi creare un nuovo PIN. Puoi registrarti e usare il tuo account ma perderai alcune impostazioni salvate, per esempio le informazioni del tuo profilo. <learnMore>Scopri di più</learnMore>.} other {Hai ancora {triesRemaining,number} tentativi. Se esaurisci i tentativi, puoi creare un nuovo PIN. Puoi registrarti e usare il tuo account ma perderai alcune impostazioni salvate, per esempio le informazioni del tuo profilo. <learnMore>Scopri di più</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {Hai ancora {triesRemaining,number} tentativo. Se esaurisci i tentativi, il tuo account verrà bloccato per 7 giorni. Dopo 7 giorni di inattività, puoi registrarti nuovamente senza il tuo PIN. Tutti i contenuti verranno eliminati. <learnMore>Scopri di più</learnMore>.} other {Hai ancora {triesRemaining,number} tentativi. Se esaurisci i tentativi, il tuo account verrà bloccato per 7 giorni. Dopo 7 giorni di inattività, puoi registrarti nuovamente senza il tuo PIN. Tutti i contenuti verranno eliminati. <learnMore>Scopri di più</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN errato"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "Hai esaurito i tentativi del PIN, ma puoi comunque accedere al tuo account Signal creando un nuovo PIN. Al fine di tutelare la tua privacy e sicurezza, il tuo account verrà ripristinato senza alcuna informazione o impostazione del profilo salvata."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "Crea nuovo PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "Scopri di più sui PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "Salta inserimento PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "Saltare l'inserimento del PIN?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "Se non ricordi il tuo PIN, puoi crearne uno nuovo. Puoi registrarti e usare il tuo account ma perderai alcune impostazioni salvate, per esempio le informazioni del tuo profilo. Scopri di più."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "Salta e crea un nuovo PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "Crea il tuo PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "I PIN ti aiutano a ripristinare il tuo account e a mantenere le tue informazioni crittografate su Signal. <learnMore>Scopri di più</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "Crea il tuo PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "Il PIN deve essere composto da almeno 4 caratteri"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "Continua"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "Apri il menu"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "Scopri di più sui PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "Disabilita PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "Attenzione"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "Se disabiliti il PIN, perderai tutti i dati quando ti registrerai nuovamente su Signal, a meno che tu non li trasferisca da un altro dispositivo iOS. Non è possibile attivare il Blocco registrazione mentre il PIN è disabilitato."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "Disabilita PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "Cosa sono i PIN di Signal"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "I PIN aiutano a mantenere le tue informazioni su Signal crittografate, in modo che solo tu possa accedervi. Il profilo, le impostazioni e i contatti verranno ripristinati quando reinstallerai Signal."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "Scopri di più"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "Conferma il tuo PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "Reinserisci il PIN appena creato."
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "Inserisci il tuo PIN"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "Account bloccato"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "Il tuo account è stato bloccato per proteggere la tua privacy e la tua sicurezza. Dopo 7 giorni di inattività nel tuo account potrai registrare nuovamente questo numero di telefono senza bisogno del PIN. Tutti i contenuti verranno eliminati."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "Usa un numero di telefono diverso"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "Scopri di più sugli account bloccati"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "Aggiornamento necessario"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "Per proseguire con la registrazione, aggiorna l'app di Signal alla versione più recente."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "Aggiorna"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "Annulla"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "Controlla la tua connessione"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "Per proseguire, controlla la connessione del tuo computer e riprova."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "Impossibile completare la registrazione"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "Si è verificato un errore e non è stato possibile completare la registrazione. Se il problema persiste, contatta la nostra assistenza."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "Riprova"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "Contatta l'assistenza"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "Signal non può essere chiuso.",
@@ -8671,6 +8665,12 @@
     "messageformat": "Adesso puoi creare i sondaggi anche nelle chat individuali. Chiedi quello che vuoi: il prossimo film da vedere insieme, quando andare a bere una cosa fuori, un suggerimento sulle prossime vacanze… ma occhio a non spammare troppi sondaggi, mi raccomando!"
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "Gli admin dei gruppi possono chiudere una chat usando la nuova opzione \"Chiudi gruppo\" nelle Impostazioni del gruppo.Chiudere una chat di gruppo impedirà alle persone che ne fanno parte di inviare ulteriori messaggi o fare chiamate (e non sarà più possibile invitare altri utenti).Insomma, un'ottima opzione da usare per chiudere il gruppo di un progetto concluso o il gruppo del fantacalcio dell'anno scorso."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

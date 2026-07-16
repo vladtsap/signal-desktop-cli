@@ -41,7 +41,7 @@ export function MediaQualitySelector({
     <AxoDropdownMenu.Root>
       <AxoDropdownMenu.Trigger>
         <AxoIconButton.Root
-          variant="borderless-secondary"
+          variant="implied-secondary"
           size="md"
           symbol={isHighQuality ? 'hd' : 'hd-slash'}
           iconWeight={300}
@@ -62,13 +62,13 @@ export function MediaQualitySelector({
             symbol="hd-slash"
           >
             {i18n('icu:MediaQualitySelector--standard-quality-title')}
-            <div className={tw('type-body-small text-label-secondary')}>
+            <div className={tw('type-body-small text-secondary')}>
               {i18n('icu:MediaQualitySelector--standard-quality-description')}
             </div>
           </AxoDropdownMenu.RadioItem>
           <AxoDropdownMenu.RadioItem value={MediaQuality.High} symbol="hd">
             {i18n('icu:MediaQualitySelector--high-quality-title')}
-            <div className={tw('type-body-small text-label-secondary')}>
+            <div className={tw('type-body-small text-secondary')}>
               {i18n('icu:MediaQualitySelector--high-quality-description')}
             </div>
           </AxoDropdownMenu.RadioItem>

@@ -31,7 +31,7 @@ export function AccountLockedScreen({
       </div>
       <div className="nav">
         <AxoButton.Root
-          variant="secondary"
+          variant="strong-secondary"
           size="md"
           onClick={() => {
             openLinkInWebBrowser(CONTACT_SUPPORT_URL);
@@ -40,7 +40,7 @@ export function AccountLockedScreen({
           {i18n('icu:StandaloneRegistration--AccountLocked--help-button')}
         </AxoButton.Root>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           onClick={() =>
             startRegistration({

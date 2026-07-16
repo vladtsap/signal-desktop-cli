@@ -68,8 +68,13 @@ export namespace AxoConfirmDialog {
    * --------------------------------------------------------------------------
    */
 
+  export type ActionVariant =
+    | 'strong-primary'
+    | 'strong-destructive'
+    | 'strong-secondary';
+
   export type ActionProps = Readonly<{
-    variant: 'primary' | 'destructive' | 'secondary';
+    variant: ActionVariant;
     pending?: boolean;
     disabled?: boolean;
     autoFocus?: boolean;

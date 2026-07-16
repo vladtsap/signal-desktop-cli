@@ -8,7 +8,7 @@ import { FileThumbnail } from './FileThumbnail.dom.tsx';
 import { APPLICATION_OCTET_STREAM } from '../types/MIME.std.ts';
 
 export default {
-  title: 'FileThumbnail',
+  title: 'components/FileThumbnail',
 } satisfies Meta;
 
 export function ThreeLetterExtension(): JSX.Element {

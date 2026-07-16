@@ -101,7 +101,7 @@ export function MessageRequestActionsConfirmation({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => blockConversation(conversationId)}
         >
           {i18n('icu:MessageRequests--block')}
@@ -142,7 +142,7 @@ export function MessageRequestActionsConfirmation({
         <AxoConfirmDialog.Cancel />
         {!isBlocked && (
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => blockAndReportSpam(conversationId)}
           >
             {i18n(
@@ -151,7 +151,7 @@ export function MessageRequestActionsConfirmation({
           </AxoConfirmDialog.Action>
         )}
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => reportSpam(conversationId)}
         >
           {i18n('icu:MessageRequests--ReportAndMaybeBlockModal-report')}
@@ -184,7 +184,7 @@ export function MessageRequestActionsConfirmation({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => acceptConversation(conversationId)}
         >
           {i18n('icu:MessageRequests--unblock')}
@@ -228,7 +228,7 @@ export function MessageRequestActionsConfirmation({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => deleteConversation(conversationId)}
         >
           {conversationType === 'direct'
@@ -260,7 +260,7 @@ export function MessageRequestActionsConfirmation({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() =>
             onChangeState(MessageRequestState.reportingAndMaybeBlocking)
           }
@@ -268,7 +268,7 @@ export function MessageRequestActionsConfirmation({
           {i18n('icu:MessageRequests--reportAndMaybeBlock')}
         </AxoConfirmDialog.Action>
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => onChangeState(MessageRequestState.blocking)}
         >
           {i18n('icu:MessageRequests--block')}
@@ -293,7 +293,7 @@ export function MessageRequestActionsConfirmation({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => acceptConversation(conversationId)}
         >
           {i18n('icu:MessageRequests--accept')}

@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "清走晒佢"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "加入去一個谷度"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "全部剔低話睇咗"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "取消釘選聊天"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "你最多只可以釘選 4 個聊天"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, other {你淨係可以將最多 {maxPinnedConversations,number} 個聊天置頂}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "安裝唔到貼圖包"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "可以使用"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "已安裝"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "冇安裝任何貼圖"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "冇貼圖包，加啲貼圖嚟傳俾朋友。"
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "冇任何 Signal 藝術家貼圖提供"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "你收到嘅貼圖"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "收過嘅貼圖"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "當你收到其他人送嘅貼圖，嗰啲貼圖包會顯示喺呢度。"
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "嚟自傳入訊息嘅貼圖會喺呢度顯示"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "安裝"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "移除"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "貼圖包"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "加個貼圖"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "取消"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "輸入金鑰"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "記低你嘅恢復金鑰"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "你嘅恢復金鑰"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "系統需要用呢個金鑰嚟恢復你嘅帳戶同資料。請將金鑰儲存喺安全嘅地方。如果你整唔見咗佢，就冇辦法恢復帳戶㗎喇。 <learnMoreLink>了解詳情。</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "系統需要用呢個金鑰嚟恢復你嘅帳戶同資料。請將佢儲存喺安全嘅地方，同埋千祈唔好講俾任何人知。Signal 從來都唔會傳訊息問你攞恢復金鑰。<learnMoreLink>了解詳情。</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "唔好分享恢復金鑰"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>Signal 從來都唔會傳訊息</strong>問你攞恢復金鑰。千祈唔好回覆任何假扮 Signal 嘅聊天訊息。請將恢復金鑰儲存喺安全嘅地方，同埋千祈唔好講俾任何人知。<learnMoreLink>了解詳情。</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "明白"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "唔好分享金鑰"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "千祈唔好同任何人分享你嘅恢復金鑰。咁樣會令佢哋盜用你嘅帳戶。<strong>Signal 從來都唔會傳訊息</strong>問你攞恢復金鑰。千祈唔好回覆任何假扮 Signal 嘅聊天訊息。"
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "千祈唔好同任何人分享你嘅恢復金鑰。咁樣佢哋就有機會盜用你嘅帳戶。<strong>Signal 從來都唔會傳訊息</strong>問你攞恢復金鑰。千祈唔好回覆任何假扮 Signal 嘅聊天訊息。<learnMoreLink>了解詳情。</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "唔好分享"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "貼上金鑰"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "確認你嘅恢復金鑰"
@@ -6749,403 +6743,403 @@
     "messageformat": "Signal 桌面版更新唔到，但係有新版本可以用。你可以去 {downloadUrl} 手動安裝新版本，然後聯絡支援團隊或者就呢個問題回報錯誤。"
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "Signal 標誌"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "返轉頭"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "電話冧把"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "輸入你嘅電話冧把嚟驗證你嘅帳戶。"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "電訊商可能會收取費用。"
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "請你喺 {duration} 後再試"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "電話冧把"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "繼續"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "上面嘅電話冧把係咪正確？"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "改過個冧把"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "係"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "驗證你係咪真有其人先至繼續"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "為咗防止喺 Signal 收到垃圾訊息，請你完成驗證。驗證完之後，你可以繼續註冊。"
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "重試驗證"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "喺瀏覽器度驗證"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "喺 {duration} 後驗證"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "需要進一步驗證"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "請再完成一個「我不是機械人」驗證去繼續註冊。"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "重試驗證"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "請你遲啲再試過啦"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "而家完成唔到驗證。"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "請你喺 {duration} 後再試啦"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "驗證錯誤"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "試下再驗證多次嚟繼續註冊。"
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "再試一次"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "驗證碼"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "請輸入剛才發送到 {phoneNumber} 嘅驗證碼"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "繼續"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "重新發送驗證碼"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "重新發送代碼倒數 {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "都係打電話畀我"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "都係打電話畀我（倒數 {duration}）"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "個電話冧把唔啱？"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "註冊嗰陣出現問題？"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "個驗證碼唔啱"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "你輸入嘅驗證碼唔啱。請檢查 6 位數嘅驗證碼，然後再試過啦。"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "驗證碼無效"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "你輸入嘅驗證碼無效。請重新傳送驗證碼，然後再試過啦。"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "重新發送驗證碼"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "改過個冧把"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "傳送唔到 SMS"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "我哋冇辦法透過短訊傳送驗證碼俾你。試下改用語音通話接收驗證碼啦。"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "語音通話"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "請你遲啲再試過啦"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "你已經嘗試輸入驗證碼試得太多次喇。請你喺 {duration} 後再試。"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "白撞太多次"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "你已經嘗試輸入驗證碼試得太多次喇。請重新傳送驗證碼，然後再試過啦。"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "重新發送驗證碼"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "改過個冧把"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "打唔通電話"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "我哋打唔通你輸入嘅電話冧把。確保個電話冧把係啱嘅，然後再試一次。"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "發送唔到驗證碼"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "傳送唔到驗證碼去你輸入嘅電話冧把。確保個電話冧把係啱嘅，然後再試一次。"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "請你遲啲再試過啦"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "發生錯誤，發送唔到驗證碼。請你喺 {duration} 後再試。"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "設定你嘅個人資料"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "同你通訊嘅人、聯絡人同群組可以睇到你嘅個人資料。"
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "了解多啲"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "加張相"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "名（必填）"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "姓（選填）"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "邊個可以用電話冧把搵到我"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "改一改"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "完成"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "繼續"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "你個頭像"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "輸入 PIN 碼"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "輸入你為帳戶建立嘅 PIN 碼。咪搞錯呀吓，呢度唔係講緊你個短訊驗證碼。<needHelp>需要幫手？</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "輸入 PIN 碼"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN 碼唔啱"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, other {PIN 碼唔啱。剩返 {triesRemaining,number} 次機會。}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "需要幫手？"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "PIN 碼係一個由你建立、至少 4 位數字嘅密碼，可以由純數字或者數字加英文字母組成。如果你唔記得咗你嘅 PIN 碼，你可以建立一個新嘅。你可以註冊同使用帳戶，但係就會冇咗之前儲存咗嘅設定，例如你嘅個人檔案資料。<learnMore>了解詳情</learnMore>。"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "PIN 碼係一個由你建立、至少 4 位數字嘅密碼，可以由純數字或者數字加英文字母組成。如果你唔記得咗自己個 PIN 碼，就要等 7 日先可以重新登記帳戶。<learnMore>了解詳情</learnMore>。"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "飛過並建立新嘅 PIN 碼"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "聯絡支援團隊"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN 碼唔啱"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, other {你仲有 {triesRemaining,number} 次機會。如果用晒所有機會，你可以重新建立 PIN 碼。你可以登記同使用你嘅帳戶，但係就會冇咗一啲之前儲存咗嘅設定，例如你嘅個人檔案資料。<learnMore>講多啲畀我聽</learnMore>。}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, other {你仲有 {triesRemaining,number} 次機會。用晒所有機會之後，你嘅帳戶就會被鎖定 7 日。閒置 7 日之後，你可以喺冇 PIN 碼嘅情況下重新註冊，但所有內容都會刪除晒。<learnMore>講多啲畀我聽</learnMore>。}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN 碼唔啱"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "撞返啱個 PIN 碼嘅機會畀你用晒喇，但係你仍然可以整過個新嘅 PIN 碼嚟繼續用返你個 Signal 帳戶嘅。為確保你嘅私隱同帳戶安全，你嘅帳戶會新簇簇咁還原，先前儲存落嘅任何個人資料資訊或者設定將會冇得留低。"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "建立新嘅 PIN 碼"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "PIN 碼知多啲"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "略過 PIN 碼"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "係咪要飛過呢一步唔打 PIN 碼？"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "如果你唔記得咗你嘅 PIN 碼，你可以建立一個新嘅。你可以註冊同使用帳戶，但係就會冇咗之前儲存咗嘅設定，例如你嘅個人檔案資料。了解詳情。"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "飛過並建立新嘅 PIN 碼"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "建立你嘅 PIN 碼"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "PIN 碼可以幫你還原帳戶，同埋確保 Signal 入面嘅資料安全加密。<learnMore>了解詳情</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "建立你嘅 PIN 碼"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "PIN 碼至少要有 4 個字元"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "繼續"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "打開選單"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "PIN 碼知多啲"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "停用 PIN 碼"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "警告"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "若然停用 PIN 碼，當你重新註冊 Signal 嘅時候，除非係你由另一部 iOS 機搬過嚟，否則所有資料都將會無哂。當 PIN 碼停用嘅時候，你亦都冇得開啟註冊鎖。"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "停用 PIN 碼"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "關於 Signal PIN 碼"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "PIN 碼可以確保你喺 Signal 儲存嘅資料受到加密保護，淨係得你先睇到。當你重新安裝返 Signal 之後，你嘅個人檔案、設定同埋聯絡人都可以還原。"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "了解多啲"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "確認你嘅 PIN 碼"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "請重新輸入你啱啱建立嘅 PIN 碼。"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "輸入 PIN 碼"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "帳戶已上鎖"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "為咗保障你嘅私隱同安全，我哋已經將你嘅帳戶鎖定。帳戶閒置 7 日之後，你就可以喺冇 PIN 碼嘅情況下重新註冊呢個電話冧把。所有資料都會被刪除。"
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "用其他手機號碼註冊"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "鎖定帳戶知多啲"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "需要更新"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "想繼續註冊嘅話，請更新至 Signal 嘅最新版本。"
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "更新"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "取消"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "請檢查一下你嘅網絡連線"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "要繼續嘅話，請檢查電腦嘅互聯網連線，然後再試多次啦。"
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "確定"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "完成唔到註冊"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "發生錯誤，完成唔到註冊。如果問題持續，請聯絡支援團隊。"
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "再試一次"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "聯絡支援團隊"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "閂唔到 Signal。",
@@ -8671,6 +8665,12 @@
     "messageformat": "而家你可以喺個人聊天入面建立投票啦。為你嗰位有選擇困難症嘅朋友打造精心設計嘅選擇清單，或者建立「你鍾意我嗎？係/唔係/可能」嘅投票，嚟重拾向你暗戀嘅人傳紙仔嘅情懷。"
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "谷嘅話事人而家可以喺谷設定度用「解散個谷」呢個新選項，等個聊天自然咁摺埋。解散個谷可以令到谷友唔好再發送訊息或者發起通話。另外，邀請功能都停埋。而家，你可以喺開始籌備新一期嘅串珠仔聚會之前，先解散上期嘅聚會谷，咁樣大家就一定會跟得上啱嘅訊息串。"
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

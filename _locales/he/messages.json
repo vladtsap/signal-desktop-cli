@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "נקה"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "הוסף אל קבוצה"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "סמן הכול כנקרא"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "ביטול הצמדת צ'אט"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "אפשר להצמיד עד 4 צ'אטים בלבד"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, one {אפשר להצמיד רק עד צ׳אט {maxPinnedConversations,number}} two {אפשר להצמיד רק עד {maxPinnedConversations,number} צ׳אטים} many {אפשר להצמיד רק עד {maxPinnedConversations,number} צ׳אטים} other {אפשר להצמיד רק עד {maxPinnedConversations,number} צ׳אטים}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "חבילת מדבקות לא יכלה להיות מותקנת"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "זמין"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "הותקן"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "אין מדבקות מותקנות"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "אין חבילות סטיקרים, אפשר להוסיף סטיקרים כדי לשלוח לחברים."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "אין מדבקות אומנים Signal זמינות"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "מדבקות שקיבלת"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "שותף איתך"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "כשמקבלים סטיקר ממישהו או מישהי, חבילת הסטיקרים תופיע כאן."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "מדבקות מהודעות נכנסות יופיעו כאן"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "התקן"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "הסרה"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "חבילת מדבקות"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "הוסף מדבקה"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "ביטול"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "הזנת מפתח"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "תיעוד מפתח השחזור שלך"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "מפתח השחזור שלך"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "המפתח הזה נדרש כדי לשחזר את החשבון והנתונים שלך. חשוב לאחסן את המפתח הזה במקום בטוח. אם הוא נאבד, אי אפשר לשחזר את החשבון שלך. <learnMoreLink>מידע נוסף.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "המפתח הזה נדרש כדי לשחזר את החשבון והנתונים שלך. חשוב לאחסן אותו במקום בטוח ולעולם לא לשתף אותו עם אף אחד. Signal לעולם לא תשלח לך הודעה כדי לבקש את מפתח השחזור שלך. <learnMoreLink>למידע נוסף.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "אין לשתף את מפתח השחזור"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>Signal לעולם לא תשלח לך הודעה</strong> כדי לבקש את מפתח השחזור שלך. אף פעם אין להשיב לצ׳אט ממישהו שמתחזה ל–Signal. חשוב לאחסן את מפתח השחזור שלך במקום בטוח ולעולם לא לשתף אותו עם אף אחד. <learnMoreLink>למידע נוסף.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "הבנתי"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "לא לשתף מפתח"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "אין לשתף את מפתח השחזור שלך עם אף אחד. זה יאפשר השתלטות על החשבון שלך. <strong>Signal לעולם לא תשלח לך הודעה</strong> כדי לבקש את מפתח השחזור שלך. אף פעם אין להשיב לצ׳אט ממישהו שמתחזה ל–Signal."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "אין לשתף את מפתח השחזור שלך עם אף אחד. זה יאפשר השתלטות על החשבון שלך. <strong>Signal לעולם לא תשלח לך הודעה</strong> כדי לבקש את מפתח השחזור שלך. אף פעם אין להשיב לצ׳אט ממישהו שמתחזה ל–Signal. <learnMoreLink>למידע נוסף.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "לא לשתף"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "להדביק מפתח"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "אישור מפתח השחזור שלך"
@@ -6749,403 +6743,403 @@
     "messageformat": "העדכון של Signal לשולחן עבודה נכשל, אבל יש גרסה חדשה יותר שזמינה. אפשר ללכת אל {downloadUrl} ולהתקין את הגרסה החדשה באופן ידני, ואז ליצור קשר עם התמיכה או להגיש דיווח על באג לגבי בעיה זו."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "לוגו Signal"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "הקודם"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "מספר טלפון"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "צריך להזין את מספר הטלפון שלך כדי לאמת את החשבון."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "יתכן שיחולו תעריפי ספק."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "יש לנסות שוב בעוד {duration}"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "מספר טלפון"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "המשך"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "האם מספר הטלפון שלך למעלה נכון?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "ערוך מספר"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "כן"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "צריך לאמת את האנושיות שלך כדי להמשיך"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "כדי לעזור למנוע ספאם ב–Signal, חשוב להשלים אימות. לאחר האימות, אפשר להמשיך בהרשמה."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "ניסיון אימות חוזר"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "אימות בדפדפן"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "אימות בעוד {duration}"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "נדרש אימות נוסף"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "יש להשלים עוד אימות אנושיות כדי להמשיך בהרשמה."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "ניסיון אימות חוזר"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "יש לנסות שוב מאוחר יותר"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "לא ניתן להשלים את האימות כעת."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "יש לנסות שוב עוד {duration}"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "שגיאת אימות"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "יש לבצע אימות מחדש כדי להמשיך בהרשמה."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "נסה שוב"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "קוד וידוא"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "הכנס את הקוד ששלחנו אל {phoneNumber}"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "המשך"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "שליחת קוד מחדש"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "שלח מחדש קוד עוד {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "חייג אלי"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "חייג אליי עוד {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "מספר שגוי?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "נתקלת בבעיות בהרשמה?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "קוד שגוי"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "הקוד שהזנת לא נכון. נא לבדוק את הקוד בן 6 הספרות ולנסות שוב."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "קוד לא תקין"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "הקוד שהכנסת לא חוקי. צריך לשלוח את הקוד מחדש ולנסות שוב."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "שליחת קוד מחדש"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "ערוך מספר"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "לא ניתן לשלוח SMS"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "לא הצלחנו לשלוח לך קוד אימות דרך SMS. כדאי לנסות לקבל את הקוד שלך דרך שיחה קולית במקום."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "שיחה קולית"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "יש לנסות שוב מאוחר יותר"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "ניסית להכניס את הקוד יותר מדי פעמים. יש לנסות שוב עוד {duration}."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "יותר מדי ניסיונות"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "ניסית להכניס את הקוד יותר מדי פעמים. צריך לשלוח את הקוד מחדש ולנסות שוב."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "שליחת קוד מחדש"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "ערוך מספר"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "לא ניתן לבצע את השיחה"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "לא הצלחנו להתקשר למספר הטלפון שהזנת. יש לוודא שמספר הטלפון נכון ולנסות שוב."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "לא ניתן לשלוח קוד"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "לא ניתן לשלוח קוד אימות למספר הטלפון שהזנת. יש לוודא שהמספר שהזנת נכון, או לנסות מספר אחר."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "יש לנסות שוב מאוחר יותר"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "אירעה שגיאה ולא ניתן היה לשלוח את קוד האימות. יש לנסות שוב בעוד {duration}."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "הגדר את הפרופיל שלך"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "הפרופילים גלויים לאנשים ששולחים להם הודעות, לאנשי קשר ולקבוצות."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "למידע נוסף"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "הוסף תמונה"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "שם פרטי (דרוש)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "שם משפחה (רשותי)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "מי יכול למצוא אותי לפי מספר טלפון"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "שינוי"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "סיים"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "המשך"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "היצגן שלך"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "הכנס את ה־PIN שלך"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "צריך להזין את ה–PIN שיצרת עבור החשבון שלך. קוד זה שונה מקוד האימות שקיבלת בהודעת SMS. <needHelp>יש לך צורך בעזרה?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "הכנס את ה־PIN שלך"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN שגוי"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, one {PIN שגוי. ניסיון {triesRemaining,number} נותר.} two {PIN שגוי. {triesRemaining,number} ניסיונות נותרים.} many {PIN שגוי. {triesRemaining,number} ניסיונות נותרים.} other {PIN שגוי. {triesRemaining,number} ניסיונות נותרים.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "צריך עזרה?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "ה–PIN שלך הוא קוד בעל 4 תווים או יותר שיצרת ויכול להיות מספרי או אלפא–נומרי. אם שכחת את ה–PIN שלך, אפשר ליצור אחד חדש. ניתן להירשם ולהשתמש בחשבון שלך אבל אז יאבדו כמה הגדרות שמורות כמו נתוני הפרופיל שלך. <learnMore>למידע נוסף</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "ה–PIN שלך הוא קוד בעל 4 תווים או יותר שיצרת ויכול להיות מספרי או אלפא–נומרי. אם שכחת את ה–PIN שלך, יהיה עליך להמתין 7 ימים כדי להירשם מחדש לחשבון שלך. <learnMore>למידע נוסף</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "דלג וצור PIN חדש"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "צור קשר עם תמיכה"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN שגוי"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {נשאר לך עוד ניסיון {triesRemaining,number}. אם ייגמרו לך הניסיונות, תהיה לך אפשרות ליצור PIN חדש. ניתן להירשם ולהשתמש בחשבון שלך אבל אז יאבדו כמה הגדרות שמורות כמו נתוני הפרופיל שלך. <learnMore>למידע נוסף</learnMore>.} two {נשארו לך עוד {triesRemaining,number} ניסיונות. אם ייגמרו לך הניסיונות, תהיה לך אפשרות ליצור PIN חדש. ניתן להירשם ולהשתמש בחשבון שלך אבל אז יאבדו כמה הגדרות שמורות כמו נתוני הפרופיל שלך. <learnMore>למידע נוסף</learnMore>.} many {נשארו לך עוד {triesRemaining,number} ניסיונות. אם ייגמרו לך הניסיונות, תהיה לך אפשרות ליצור PIN חדש. ניתן להירשם ולהשתמש בחשבון שלך אבל אז יאבדו כמה הגדרות שמורות כמו נתוני הפרופיל שלך. <learnMore>למידע נוסף</learnMore>.} other {נשארו לך עוד {triesRemaining,number} ניסיונות. אם ייגמרו לך הניסיונות, תהיה לך אפשרות ליצור PIN חדש. ניתן להירשם ולהשתמש בחשבון שלך אבל אז יאבדו כמה הגדרות שמורות כמו נתוני הפרופיל שלך. <learnMore>למידע נוסף</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {נשאר לך עוד ניסיון {triesRemaining,number}. אם ייגמרו לך הניסיונות, החשבון שלך יינעל למשך 7 ימים. לאחר 7 ימים של אי–פעילות, תהיה לך אפשרות להירשם מחדש בלי ה–PIN שלך. כל התוכן יימחק. <learnMore>למידע נוסף</learnMore>.} two {נשארו לך עוד {triesRemaining,number} ניסיונות. אם ייגמרו לך הניסיונות, החשבון שלך יינעל למשך 7 ימים. לאחר 7 ימים של אי–פעילות, תהיה לך אפשרות להירשם מחדש בלי ה–PIN שלך. כל התוכן יימחק. <learnMore>למידע נוסף</learnMore>.} many {נשארו לך עוד {triesRemaining,number} ניסיונות. אם ייגמרו לך הניסיונות, החשבון שלך יינעל למשך 7 ימים. לאחר 7 ימים של אי–פעילות, תהיה לך אפשרות להירשם מחדש בלי ה–PIN שלך. כל התוכן יימחק. <learnMore>למידע נוסף</learnMore>.} other {נשארו לך עוד {triesRemaining,number} ניסיונות. אם ייגמרו לך הניסיונות, החשבון שלך יינעל למשך 7 ימים. לאחר 7 ימים של אי–פעילות, תהיה לך אפשרות להירשם מחדש בלי ה–PIN שלך. כל התוכן יימחק. <learnMore>למידע נוסף</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "PIN שגוי"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "ניחושי PIN אזלו לך, אבל אתה עדין יכול להשיג גישה אל חשבון Signal שלך ע״י יצירת PIN חדש. למען פרטיותך ואבטחתך, חשבונך ישוחזר בלי מידע פרופיל שמור כלשהו או הגדרות שמורות כלשהן."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "צור PIN חדש"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "למד עוד על קודי PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "דילוג על PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "לדלג על הכנסת PIN?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "אם שכחת את ה–PIN שלך, אפשר ליצור אחד חדש. ניתן להירשם ולהשתמש בחשבון שלך אבל אז יאבדו כמה הגדרות שמורות כמו נתוני הפרופיל שלך. למד עוד."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "דלג וצור PIN חדש"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "צור את ה־PIN שלך"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "קודי PIN יכולים לעזור לך לשחזר את החשבון שלך ולשמור על המידע שלך מוצפן עם Signal. <learnMore>למידע נוסף</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "צור את ה־PIN שלך"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "קוד PIN חייב להיות לפחות 4 תווים"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "המשך"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "פתיחת תפריט"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "עוד על קודי PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "השבת PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "אזהרה"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "אם תשבית את ה־PIN, תאבד את כל הנתונים כאשר תירשם מחדש אל Signal אלא אם תעביר אותו ממכשיר iOS אחר. אינך יכול להפעיל נעילת הרשמה בזמן שה־PIN מושבת."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "השבת PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "עוד על קודי PIN של Signal"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "קודי PIN שומרים על המידע שלך שמאוחסן ב–Signal מוצפן כך שרק לך תהיה גישה אליו. הפרופיל, ההגדרות ואנשי הקשר שלך ישוחזרו בעת התקנה מחדש."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "למידע נוסף"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "אישור ה–PIN שלך"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "יש להכניס שוב את ה–PIN שעכשיו יצרת."
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "הכנס את ה־PIN שלך"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "החשבון ננעל"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "החשבון שלך שלך ננעל כדי להגן על הפרטיות והאבטחה שלך. לאחר 7 ימים של חוסר פעילות בחשבון שלך, תהיה לך אפשרות להירשם מחדש עם מספר טלפון זה ללא צורך ב–PIN שלך. כל התוכן יימחק."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "שימוש במספר אחר"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "מידע נוסף על חשבונות נעולים"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "נדרש עדכון"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "כדי להמשיך ברישום, צריך לעדכן לגרסה האחרונה של Signal."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "עדכן"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ביטול"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "צריך לבדוק את החיבור שלך"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "כדי להמשיך, יש לבדוק את חיבור האינטרנט של המחשב שלך ולנסות שוב."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "אישור"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "לא ניתן להשלים את ההרשמה"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "אירעה שגיאה ולא ניתן היה להשלים את ההרשמה. אם בעיה זו נמשכת, יש ליצור קשר עם התמיכה."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "נסה שוב"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "יצירת קשר עם התמיכה"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "Signal לא יכול להיסגר.",
@@ -8671,6 +8665,12 @@
     "messageformat": "עכשיו אפשר ליצור סקרים גם בצ׳אטים אחד על אחד."
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "מנהלי קבוצות יכולים עכשיו לסיים צ׳אטים עם אפשרות ״סיום קבוצה״ החדשה בהגדרות הקבוצה. סיום קבוצה מונע מחברי הקבוצה לשלוח הודעות או להתחיל שיחות, וגם משבית הזמנות."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

@@ -77,7 +77,7 @@ export function MediaPermissionsModal({
           </AxoAlertDialog.Description>
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
-          <AxoAlertDialog.Action variant="primary" onClick={onClick}>
+          <AxoAlertDialog.Action variant="strong-primary" onClick={onClick}>
             {i18n('icu:MediaPermissionsModal__open')}
           </AxoAlertDialog.Action>
         </AxoAlertDialog.Footer>

@@ -175,7 +175,7 @@ export function SafetyNumberChangeDialog({
           <AxoAlertDialog.Footer>
             <AxoAlertDialog.Cancel />
             <AxoAlertDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={() => {
                 if (dialogState === DialogState.ExplicitReviewStep) {
                   setDialogState(DialogState.ExplicitReviewComplete);
@@ -229,13 +229,13 @@ export function SafetyNumberChangeDialog({
           )}
           {dialogState === DialogState.ExplicitReviewNeeded && (
             <AxoAlertDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={() => setDialogState(DialogState.ExplicitReviewStep)}
             >
               {i18n('icu:safetyNumberChangeDialog__review')}
             </AxoAlertDialog.Action>
           )}
-          <AxoAlertDialog.Action variant="primary" onClick={onConfirm}>
+          <AxoAlertDialog.Action variant="strong-primary" onClick={onConfirm}>
             {text}
           </AxoAlertDialog.Action>
         </AxoAlertDialog.Footer>
@@ -386,7 +386,7 @@ function SectionButtonWithMenu({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             removeFromStory();
             setIsConfirming(false);

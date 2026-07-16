@@ -92,7 +92,7 @@ export function CompositionRecording({
         description={i18n('icu:voiceRecordingInterruptedMax')}
       >
         <AxoConfirmDialog.Cancel>{i18n('icu:discard')}</AxoConfirmDialog.Cancel>
-        <AxoConfirmDialog.Action variant="primary" onClick={onSend}>
+        <AxoConfirmDialog.Action variant="strong-primary" onClick={onSend}>
           {i18n('icu:sendAnyway')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>
@@ -123,7 +123,7 @@ export function CompositionRecording({
         className={tw(
           'shrink-0 grow overflow-hidden',
           'flex flex-row-reverse items-center gap-0.5',
-          'bg-elevated-background-tertiary',
+          'bg-surface-message-incoming',
           'h-full basis-0 rounded-sm'
         )}
       >
@@ -132,7 +132,9 @@ export function CompositionRecording({
             <b
               key={index}
               style={{ height: `${value * 100}%` }}
-              className={tw('rounded-sm bg-label-placeholder p-px')}
+              className={tw(
+                'rounded-sm bg-(--axo-color-label-placeholder) p-px'
+              )}
             />
           );
         })}

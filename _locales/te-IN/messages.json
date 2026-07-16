@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "స్పష్టమైన"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "సమూహానికి జోడించండి"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "మార్క్ చేసినవన్నీ చదవండి"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "చాట్‌ను అన్‌పిన్ చేయండి"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "మీరు 4 చాట్‌ల వరకు మాత్రమే పిన్ చేయగలరు"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, one {మీరు {maxPinnedConversations,number} చాట్ వరకు మాత్రమే పిన్ చేయవచ్చు} other {మీరు {maxPinnedConversations,number} చాట్‌ల వరకు మాత్రమే పిన్ చేయవచ్చు}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "స్టిక్కర్ ప్యాక్ వ్యవస్థాపించబడలేదు"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "లభ్యం"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "ఇన్‌స్టాల్ చేయబడింది"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "స్టిక్కర్లు వ్యవస్థాపించబడలేదు"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "స్టిక్కర్ ప్యాక్‌లు లేవు, మీ స్నేహితులకు పంపడానికి స్టిక్కర్‌లను జోడించండి."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "Signal ఆర్టిస్ట్ స్టిక్కర్లు అందుబాటులో లేవు"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "మీరు అందుకున్న స్టిక్కర్లు"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "మీతో పంచుకోబడింది"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "మీకు ఎవరి నుండైనా స్టిక్కర్ అందినప్పుడు, స్టిక్కర్ ప్యాక్ ఇక్కడ కనిపిస్తుంది."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "ఇన్కమింగ్ సందేశాల నుండి స్టిక్కర్లు ఇక్కడ కనిపిస్తాయి"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "వ్యవస్థాపన"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "తొలగించండి"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "స్టిక్కర్ ప్యాక్"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "స్టిక్కర్ జోడించండి"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "రద్దు"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "కీ ఎంటర్ చేయండి"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "మీ రికవరీ కీని రికార్డ్ చేయండి"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "మీ రికవరీ కీ"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "మీ ఖాతా మరియు డేటాను తిరిగి పొందడానికి ఈ కీ అవసరం. ఈ కీని ఎక్కడైనా సురక్షితంగా నిల్వ చేయండి. ఒకవేళ మీరు దీన్ని పోగొట్టుకుంటే, మీరు మీ ఖాతాను తిరిగి పొందలేరు. <learnMoreLink>మరింత తెలుసుకోండి.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "మీ ఖాతా మరియు డేటాను తిరిగి పొందడానికి ఈ కీ అవసరం. దానిని సురక్షితమైన చోట భద్రపరచండి మరియు దానిని ఎవరితోనూ పంచుకోవద్దు. మీ రికవరీ కీ కోసం Signal మీకు ఎప్పటికీ సందేశం పంపదు. <learnMoreLink>మరింత తెలుసుకోండి.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "రికవరీ కీని పంచుకోవద్దు"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "మీ రికవరీ కీ కోసం <strong>Signal మీకు ఎప్పటికీ సందేశం పంపదు</strong>. Signal అని నటిస్తూ చేసే చాట్‌కు ఎప్పుడూ స్పందించవద్దు. మీ రికవరీ కీని ఎక్కడైనా సురక్షితమైన చోట భద్రపరచండి మరియు దానిని ఎవరితోనూ పంచుకోవద్దు. <learnMoreLink>మరింత తెలుసుకోండి.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "అర్థమైంది"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "'కీ'ని పంచుకోవద్దు"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "మీ రికవరీ కీని ఎవరితోనూ పంచుకోవద్దు. ఇది వారిని మీ ఖాతాను స్వాధీనం చేసుకునేందుకు అవకాశాన్ని ఇస్తుంది. మీ రికవరీ కీ కోసం <strong>Signal మీకు ఎప్పటికీ సందేశం పంపదు</strong>. Signal అని నటిస్తూ చేసే చాట్‌కు ఎప్పుడూ స్పందించవద్దు."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "మీ రికవరీ కీని ఎవరితోనూ పంచుకోవద్దు. ఇది వారిని మీ ఖాతాను స్వాధీనం చేసుకునేందుకు అవకాశాన్ని ఇస్తుంది. మీ రికవరీ కీ కోసం <strong>Signal మీకు ఎప్పటికీ సందేశం పంపదు</strong>. Signal అని నటిస్తూ చేసే చాట్‌కు ఎప్పుడూ స్పందించవద్దు. <learnMoreLink>మరింత తెలుసుకోండి.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "పంచుకోవద్దు"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "కీని పేస్ట్ చేయండి"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "మీ రికవరీ కీని నిర్ధారించండి"
@@ -6749,403 +6743,403 @@
     "messageformat": "Signal డెస్క్‌టాప్ అప్‌డేట్ చేయడంలో విఫలమైంది, కానీ కొత్త వెర్షన్ అందుబాటులో ఉంది. {downloadUrl} కు వెళ్ళి కొత్త వెర్షన్ మాన్యువల్‌గా ఇన్‌స్టాల్‌ చేసుకోండి, అప్పుడు ఈ సమస్య గురించి మద్దతును సంప్రదించండి లేదా బగ్ ఫైల్ చేయండి."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "Signal లోగో"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "తిరిగి"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "ఫోన్ నంబర్"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "మీ ఖాతాను ధృవీకరించడానికి మీ ఫోన్ నంబర్‌ను ఎంటర్ చేయండి."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "క్యారియర్ రేట్లు వర్తించవచ్చు."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "దయచేసి {duration} లో మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "ఫోన్ నంబర్"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "కొనసాగించండి"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "పైన ఉన్న మీ చరవాణి నంబర్ సరైనదేనా?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "సంఖ్య మార్చు"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "అవును"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "కొనసాగడానికి మీరు మనిషేనని ధృవీకరించండి"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "Signal పై స్పామ్‌ను నిరోధించడంలో సహాయపడటానికి, దయచేసి ధృవీకరణను పూర్తి చేయండి. ధృవీకరించిన తర్వాత, మీరు నమోదు ప్రక్రియను కొనసాగించవచ్చు."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "ధృవీకరణను మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "బ్రౌజర్‌లో ధృవీకరించండి"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "{duration} లో ధృవీకరించండి"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "తదుపరి ధృవీకరణ అవసరం"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "నమోదును కొనసాగించడానికి దయచేసి మరొక క్యాప్చాను పూర్తి చేయండి."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "ధృవీకరణను మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "తరువాత మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "ప్రస్తుతం ధృవీకరణను పూర్తి చేయలేము."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "{duration} లో మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "ధృవీకరణ పొరపాటు"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "నమోదు ప్రక్రియను కొనసాగించడానికి మళ్ళీ ధృవీకరించడానికి ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "ధృవీకరణ కోడ్"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "మేము పంపిన కోడ్‌ను నమోదు చేయండి {phoneNumber}"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "కొనసాగించండి"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "కోడ్ మళ్ళీ పంపండి"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "{duration}లో కోడ్‌ను మళ్ళీ పంపండి"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "నాకు కాల్ చేయండి"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "{duration}లో నాకు కాల్ చేయండి"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "తప్పు సంఖ్యా?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "నమోదు చేసుకోవడంలో సమస్య ఉన్నదా?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "తప్పు కోడ్"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "మీరు నమోదు చేసిన కోడ్ తప్పు. దయచేసి 6 అంకెల కోడ్‌ను సరిచూసుకుని, మళ్ళీ ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "చెల్లని కోడ్"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "మీరు ఎంటర్ చేసిన కోడ్ చెల్లుబాటు కాదు. దయచేసి కోడ్‌ను మళ్ళీ పంపి, మరోసారి ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "కోడ్ మళ్ళీ పంపండి"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "సంఖ్య మార్చు"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "SMS పంపలేకపోతున్నాము"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "SMS ద్వారా ధృవీకరణ కోడ్‌ను మేము పంపలేకపోయాము. బదులుగా స్వర కాల్ ద్వారా మీ కోడ్‌ను అందుకోవడానికి ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "స్వర కాల్"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "తరువాత మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "కోడ్‌ను ఎంటర్ చేయడానికి మీరు చాలాసార్లు ప్రయత్నించారు. {duration} లో మళ్ళీ ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "మితిమీరిన ప్రయత్నాలు"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "కోడ్‌ను ఎంటర్ చేయడానికి మీరు చాలాసార్లు ప్రయత్నించారు. దయచేసి కోడ్‌ను మళ్ళీ పంపి, మరోసారి ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "కోడ్ మళ్ళీ పంపండి"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "సంఖ్య మార్చు"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "కాల్ చేయలేకపోతున్నాను"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "మీరు ఎంటర్ చేసిన ఫోన్ నంబర్‌కు మేము కాల్ చేయలేకపోయాము. ఫోన్ నంబర్ సరైనదేనని నిర్ధారించుకుని, మళ్ళీ ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "కోడ్‌ను పంపలేము"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "మీరు ఎంటర్ చేసిన ఫోన్ నంబర్‌కు ధృవీకరణ కోడ్‌ను పంపడం సాధ్యం కాదు. మీరు ఎంటర్ చేసిన నంబర్ సరైనదేనని నిర్ధారించుకోండి లేదా వేరొక నంబర్‌ను ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "తరువాత మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "ఒక పొరపాటు సంభవించింది మరియు ధృవీకరణ కోడ్‌ను పంపలేకపోయాము. {duration} లో మళ్ళీ ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "మీ వ్యక్తిత్వవర్ణనను సెటప్ చేయండి"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "ప్రొఫైల్స్ మీరు సందేశం పంపే వ్యక్తులు, పరిచయాలు, మరియు గ్రూప్‌లకు మాత్రమే కనిపిస్తాయి."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "మరింత నేర్చుకోండి"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "ఫోటో జోడించండి"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "మొదటి పేరు (అవసరం)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "చివరి పేరు (ఐచ్ఛికం)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "ఫోన్ నంబర్ ద్వారా నన్ను ఎవరు కనుగొనగలరు"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "మార్చండి"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "పూర్తయింది"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "కొనసాగించండి"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "మీ అవతార్"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "మీ పిన్ను నమోదు చేయండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "మీ ఖాతా కొరకు మీరు సృష్టించిన PIN ను ఎంటర్ చేయండి. ఇది మీ SMS ధృవీకరణ కోడ్ కంటే భిన్నమైనది. <needHelp>సహాయం అవసరమా?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "మీ పిన్ను నమోదు చేయండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "తప్పయిన పిన్"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, one {తప్పు పిన్. {triesRemaining,number} ప్రయత్నం మిగిలి ఉంది.} other {తప్పు పిన్. {triesRemaining,number} ప్రయత్నాలు మిగిలి ఉన్నాయి.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "సాయం అవసరమా?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "మీ PIN అనేది మీరు సృష్టించిన 4+ అంకెల కోడ్, ఇది సంఖ్య లేదా ఆల్ఫాన్యూమరిక్‌గా ఉండవచ్చు. ఒకవేళ మీ PIN ను మీరు గుర్తు పెట్టుకోలేకపోతే, ఒక కొత్త దానిని మీరు సృష్టించవచ్చు. మీరు మీ ఖాతాను నమోదు చేసుకుని ఉపయోగించవచ్చు, కానీ మీ ప్రొఫైల్ సమాచారం వంటి కొన్ని సేవ్ చేసిన సెట్టింగ్‌లను మీరు కోల్పోతారు. <learnMore>మరింత తెలుసుకోండి</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "మీ PIN అనేది మీరు సృష్టించిన 4+ అంకెల కోడ్, ఇది సంఖ్య లేదా ఆల్ఫాన్యూమరిక్‌గా ఉండవచ్చు. ఒకవేళ మీ PIN ను మీరు గుర్తు పెట్టుకోలేకపోతే, మీ ఖాతాను తిరిగి నమోదు చేసుకోవడానికి మీరు 7 రోజులు వేచి ఉండాల్సి ఉంటుంది. <learnMore>మరింత తెలుసుకోండి</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "దాటవేసి కొత్త PIN ను సృష్టించండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "మద్దతును సంప్రదించండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "తప్పయిన పిన్"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {మీకు {triesRemaining,number} ప్రయత్నం మిగిలి ఉంది. ఒకవేళ మీకు ప్రయత్నాలు పూర్తయితే, మీరు క్రొత్త పిన్ సృష్టించుకోవచ్చు. మీరు మీ ఖాతాను నమోదు చేసుకుని ఉపయోగించుకోవచ్చు, కానీ మీ ప్రొఫైల్ సమాచారం వంటి సేవ్ చేసిన కొన్ని సెట్టింగ్‌లను కోల్పోతారు. <learnMore>మరింత తెలుసుకోండి</learnMore>.} other {మీకు {triesRemaining,number} ప్రయత్నాలు మిగిలివున్నాయి. ఒకవేళ మీకు ప్రయత్నాలు పూర్తయితే, క్రొత్త పిన్ సృష్టించుకోవచ్చు. మీరు మీ ఖాతాను నమోదు చేసుకుని ఉపయోగించుకోవచ్చు, కానీ మీ ప్రొఫైల్ సమాచారం వంటి సేవ్ చేసిన కొన్ని సెట్టింగ్‌లను కోల్పోతారు. <learnMore>మరింత తెలుసుకోండి</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {మీకు ఇంకా {triesRemaining,number} ప్రయత్నం మిగిలి ఉంది. ఒకవేళ మీకు ప్రయత్నాలు పూర్తయితే, మీ ఖాతా 7 రోజుల పాటు లాక్ చేయబడుతుంది. 7 రోజుల నిష్క్రియ సమయం తర్వాత, మీరు మీ PIN లేకుండానే తిరిగి నమోదు చేసుకోవచ్చు. మొత్తం కంటెంట్ తొలగించబడుతుంది. <learnMore>మరింత తెలుసుకోండి</learnMore>.} other {మీకు ఇంకా {triesRemaining,number} ప్రయత్నాలు మిగిలి ఉన్నాయి. ఒకవేళ మీకు ప్రయత్నాలు పూర్తయితే, మీ ఖాతా 7 రోజుల పాటు లాక్ చేయబడుతుంది. 7 రోజుల నిష్క్రియ సమయం తర్వాత, మీరు మీ PIN లేకుండానే తిరిగి నమోదు చేసుకోవచ్చు. మొత్తం కంటెంట్ తొలగించబడుతుంది. <learnMore>మరింత తెలుసుకోండి</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "తప్పయిన పిన్"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "మీరు PIN అంచనాలను పూర్తి చేసారుు, కానీ క్రొత్త పిన్‌ను సృష్టించడం ద్వారా మీరు ఇప్పటికీ మీ Signal ఖాతాను యాక్సెస్ చేయవచ్చు. మీ గోప్యత మరియు భద్రత కోసం ఎటువంటి సేవ్ చేయబడిన ప్రొఫైల్ సమాచారం లేదా సెట్టింగులు లేకుండా మీ ఖాతా పునరుద్ధరించబడుతుంది."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "క్రొత్త పిన్ సృష్టించండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "పిన్‌ల గురించి మరింత తెలుసుకోండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "PIN ను దాటవేయండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "పిన్ నమోదుని దాటవేయమంటారా?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "ఒకవేళ మీ PIN ను మీరు గుర్తు పెట్టుకోలేకపోతే, ఒక కొత్త దానిని మీరు సృష్టించవచ్చు. మీరు మీ ఖాతాను నమోదు చేసుకుని ఉపయోగించవచ్చు, కానీ మీ ప్రొఫైల్ సమాచారం వంటి కొన్ని సేవ్ చేసిన సెట్టింగ్‌లను మీరు కోల్పోతారు. మరింత తెలుసుకోండి."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "దాటవేసి కొత్త PIN ను సృష్టించండి"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "మీ పిన్ను సృష్టించండి"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "మీ ఖాతాను పునరుద్ధరించడానికి మరియు మీ సమాచారాన్ని Signal వద్ద ఎన్‌క్రిప్ట్ చేసి ఉంచడానికి PIN లు మీకు సహాయపడగలవు. <learnMore>మరింత తెలుసుకోండి</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "మీ పిన్ను సృష్టించండి"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "PIN కనీసం 4 అక్షరాలు ఉండాలి"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "కొనసాగించండి"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "మెనూను తెరవండి"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "PIN ల గురించి మరింత సమాచారం"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "పిన్‌ను ఆపివేయి"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "హెచ్చరిక"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "ఒకవేళ మీరు PIN ని నిలిపివేస్తే, మరొక iOS పరికరం నుండి డేటాను బదిలీ చేయనంత వరకు, Signal లో మళ్ళీ నమోదు అయినప్పుడు మీరు మొత్తం డేటాను కోల్పోతారు. PIN నిలిపివేయబడినప్పుడు మీరు నమోదు లాక్‌ని ఆన్ చేయలేరు."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "పిన్‌ను ఆపివేయి"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "Signal PIN ల గురించి"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "PINలు మీ సమాచారాన్ని సిగ్నల్‌లో గుప్తీకరించి నిల్వ చేస్తాయి, తద్వారా మీరు మాత్రమే దాన్ని యాక్సెస్ చేయగలరు. మీరు తిరిగి ఇన్‌స్టాల్ చేసినప్పుడు మీ ప్రొఫైల్, సెట్టింగ్‌లు మరియు పరిచయాలు పునరుద్ధరించబడతాయి."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "మరింత నేర్చుకోండి"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "మీ PIN ను నిర్ధారించండి"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "మీరు ఇప్పుడే సృష్టించిన PIN ను తిరిగి నమోదు చేయండి"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "మీ పిన్ను నమోదు చేయండి"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "ఖాతా లాక్ చేయబడింది"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "మీ గోప్యత మరియు భద్రతను రక్షించడానికి మీ ఖాతా లాక్ చేయబడింది. మీ ఖాతాలో 7 రోజుల పాటు ఎటువంటి కార్యకలాపాలు లేనట్లయితే, మీ PIN అవసరం లేకుండానే ఈ ఫోన్ నంబర్‌ను తిరిగి నమోదు చేసుకోవచ్చు. సమాచారం అంతా తొలగించబడుతుంది."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "వేరే నంబర్‌ను ఉపయోగించండి"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "లాక్ చేయబడిన ఖాతాల గురించి తెలుసుకోండి"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "అప్‌డేట్ అవసరం"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "నమోదు ప్రక్రియను కొనసాగించడానికి, దయచేసి Signal యొక్క తాజా వెర్షన్‌కు అప్‌డేట్ చేయండి."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "నవీకరణ"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "రద్దు చేయండి"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "మీ కనెక్షన్‌ను తనిఖీ చేయండి"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "కొనసాగించడానికి, మీ కంప్యూటర్ ఇంటర్నెట్ కనెక్షన్‌ని తనిఖీ చేసి, మళ్ళీ ప్రయత్నించండి."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "అలాగే"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "నమోదును పూర్తి చేయలేకపోతున్నాను"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "ఒక పొరపాటు సంభవించింది మరియు నమోదును పూర్తి చేయలేము. ఒకవేళ ఈ సమస్య కొనసాగితే, దయచేసి మద్దతును సంప్రదించండి."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "మళ్ళీ ప్రయత్నించండి"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "మద్దతును సంప్రదించండి"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "Signal ను క్లోజ్ చేయలేరు.",
@@ -8671,6 +8665,12 @@
     "messageformat": "ఇప్పుడు వ్యక్తిగత చాట్‌లలో కూడా పోల్‌లను సృష్టించవచ్చు. ఏది ఎంచుకోవాలో తేల్చుకోలేని మీ స్నేహితుడికి మీరు ఎంపిక చేసిన కొన్ని ఎంపికల జాబితాను అందించండి లేదా మీకు నచ్చిన వ్యక్తికి గమనిక పంపే పాత అనుభూతిని తిరిగి పొందడానికి “నీకు నేను ఇష్టమా? అవును/కాదు/కావచ్చు” అనే పోల్‌ను సృష్టించండి."
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "గ్రూప్ సెట్టింగ్స్‌లోని కొత్త \"ఎండ్ గ్రూప్\" ఆప్షన్‌తో గ్రూప్ అడ్మిన్‌లు ఇప్పుడు చాట్‌లను ముగించవచ్చు. గ్రూప్‌ను ముగించడం వల్ల సభ్యులు సందేశాలు పంపలేరు లేదా కాల్స్ చేయలేరు, ఆహ్వానాలు కూడా నిలిపివేయబడతాయి. కొత్త సీవింగ్ మీటప్ గ్రూప్‌ను ప్రారంభించే ముందు, పాత గ్రూప్‌ను ముగించడం ద్వారా అందరూ సరైన క్రమంలోనే ఉండేలా చూసుకోవచ్చు."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

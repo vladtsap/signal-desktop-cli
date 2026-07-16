@@ -102,7 +102,7 @@ export const PinnedMessagesPanel = memo(function PinnedMessagesPanel(
       {props.canPinMessages && (
         <div className={tw('flex items-center justify-center p-2.5')}>
           <AxoButton.Root
-            variant="borderless-primary"
+            variant="implied-primary"
             size="lg"
             onClick={handleClickUnpinAll}
           >
@@ -130,7 +130,7 @@ export const PinnedMessagesPanel = memo(function PinnedMessagesPanel(
           <AxoAlertDialog.Footer>
             <AxoAlertDialog.Cancel />
             <AxoAlertDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={props.onPinnedMessageRemoveAll}
             >
               {i18n(

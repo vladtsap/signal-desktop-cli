@@ -129,7 +129,8 @@ export namespace AxoAlertDialog {
     return (
       <AlertDialog.Portal>
         <AxoTheme.Inherit>
-          <AlertDialog.Overlay className={AxoBaseDialog.overlayStyles}>
+          <AxoBaseDialog.Host>
+            <AlertDialog.Overlay className={AxoBaseDialog.overlayStyles} />
             <AlertDialog.Content
               onEscapeKeyDown={handleContentEscapeEvent}
               className={AxoBaseDialog.contentStyles}
@@ -140,7 +141,7 @@ export namespace AxoAlertDialog {
             >
               {props.children}
             </AlertDialog.Content>
-          </AlertDialog.Overlay>
+          </AxoBaseDialog.Host>
         </AxoTheme.Inherit>
       </AlertDialog.Portal>
     );
@@ -261,7 +262,7 @@ export namespace AxoAlertDialog {
     return (
       <AlertDialog.Title
         className={tw(
-          'text-center type-title-small text-label-primary',
+          'text-center type-title-small text-primary',
           props.screenReaderOnly && 'sr-only'
         )}
       >
@@ -290,7 +291,7 @@ export namespace AxoAlertDialog {
   export const Description: FC<DescriptionProps> = memo(props => {
     return (
       <AlertDialog.Description asChild>
-        <div className={tw('text-center type-body-large text-label-secondary')}>
+        <div className={tw('text-center type-body-large text-secondary')}>
           {props.children}
         </div>
       </AlertDialog.Description>
@@ -324,7 +325,7 @@ export namespace AxoAlertDialog {
     return (
       <AlertDialog.Cancel asChild>
         <AxoButton.Root
-          variant="secondary"
+          variant="strong-secondary"
           size="md"
           width="grow"
           disabled={props.disabled}
@@ -346,9 +347,9 @@ export namespace AxoAlertDialog {
    * Visual style of an action button.
    */
   export type ActionVariant =
-    | 'primary'
-    | 'secondary'
-    | 'destructive'
+    | 'strong-primary'
+    | 'strong-secondary'
+    | 'strong-destructive'
     | 'subtle-destructive';
 
   export type ActionProps = Readonly<{

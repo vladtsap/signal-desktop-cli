@@ -275,7 +275,7 @@ export function PreferencesSelectChatsDialog(
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="primary" onClick={handleClose}>
+            <AxoDialog.Action variant="strong-primary" onClick={handleClose}>
               {i18n(
                 'icu:Preferences__EditChatFolderPage__SelectChatsDialog__DoneButton'
               )}

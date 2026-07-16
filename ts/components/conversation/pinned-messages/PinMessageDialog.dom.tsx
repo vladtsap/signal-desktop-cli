@@ -187,7 +187,7 @@ function PinMessageConfirmReplacePinDialog(props: {
         <AxoAlertDialog.Footer>
           <AxoAlertDialog.Cancel />
           <AxoAlertDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={handleConfirmReplaceOldestPin}
           >
             {i18n('icu:PinMessageDialog--HasMaxPinnedMessages__Continue')}
@@ -272,10 +272,10 @@ function PinMessageSelectDurationDialog(props: {
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={handleCancel}>
+            <AxoDialog.Action variant="strong-secondary" onClick={handleCancel}>
               {i18n('icu:PinMessageDialog__Cancel')}
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={handleConfirm}>
+            <AxoDialog.Action variant="strong-primary" onClick={handleConfirm}>
               {i18n('icu:PinMessageDialog__Pin')}
             </AxoDialog.Action>
           </AxoDialog.Actions>
@@ -306,7 +306,10 @@ function PinMessageDisappearingMessagesWarningDialog(props: {
           </AxoAlertDialog.Description>
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
-          <AxoAlertDialog.Action variant="primary" onClick={props.onConfirm}>
+          <AxoAlertDialog.Action
+            variant="strong-primary"
+            onClick={props.onConfirm}
+          >
             {i18n('icu:PinMessageDisappearingMessagesWarningDialog__Okay')}
           </AxoAlertDialog.Action>
         </AxoAlertDialog.Footer>

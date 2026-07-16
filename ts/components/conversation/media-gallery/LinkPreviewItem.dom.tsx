@@ -74,7 +74,7 @@ export function LinkPreviewItem({
         className={tw(
           'flex size-9 items-center justify-center',
           'overflow-hidden rounded-sm',
-          'bg-elevated-background-tertiary text-label-secondary'
+          'bg-material-tertiary text-secondary'
         )}
       >
         <AxoSymbol.Icon symbol="link" size={20} label={null} />
@@ -85,7 +85,7 @@ export function LinkPreviewItem({
   const subtitle = (
     <>
       <a
-        className={tw('type-body-medium text-label-secondary underline')}
+        className={tw('type-body-medium text-secondary underline')}
         href={preview.url}
         rel="noreferrer"
         target="_blank"

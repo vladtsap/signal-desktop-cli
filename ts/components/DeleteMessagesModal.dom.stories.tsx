@@ -28,7 +28,7 @@ function Template(props: Partial<DeleteMessagesModalProps>): JSX.Element {
 
   return (
     <>
-      <AxoButton.Root size="md" variant="secondary" onClick={handleOpen}>
+      <AxoButton.Root size="md" variant="strong-secondary" onClick={handleOpen}>
         Open Dialog
       </AxoButton.Root>
       {open && (

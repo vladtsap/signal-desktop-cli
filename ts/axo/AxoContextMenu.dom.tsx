@@ -571,13 +571,15 @@ export namespace AxoContextMenu {
    */
   export const SubContent: FC<SubContentProps> = memo(props => {
     return (
-      <ContextMenu.SubContent
-        alignOffset={-6}
-        collisionPadding={6}
-        className={AxoBaseMenu.menuSubContentStyles}
-      >
-        {props.children}
-      </ContextMenu.SubContent>
+      <ContextMenu.Portal>
+        <ContextMenu.SubContent
+          alignOffset={-6}
+          collisionPadding={6}
+          className={AxoBaseMenu.menuSubContentStyles}
+        >
+          {props.children}
+        </ContextMenu.SubContent>
+      </ContextMenu.Portal>
     );
   });
 

@@ -53,7 +53,7 @@ export function CallingHeader({
           <AxoDropdownMenu.Root>
             <AxoDropdownMenu.Trigger>
               <AxoIconButton.Root
-                variant="floating-secondary"
+                variant="elevated-secondary"
                 size="lg"
                 iconWeight={300}
                 symbol={getCallViewModeIcon(callViewMode)}
@@ -94,7 +94,7 @@ export function CallingHeader({
           </AxoDropdownMenu.Root>
         )}
       <AxoIconButton.Root
-        variant="floating-secondary"
+        variant="elevated-secondary"
         size="lg"
         iconWeight={300}
         symbol="settings"
@@ -103,7 +103,7 @@ export function CallingHeader({
       />
       {togglePip && (
         <AxoIconButton.Root
-          variant="floating-secondary"
+          variant="elevated-secondary"
           size="lg"
           iconWeight={300}
           symbol="pip"
@@ -113,7 +113,7 @@ export function CallingHeader({
       )}
       {onCancel && (
         <AxoIconButton.Root
-          variant="floating-secondary"
+          variant="elevated-secondary"
           size="lg"
           iconWeight={300}
           symbol="x"

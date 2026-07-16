@@ -28,7 +28,7 @@ export function DeleteMessagesConfirmationDialog({
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="destructive"
+        variant="strong-destructive"
         onClick={onDestroyMessages}
       >
         {i18n('icu:delete')}

@@ -33,11 +33,11 @@ export function DeleteAttachmentConfirmationDialog({
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={close}>
+            <AxoDialog.Action variant="strong-secondary" onClick={close}>
               {i18n('icu:DeleteAttachmentModal__Cancel')}
             </AxoDialog.Action>
             <AxoDialog.Action
-              variant="destructive"
+              variant="strong-destructive"
               onClick={onDestroyAttachment}
             >
               {i18n('icu:DeleteAttachmentModal__Delete')}

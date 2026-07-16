@@ -214,9 +214,7 @@ function MediaSection({
           renderMediaItem={renderMediaItem}
         />
         {!isGrid && !isLast && (
-          <hr
-            className={tw('mx-4 my-3 border-[0.5px] border-border-primary')}
-          />
+          <hr className={tw('mx-4 my-3 border-[0.5px] border-primary')} />
         )}
       </Fragment>
     );

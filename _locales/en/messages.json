@@ -31,6 +31,10 @@
     "messageformat": "Clear",
     "description": "Axo Design System > Text Field Component > Clear Button > Generic accessibility label"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max, number}+",
+    "description": "Axo Design System > Badge Component > When numeric value is greater than max (Ex: 99 -> '99', 100 -> '99+')"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "Add to a group",
     "description": "Shown as the title of the dialog that allows you to add a contact to an group"
@@ -433,7 +437,11 @@
   },
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount, number}+",
-    "description": "Left Pane > Inbox > Chat List > Chat Folders > Item > Badge Count > When over the max count (Example: 1000 or more would be 999+)"
+    "description": "(Deleted 2026/07/15) Left Pane > Inbox > Chat List > Chat Folders > Item > Badge Count > When over the max count (Example: 1000 or more would be 999+)"
+  },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {# Unread Message} other {# Unread Messages}}",
+    "description": "Left Pane > Inbox > Chat List > Chat Folders > Item > Badge Count > Accessible Label"
   },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "Mark all read",
@@ -614,10 +622,6 @@
   "icu:unpinConversation": {
     "messageformat": "Unpin chat",
     "description": "Undoes Archive Conversation action, and unpins the conversation from the top of the conversation list"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "You can only pin up to 4 chats",
-    "description": "(Deleted 2026/06/15) Shown in a toast when a user attempts to pin more than the maximum number of chats"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "You can only pin up to {maxPinnedConversations, plural, one {# chat} other {# chats}}",
@@ -3686,18 +3690,6 @@
     "messageformat": "Sticker pack could not be installed",
     "description": "Shown in a toast if the user attempts to install a sticker pack and it fails"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "Available",
-    "description": "(Deleted 2026/06/15) Shown in the sticker pack manager as a tab for available stickers"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "Installed",
-    "description": "(Deleted 2026/06/15) Shown in the sticker pack manager above your installed sticker packs."
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "No stickers installed",
-    "description": "(Deleted 2026/06/15) Shown in the sticker pack manager when you don't have any installed sticker packs."
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "No sticker packs, add stickers to send to your friends.",
     "description": "Text shown in the sticker pack manager on the installed stickers tab when you don't have any installed sticker packs."
@@ -3714,10 +3706,6 @@
     "messageformat": "No Signal Artist stickers available",
     "description": "Shown in the sticker pack manager when there are no blessed sticker packs available."
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "Stickers You Received",
-    "description": "(Deleted 2026/06/15) Shown in the sticker pack manager above sticker packs which you have received in messages."
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "Shared With You",
     "description": "Shown in the sticker pack manager above sticker packs which you have received in messages."
@@ -3725,10 +3713,6 @@
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "When you receive a sticker from someone, the sticker pack will appear here.",
     "description": "Section description shown in the sticker pack manager above sticker packs which you have received in messages."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "Stickers from incoming messages will appear here",
-    "description": "(Deleted 2026/06/15) Shown in the sticker pack manager when you have not received any sticker packs in messages."
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "Install",
@@ -3761,6 +3745,22 @@
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "Remove",
     "description": "Context menu item to remove a sticker pack. Shown in the sticker pack manager when right clicking a sticker pack."
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack",
+    "description": "Sticker Manager > Installed Sticker Packs > Sticker Pack row > Drag Handle > Accessibility Label"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs",
+    "description": "Sticker Manager > Received Sticker Packs List > Accessibility Label"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs",
+    "description": "Sticker Manager > Received Sticker Packs List > Accessibility Label"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs",
+    "description": "Sticker Manager > Installed Sticker Packs List > Accessibility Label"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "Sticker Pack",
@@ -4085,6 +4085,22 @@
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "Add a Sticker",
     "description": "Sticker Picker > Trigger Button > Accessibility label"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply",
+    "description": "When replying to a message and previewing a sticker to send, this is the label for the preview view."
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send",
+    "description": "When replying to a message and previewing a sticker to send, this is the accessibility label for the Send button. Sticker Picker > Preview sticker > Send button > Accessibility label"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel",
+    "description": "When replying to a message and previewing a sticker to send, this is the accessibility label for the Cancel button. Sticker Picker > Preview sticker > Cancel button > Accessibility label"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker",
+    "description": "When replying to a message and previewing a sticker to send, this is the accessibility label for the sticker preview image."
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "Cancel",
@@ -8552,17 +8568,9 @@
     "messageformat": "Enter key",
     "description": "Placeholder text for the text box used to confirm the backup key for local message backups."
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "Record your recovery key",
-    "description": "(Deleted 2026/06/10) Title for viewing the recovery (backup) key for local message backups."
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "Your recovery key",
     "description": "Title for viewing the recovery (backup) key for local message backups."
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "This key is required to recover your account and data. Store this key somewhere safe. If you lose it, you won’t be able to recover your account. <learnMoreLink>Learn more.</learnMoreLink>",
-    "description": "(Deleted 2026/06/10) Description for viewing the recovery (backup) key for local message backups."
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "This key is required to recover your account and data. Store it somewhere safe and never share it with anyone. Signal will never message you for your recovery key. <learnMoreLink>Learn more.</learnMoreLink>",
@@ -8571,10 +8579,6 @@
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "Do not share recovery key",
     "description": "Title of the dialog warning the user not to share their recovery key, shown after copying the recovery key."
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>Signal will never message you</strong> for your recovery key. Never respond to a chat pretending to be Signal. Store your recovery key somewhere safe and never share it with anyone. <learnMoreLink>Learn more.</learnMoreLink>",
-    "description": "(Deleted 2026/06/15) Body of the dialog warning the user not to share their recovery key, shown after copying the recovery key."
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "Got it",
@@ -8588,21 +8592,9 @@
     "messageformat": "Do not share key",
     "description": "Button on the dialog warning the user not to paste their recovery key into a chat. Pressing it cancels the paste."
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "Do not share your recovery key with anyone. This will let them take over your account. <strong>Signal will never message you</strong> for your recovery key. Never respond to a chat pretending to be Signal.",
-    "description": "(Deleted 2026/06/15) Body of the second confirmation dialog shown before allowing the user to paste their recovery key into a chat."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "Do not share your recovery key with anyone. This will let them take over your account. <strong>Signal will never message you</strong> for your recovery key. Never respond to a chat pretending to be Signal. <learnMoreLink>Learn more.</learnMoreLink>",
     "description": "Body of the confirmation dialog shown before allowing the user to paste their recovery key into a chat."
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "Don't share",
-    "description": "(Deleted 2026/06/15) Button to cancel pasting the recovery key into a chat on the second confirmation dialog."
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "Paste key",
-    "description": "(Deleted 2026/06/15) Button to confirm pasting the recovery key into a chat on the second confirmation dialog."
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "Confirm your recovery key",
@@ -11531,6 +11523,14 @@
   },
   "icu:WhatsNew__8.19--0": {
     "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together.",
-    "description": "Release notes for 8.19"
+    "description": "(Deleted 2026/07/15) Release notes for 8.19"
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled.",
+    "description": "Release notes for 8.20"
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line.",
+    "description": "Release notes for 8.20"
   }
 }

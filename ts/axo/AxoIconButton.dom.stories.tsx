@@ -13,7 +13,7 @@ export default {
 export function Basic(): JSX.Element {
   return (
     <AxoIconButton.Root
-      variant="secondary"
+      variant="strong-secondary"
       size="lg"
       symbol="more"
       label="More actions"
@@ -22,13 +22,13 @@ export function Basic(): JSX.Element {
 }
 
 const Backgrounds: Record<string, TailwindStyles> = {
-  'background-primary': tw('bg-background-primary'),
-  'background-secondary': tw('bg-background-secondary'),
-  'background-overlay': tw('bg-background-overlay'),
-  'elevated-background-primary': tw('bg-elevated-background-primary'),
-  'elevated-background-secondary': tw('bg-elevated-background-secondary'),
-  'elevated-background-tertiary': tw('bg-elevated-background-tertiary'),
-  'elevated-background-quaternary': tw('bg-elevated-background-quaternary'),
+  'background-primary': tw('bg-surface-primary'),
+  'background-secondary': tw('bg-surface-secondary'),
+  'background-overlay': tw('bg-overlay'),
+  'elevated-background-primary': tw('bg-material-primary'),
+  'elevated-background-secondary': tw('bg-material-secondary'),
+  'elevated-background-tertiary': tw('bg-material-tertiary'),
+  'elevated-background-quaternary': tw('bg-material-quaternary'),
 };
 
 const Themes: Record<string, TailwindStyles> = {
@@ -79,8 +79,8 @@ export function Variants(): JSX.Element {
                   <AxoIconButton.Root
                     variant={variant}
                     size="lg"
-                    symbol="more"
-                    label="More actions"
+                    symbol="lock-fill"
+                    label={variant}
                   />
                 </div>
               );

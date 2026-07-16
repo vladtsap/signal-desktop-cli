@@ -54,19 +54,17 @@ export function StagedLinkPreview(props: Props): JSX.Element {
         <div className={tw('ms-3 flex grow flex-col')}>
           <div
             className={tw(
-              'mbs-1 mbe-0.5 type-body-medium font-semibold text-label-primary'
+              'mbs-1 mbe-0.5 type-body-medium font-semibold text-primary'
             )}
           >
             {title}
           </div>
           {description && (
-            <div className={tw('mbe-0.5 type-body-medium text-label-primary')}>
+            <div className={tw('mbe-0.5 type-body-medium text-primary')}>
               {unescape(description)}
             </div>
           )}
-          <div className={tw('type-body-small text-label-secondary')}>
-            {domain}
-          </div>
+          <div className={tw('type-body-small text-secondary')}>{domain}</div>
         </div>
       );
     } else if (!title && !description) {
@@ -103,7 +101,7 @@ export function StagedLinkPreview(props: Props): JSX.Element {
     return (
       <div
         dir="auto"
-        className={tw('m-1.5 flex rounded-xl bg-background-primary py-2')}
+        className={tw('m-1.5 flex rounded-xl bg-surface-primary py-2')}
       >
         <Thumbnail {...props} />
         {maybeContent}
@@ -111,7 +109,7 @@ export function StagedLinkPreview(props: Props): JSX.Element {
           <div className={tw('me-2 flex flex-col')}>
             <AxoIconButton.Root
               size="sm"
-              variant="secondary"
+              variant="strong-secondary"
               symbol="x"
               label={i18n('icu:close')}
               tooltip={false}

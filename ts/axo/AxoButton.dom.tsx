@@ -25,23 +25,23 @@ export namespace AxoButton {
    * Visual style of the button.
    */
   export type Variant =
-    | 'secondary'
-    | 'primary'
-    | 'affirmative'
-    | 'destructive'
+    | 'strong-secondary'
+    | 'strong-primary'
+    | 'strong-affirmative'
+    | 'strong-warning'
+    | 'strong-destructive'
     | 'subtle-primary'
+    | 'subtle-secondary'
     | 'subtle-affirmative'
+    | 'subtle-warning'
     | 'subtle-destructive'
-    | 'floating-secondary'
-    | 'floating-primary'
-    | 'floating-affirmative'
-    | 'floating-destructive'
-    | 'borderless-secondary'
-    | 'borderless-primary'
-    | 'borderless-affirmative'
-    | 'borderless-destructive'
-    | 'message-incoming-secondary'
-    | 'message-outgoing-secondary';
+    | 'elevated-secondary'
+    | 'implied-secondary'
+    | 'implied-primary'
+    | 'implied-affirmative'
+    | 'implied-destructive'
+    | 'message-incoming-primary'
+    | 'message-outgoing-primary';
 
   /**
    * Size of the button.
@@ -68,132 +68,127 @@ export namespace AxoButton {
   export type Arrow = 'collapse' | 'expand' | 'next';
 
   const baseStyles = tw(
-    'relative inline-flex max-w-full items-center-safe justify-center-safe rounded-full select-none',
-    'outline-none keyboard-mode:focus:outline-focus-ring',
+    'relative inline-flex max-w-full items-center-safe justify-center-safe rounded-full',
+    'outline-none keyboard-mode:focus:axo-focus-ring',
     'forced-colors:border',
     'forced-colors:aria-disabled:text-[GrayText]'
   );
 
-  const baseSubtleVariant = tw(
-    baseStyles,
-    'bg-fill-secondary',
-    'not-aria-disabled:active:bg-fill-secondary-pressed'
-  );
-
-  const baseFloatingVariant = tw(
-    baseStyles,
-    'bg-fill-floating',
-    'shadow-elevation-1',
-    'not-aria-disabled:active:bg-fill-floating-pressed'
-  );
-
-  const baseBorderlessVariant = tw(
-    baseStyles,
-    'bg-transparent',
-    'not-aria-disabled:hover:bg-fill-secondary',
-    'not-aria-disabled:active:bg-fill-secondary-pressed'
-  );
-
   const VariantStyles = variants<Variant>('AxoButton.Variant', {
-    // default
-    secondary: tw(
+    // strong
+    'strong-secondary': tw(
       baseStyles,
-      'bg-fill-secondary text-label-primary',
-      'not-aria-disabled:active:bg-fill-secondary-pressed',
-      'aria-disabled:text-label-disabled'
+      'bg-secondary text-primary',
+      'not-aria-disabled:active:bg-secondary-pressed',
+      'data-axo-discouraged:text-disabled'
     ),
-    primary: tw(
+    'strong-primary': tw(
       baseStyles,
-      'bg-color-fill-primary text-label-primary-on-color',
-      'not-aria-disabled:active:bg-color-fill-primary-pressed',
-      'aria-disabled:text-label-disabled-on-color'
+      'bg-accent text-primary-oncolor',
+      'not-aria-disabled:active:bg-accent-pressed',
+      'data-axo-discouraged:text-disabled-oncolor'
     ),
-    affirmative: tw(
+    'strong-affirmative': tw(
       baseStyles,
-      'bg-color-fill-affirmative text-label-primary-on-color',
-      'not-aria-disabled:active:bg-color-fill-affirmative-pressed',
-      'aria-disabled:text-label-disabled-on-color'
+      'bg-affirmative text-primary-oncolor',
+      'not-aria-disabled:active:bg-affirmative-pressed',
+      'data-axo-discouraged:text-disabled-oncolor'
     ),
-    destructive: tw(
+    'strong-warning': tw(
       baseStyles,
-      'bg-color-fill-destructive text-label-primary-on-color',
-      'not-aria-disabled:active:bg-color-fill-destructive-pressed',
-      'aria-disabled:text-label-disabled-on-color'
+      'bg-warning-bright text-primary-onbright',
+      'not-aria-disabled:active:bg-warning-bright-pressed',
+      'data-axo-discouraged:text-disabled-onbright'
+    ),
+    'strong-destructive': tw(
+      baseStyles,
+      'bg-destructive text-primary-oncolor',
+      'not-aria-disabled:active:bg-destructive-pressed',
+      'data-axo-discouraged:text-disabled-oncolor'
     ),
 
     // subtle
+    'subtle-secondary': tw(
+      baseStyles,
+      'bg-primary text-primary',
+      'not-aria-disabled:active:bg-primary-pressed',
+      'data-axo-discouraged:text-disabled'
+    ),
     'subtle-primary': tw(
-      baseSubtleVariant,
-      'text-color-label-primary',
-      'aria-disabled:text-color-label-primary-disabled'
+      baseStyles,
+      'bg-accent-tint text-accent',
+      'not-aria-disabled:active:bg-accent-tint-pressed',
+      'data-axo-discouraged:text-accent-disabled'
     ),
     'subtle-affirmative': tw(
-      baseSubtleVariant,
-      'text-color-label-affirmative',
-      'aria-disabled:text-color-label-affirmative-disabled'
+      baseStyles,
+      'bg-affirmative-tint text-affirmative',
+      'not-aria-disabled:active:bg-affirmative-tint-pressed',
+      'data-axo-discouraged:text-affirmative-disabled'
+    ),
+    'subtle-warning': tw(
+      baseStyles,
+      'bg-warning-tint text-warning',
+      'not-aria-disabled:active:bg-warning-tint-pressed',
+      'data-axo-discouraged:text-warning-disabled'
     ),
     'subtle-destructive': tw(
-      baseSubtleVariant,
-      'text-color-label-destructive',
-      'aria-disabled:text-color-label-destructive-disabled'
+      baseStyles,
+      'bg-destructive-tint text-destructive',
+      'not-aria-disabled:active:bg-destructive-tint-pressed',
+      'data-axo-discouraged:text-destructive-disabled'
     ),
 
-    // floating
-    'floating-secondary': tw(
-      baseFloatingVariant,
-      'text-label-primary',
-      'aria-disabled:text-label-disabled'
-    ),
-    'floating-primary': tw(
-      baseFloatingVariant,
-      'text-color-label-primary',
-      'aria-disabled:text-color-label-primary-disabled'
-    ),
-    'floating-affirmative': tw(
-      baseFloatingVariant,
-      'text-color-label-affirmative',
-      'aria-disabled:text-color-label-affirmative-disabled'
-    ),
-    'floating-destructive': tw(
-      baseFloatingVariant,
-      'text-color-label-destructive',
-      'aria-disabled:text-color-label-destructive-disabled'
+    // elevated
+    'elevated-secondary': tw(
+      baseStyles,
+      'bg-material-tertiary text-primary shadow-elevation-1 backdrop-blur-thin',
+      'not-aria-disabled:active:bg-material-tertiary-pressed',
+      'data-axo-discouraged:text-disabled'
     ),
 
-    // borderless
-    'borderless-secondary': tw(
-      baseBorderlessVariant,
-      'text-label-primary',
-      'aria-disabled:text-label-disabled'
+    // implied
+    'implied-secondary': tw(
+      baseStyles,
+      'bg-transparent text-primary',
+      'not-aria-disabled:hover:bg-primary',
+      'not-aria-disabled:active:bg-primary-pressed',
+      'data-axo-discouraged:text-disabled'
     ),
-    'borderless-primary': tw(
-      baseBorderlessVariant,
-      'text-color-label-primary',
-      'aria-disabled:text-color-label-primary-disabled'
+    'implied-primary': tw(
+      baseStyles,
+      'bg-transparent text-accent',
+      'not-aria-disabled:hover:bg-accent-tint',
+      'not-aria-disabled:active:bg-accent-tint-pressed',
+      'data-axo-discouraged:text-accent-disabled'
     ),
-    'borderless-affirmative': tw(
-      baseBorderlessVariant,
-      'text-color-label-affirmative',
-      'aria-disabled:text-color-label-affirmative-disabled'
+    'implied-affirmative': tw(
+      baseStyles,
+      'bg-transparent text-affirmative',
+      'not-aria-disabled:hover:bg-affirmative-tint',
+      'not-aria-disabled:active:bg-affirmative-tint-pressed',
+      'data-axo-discouraged:text-affirmative-disabled'
     ),
-    'borderless-destructive': tw(
-      baseBorderlessVariant,
-      'text-color-label-destructive',
-      'aria-disabled:text-color-label-destructive-disabled'
+    'implied-destructive': tw(
+      baseStyles,
+      'bg-transparent text-destructive',
+      'not-aria-disabled:hover:bg-destructive-tint',
+      'not-aria-disabled:active:bg-destructive-tint-pressed',
+      'data-axo-discouraged:text-destructive-disabled'
     ),
 
     // message
-    'message-incoming-secondary': tw(
+    'message-incoming-primary': tw(
       baseStyles,
-      'bg-message-fill-incoming-secondary text-label-primary',
-      'not-aria-disabled:active:bg-message-fill-incoming-secondary-pressed',
-      'aria-disabled:text-label-disabled'
+      'bg-onmessage-incoming-primary text-primary',
+      'not-aria-disabled:active:bg-onmessage-incoming-primary-pressed',
+      'data-axo-discouraged:text-disabled'
     ),
-    'message-outgoing-secondary': tw(
+    'message-outgoing-primary': tw(
       baseStyles,
-      'bg-message-fill-outgoing-secondary text-label-primary-on-color',
-      'not-aria-disabled:active:bg-message-fill-outgoing-secondary-pressed',
-      'aria-disabled:text-label-disabled-on-color'
+      'bg-onmessage-outgoing-primary text-primary-oncolor',
+      'not-aria-disabled:active:bg-onmessage-outgoing-primary-pressed',
+      'data-axo-discouraged:text-disabled-oncolor'
     ),
   });
 
@@ -280,6 +275,11 @@ export namespace AxoButton {
      */
     disabled?: boolean | null;
     /**
+     * When `true`, displays "disabled" styles, but doesn't actually disable
+     * the button.
+     */
+    discouraged?: boolean | null;
+    /**
      * When `true`, takes initial focus when rendered.
      */
     autoFocus?: boolean | null;
@@ -299,10 +299,10 @@ export namespace AxoButton {
    *
    * @example Dialog actions
    * ```tsx
-   * <AxoButton.Root variant="secondary" size="md" width="grow" onClick={onCancel}>
+   * <AxoButton.Root variant="strong-secondary" size="md" width="grow" onClick={onCancel}>
    *   Cancel
    * </AxoButton.Root>
-   * <AxoButton.Root variant="primary" size="md" width="grow" pending={isSaving} onClick={onSave}>
+   * <AxoButton.Root variant="strong-primary" size="md" width="grow" pending={isSaving} onClick={onSave}>
    *   Save
    * </AxoButton.Root>
    * ```
@@ -321,6 +321,7 @@ export namespace AxoButton {
    */
   export const Root: FC<RootProps> = memo(props => {
     const {
+      ref,
       variant,
       size,
       width = 'fit',
@@ -328,6 +329,7 @@ export namespace AxoButton {
       arrow,
       pending,
       disabled,
+      discouraged,
       pressed,
       expanded,
       controls,
@@ -353,13 +355,14 @@ export namespace AxoButton {
 
     return (
       <button
-        ref={props.ref}
+        ref={ref}
         type="button"
         aria-label={pending ? intl.get('AxoButton.Pending') : undefined}
         aria-disabled={(pending || disabled) ?? undefined}
         aria-expanded={expanded ?? undefined}
         aria-pressed={pressed ?? undefined}
         aria-controls={controls ?? undefined}
+        data-axo-discouraged={disabled || discouraged}
         autoFocus={autoFocus ?? undefined}
         onClick={handleClick}
         className={tw(
@@ -399,23 +402,23 @@ export namespace AxoButton {
   const SpinnerVariants = variants<Variant, SpinnerVariant>(
     'AxoButton.Variant',
     {
-      primary: 'axo-button-spinner-on-color',
-      secondary: 'axo-button-spinner-secondary',
-      affirmative: 'axo-button-spinner-on-color',
-      destructive: 'axo-button-spinner-on-color',
+      'strong-primary': 'axo-button-spinner-oncolor',
+      'strong-secondary': 'axo-button-spinner-secondary',
+      'strong-affirmative': 'axo-button-spinner-oncolor',
+      'strong-warning': 'axo-button-spinner-oncolor',
+      'strong-destructive': 'axo-button-spinner-oncolor',
       'subtle-primary': 'axo-button-spinner-primary',
+      'subtle-secondary': 'axo-button-spinner-secondary',
       'subtle-affirmative': 'axo-button-spinner-affirmative',
+      'subtle-warning': 'axo-button-spinner-warning',
       'subtle-destructive': 'axo-button-spinner-destructive',
-      'floating-primary': 'axo-button-spinner-primary',
-      'floating-secondary': 'axo-button-spinner-secondary',
-      'floating-affirmative': 'axo-button-spinner-affirmative',
-      'floating-destructive': 'axo-button-spinner-destructive',
-      'borderless-primary': 'axo-button-spinner-primary',
-      'borderless-secondary': 'axo-button-spinner-secondary',
-      'borderless-affirmative': 'axo-button-spinner-affirmative',
-      'borderless-destructive': 'axo-button-spinner-destructive',
-      'message-incoming-secondary': 'axo-button-spinner-on-color',
-      'message-outgoing-secondary': 'axo-button-spinner-secondary',
+      'elevated-secondary': 'axo-button-spinner-secondary',
+      'implied-primary': 'axo-button-spinner-primary',
+      'implied-secondary': 'axo-button-spinner-secondary',
+      'implied-affirmative': 'axo-button-spinner-affirmative',
+      'implied-destructive': 'axo-button-spinner-destructive',
+      'message-incoming-primary': 'axo-button-spinner-oncolor',
+      'message-outgoing-primary': 'axo-button-spinner-secondary',
     }
   );
 

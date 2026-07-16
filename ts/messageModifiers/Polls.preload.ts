@@ -365,6 +365,12 @@ export async function handlePollVote(
     log.warn('handlePollVote: Invalid option indexes found, dropping');
     return;
   }
+  const hasDupeIndexes =
+    new Set(vote.optionIndexes).size !== vote.optionIndexes.length;
+  if (hasDupeIndexes) {
+    log.warn('handlePollVote: Duplicate optionIndexes detected, dropping');
+    return;
+  }
 
   // Check multiple choice constraint
   if (!poll.allowMultiple && vote.optionIndexes.length > 1) {

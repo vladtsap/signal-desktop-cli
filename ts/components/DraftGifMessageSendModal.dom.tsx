@@ -87,11 +87,14 @@ export function DraftGifMessageSendModal(
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={props.onClose}>
+            <AxoDialog.Action
+              variant="strong-secondary"
+              onClick={props.onClose}
+            >
               {i18n('icu:cancel')}
             </AxoDialog.Action>
             <AxoDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={props.onSubmit}
               disabled={
                 props.gifDownloadState.loadingState !== LoadingState.Loaded

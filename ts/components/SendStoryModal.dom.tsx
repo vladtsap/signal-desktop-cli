@@ -998,7 +998,7 @@ export function SendStoryModal({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmRemoveGroupId != null,
@@ -1021,7 +1021,7 @@ export function SendStoryModal({
         })}
       >
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmDeleteList != null,

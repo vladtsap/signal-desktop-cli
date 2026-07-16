@@ -81,7 +81,10 @@ function GroupAdminItem(props: {
       <button
         type="button"
         onClick={handleClick}
-        className={tw('flex flex-row items-center p-2')}
+        className={tw(
+          'flex w-full flex-row items-center p-2',
+          'outline-none keyboard-mode:focus:axo-focus-ring'
+        )}
       >
         <div className={tw('pe-3')}>
           <Avatar

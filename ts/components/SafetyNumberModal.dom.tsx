@@ -40,10 +40,13 @@ export function SafetyNumberModal({
     );
     actions = (
       <AxoDialog.Actions>
-        <AxoDialog.Action variant="secondary" onClick={onLearnMore}>
+        <AxoDialog.Action variant="strong-secondary" onClick={onLearnMore}>
           {i18n('icu:SafetyNumberNotReady__learn-more')}
         </AxoDialog.Action>
-        <AxoDialog.Action variant="secondary" onClick={toggleSafetyNumberModal}>
+        <AxoDialog.Action
+          variant="strong-secondary"
+          onClick={toggleSafetyNumberModal}
+        >
           {i18n('icu:ok')}
         </AxoDialog.Action>
       </AxoDialog.Actions>

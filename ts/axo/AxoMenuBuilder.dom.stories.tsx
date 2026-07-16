@@ -100,14 +100,12 @@ export function Basic(): JSX.Element {
   return (
     <div className={tw('flex h-96 w-full items-center justify-center gap-8')}>
       <Template renderer="AxoDropdownMenu">
-        <AxoButton.Root variant="secondary" size="md">
+        <AxoButton.Root variant="strong-secondary" size="md">
           Open Dropdown Menu
         </AxoButton.Root>
       </Template>
       <Template renderer="AxoContextMenu">
-        <div className={tw('bg-fill-secondary p-12 text-color-label-primary')}>
-          Right-Click
-        </div>
+        <div className={tw('bg-primary p-12 text-accent')}>Right-Click</div>
       </Template>
     </div>
   );

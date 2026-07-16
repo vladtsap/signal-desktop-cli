@@ -980,7 +980,7 @@ export function StoryViewer({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => {
               onHideStory(conversationId);
               onClose();
@@ -1003,7 +1003,7 @@ export function StoryViewer({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => {
               strictAssert(
                 confirmDeleteStory != null,

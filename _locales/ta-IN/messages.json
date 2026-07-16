@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "அழி"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "ஒரு குழுவில் சேர்க்கவும்"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "அனைத்தையும் படித்தாக குறியிடு"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "சாட்டின் பின்னை அகற்று"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "4 சாட்ஸ் வரை மட்டுமே பின் செய்ய முடியும்"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, one {நீங்கள் அதிகபட்சம் {maxPinnedConversations,number} உரையாடல் வரை பின் செய்யலாம்} other {நீங்கள் அதிகபட்சம் {maxPinnedConversations,number} உரையாடல்கள் வரை பின் செய்யலாம்}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "ஸ்டிக்கர் பேக் நிறுவ முடியவில்லை"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "கிடைப்பவை"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "நிறுவப்பட்டவை"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "ஸ்டிக்கர்கள் எதுவும் நிறுவப்படவில்லை"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "ஸ்டிக்கர் பேக்குகள் இல்லை, உங்கள் நண்பர்களுக்கு அனுப்ப ஸ்டிக்கர்களைச் சேர்க்கவும்."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "Signal ஆர்ட்டிஸ்ட் ஸ்டிக்கர்கள் கிடைக்கும் வசதி இல்லை "
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "நீங்கள் பெற்ற ஸ்டிக்கர்கள்"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "உங்களிடன் பகிரப்பட்டவை"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "நீங்கள் ஒருவரிடமிருந்து ஸ்டிக்கரைப் பெற்றால், ஸ்டிக்கர் பேக் இங்கே தோன்றும்."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "உள்வரும் செய்திகளின் ஸ்டிக்கர்கள் இங்கே தோன்றும்"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "நிறுவு"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "அகற்று"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "ஸ்டிக்கர் பேக்"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "ஒரு ஸ்டிக்கரைச் சேர்க்கவும்"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "ரத்துசெய்"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "குறியீட்டை உள்ளிடுங்கள்"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "உங்கள் மீட்புக் குறியீட்டைப் பதிவுசெய்க"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "உங்களின் மீட்புக் குறியீடு"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "உங்கள் கணக்கு மற்றும் தரவை மீட்டெடுக்க இந்தக் குறியீடு தேவை. இந்தக் குறியீட்டைப் பாதுகாப்பான இடத்தில் சேமித்து வைக்கவும். நீங்கள் அதை இழந்துவிட்டால், உங்கள் கணக்கை மீட்டெடுக்க முடியாது. <learnMoreLink>மேலும் அறிக.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "உங்கள் கணக்கு மற்றும் தரவை மீட்டெடுக்க இந்தக் குறியீடு தேவை. அதனைப் பாதுகாப்பான இடத்தில் சேமித்து வைக்கவும், அதை ஒருபோதும் யாருடனும் பகிராதீர்கள். உங்கள் மீட்புக் குறியீட்டைக் கேட்டு சிக்னல் ஒருபோதும் உங்களுக்குச் செய்தி அனுப்பாது. <learnMoreLink>மேலும் அறிக.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "மீட்புக் குறியீட்டைப் பகிராதீர்கள்"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "உங்கள் மீட்புக் குறியீட்டைக் கேட்டு <strong>சிக்னல் ஒருபோதும் உங்களுக்குச் செய்தி அனுப்பாது.</strong> சிக்னல் போல் ஆள்மாறாட்டம் செய்து வரும் உரையாடலுக்கு ஒருபோதும் பதிலளிக்காதீர்கள். உங்கள் மீட்புக் குறியீட்டைப் பாதுகாப்பான இடத்தில் சேமித்து வைக்கவும், அதை ஒருபோதும் யாருடனும் பகிராதீர்கள். <learnMoreLink>மேலும் அறிக.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "அறிந்துகொண்டேன்"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "குறியீட்டைப் பகிராதீர்கள்"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "உங்கள் மீட்புக் குறியீட்டை யாருடனும் பகிராதீர்கள். இது அவர்கள் உங்கள் கணக்கைக் கையகப்படுத்த அனுமதிக்கும். உங்கள் மீட்புக் குறியீட்டைக் கேட்டு <strong>சிக்னல் ஒருபோதும் உங்களுக்குச் செய்தி அனுப்பாது.</strong> சிக்னல் போல் ஆள்மாறாட்டம் செய்து வரும் உரையாடலுக்கு ஒருபோதும் பதிலளிக்காதீர்கள்."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "உங்கள் மீட்புக் குறியீட்டை யாருடனும் பகிராதீர்கள். இது அவர்கள் உங்கள் கணக்கைக் கையகப்படுத்த அனுமதிக்கும். உங்கள் மீட்புக் குறியீட்டைக் கேட்டு <strong>சிக்னல் ஒருபோதும் உங்களுக்குச் செய்தி அனுப்பாது.</strong> சிக்னல் போல் ஆள்மாறாட்டம் செய்து வரும் உரையாடலுக்கு ஒருபோதும் பதிலளிக்காதீர்கள். <learnMoreLink>மேலும் அறிக.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "பகிர வேண்டாம்"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "குறியீட்டை ஒட்டு"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "உங்கள் மீட்புக் குறியீட்டை உறுதிப்படுத்துக"
@@ -6749,403 +6743,403 @@
     "messageformat": "Signal டெஸ்க்டாப்பை புதுப்பிக்க முடியவில்லை, ஆனால் புதிய பதிப்பு உள்ளது. {downloadUrl} க்குச் சென்று புதிய பதிப்பை கைமுறையாக நிறுவவும், பின்னர் ஆதரவைத் தொடர்புகொள்ளவும் அல்லது இந்தச் பிரச்சனைப் பற்றிய பிழையைப் பதிவு செய்யவும்."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "Signal லோகோ"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "மீண்டும்"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "தொலைபேசி எண்"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "உங்கள் கணக்கைச் சரிபார்க்க, தொலைபேசி எண்ணை உள்ளிடவும்."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "கேரியர் கட்டணங்கள் விதிக்கப்படலாம்."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "{duration} நேரத்தில் மீண்டும் முயலுங்கள்"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "தொலைபேசி எண்"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "தொடர்க"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "மேலே உங்கள் தொலைபேசி எண் சரியானதா?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "எண்ணை தொகுக்க"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "ஆம்"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "தொடர, நீங்கள் மனிதர் தான் என்பதைச் சரிபார்க்கவும்"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "சிக்னலில் ஸ்பேமைத் தடுக்க உதவ, சரிபார்த்தலை முடிக்கவும். சரிபார்த்த பிறகு, நீங்கள் பதிவுசெய்தலைத் தொடரலாம்."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "சரிபார்த்தலை மீண்டும் முயல்க"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "உலாவியில் சரிபார்"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "{duration} நேரத்தில் சரிபாருங்கள்"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "கூடுதல் சரிபார்ப்பு தேவை"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "பதிவைத் தொடர மற்றொரு கேப்ட்சாவை நிரப்பவும்."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "சரிபார்த்தலை மீண்டும் முயல்க"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "பின்னர் மீண்டும் முயலுங்கள்"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "இப்போது சரிபார்த்தலை நிறைவு செய்ய முடியவில்லை."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "{duration} நேரத்தில் மீண்டும் முயலுங்கள்"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "சரிபார்த்தல் பிழை"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "பதிவுசெய்தலைத் தொடர, மீண்டும் சரிபார்க்க முயலவும்."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "மீண்டும் முயற்சிக்கவும்"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "சரிபார்ப்புக் குறியீடு"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "நாங்கள் அனுப்பிய குறியீட்டை {phoneNumber} க்கு உள்ளிடவும்"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "தொடர்க"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "குறியீட்டை மீண்டும் அனுப்பு"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "{duration} நேரத்தில் குறியீட்டை மீண்டும் அனுப்புக"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "என்னை அழைத்திடுக"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "{duration} நேரத்தில் என்னை அழைத்திடுக"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "தவறான எண்?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "பதிவு செய்வதில் சிக்கல் உள்ளதா?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "தவறான குறியீடு"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "நீங்கள் உள்ளிட்ட குறியீடு தவறானது. 6 இலக்கக் குறியீட்டைச் சரிபார்த்துவிட்டு மீண்டும் முயலவும்."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "தவறான குறியீடு"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "நீங்கள் உள்ளிட்ட குறியீடு தவறானது. குறியீட்டை மீண்டும் அனுப்பி, மீண்டும் முயலவும்."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "குறியீட்டை மீண்டும் அனுப்பு"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "எண்ணை தொகுக்க"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "SMS-ஐ அனுப்ப முடியவில்லை"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "SMS மூலம் சரிபார்ப்புக் குறியீட்டை உங்களுக்கு அனுப்ப முடியவில்லை. அதற்குப் பதிலாக குரல் அழைப்பு மூலம் உங்கள் குறியீட்டைப் பெற முயலவும்."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "குரல் அழைப்பு"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "பின்னர் மீண்டும் முயலுங்கள்"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "குறியீட்டை உள்ளிட, நீங்கள் பல முறை முயன்றுவிட்டீர்கள். {duration} நேரத்தில் மீண்டும் முயலுங்கள்."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "மிக அதிக முயற்சிகள்"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "குறியீட்டை உள்ளிட, நீங்கள் பல முறை முயன்றுவிட்டீர்கள். குறியீட்டை மீண்டும் அனுப்பி, மீண்டும் முயலுங்கள்."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "குறியீட்டை மீண்டும் அனுப்பு"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "எண்ணை தொகுக்க"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "அழைக்க முடியவில்லை"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "நீங்கள் உள்ளிட்ட தொலைபேசி எண்ணை எங்களால் அழைக்க முடியவில்லை. தொலைபேசி எண் சரியாக உள்ளதா எனச் சரிபார்த்துவிட்டு மீண்டும் முயலவும்."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "குறியீட்டை அனுப்ப முடியவில்லை"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "நீங்கள் உள்ளிட்ட தொலைபேசி எண்ணுக்குச் சரிபார்ப்புக் குறியீட்டை அனுப்ப முடியாது. நீங்கள் உள்ளிட்ட எண் சரியாக உள்ளதா எனச் சரிபார்க்கவும் அல்லது வேறு எண்ணை முயலவும்."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "பின்னர் மீண்டும் முயலுங்கள்"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "ஒரு பிழை ஏற்பட்டது மற்றும் சரிபார்ப்புக் குறியீட்டை அனுப்ப முடியவில்லை. {duration} நேரத்தில் மீண்டும் முயலுங்கள்."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "உங்கள் சுயவிவரத்தை அமைக்கவும்"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "நீங்கள் செய்தி அனுப்புபவர்களுக்கு, தொடர்புகளுக்கு மற்றும் குழுக்களுக்கு ப்ரொஃபைல்கள் தெரியும்."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "மேலும் அறிக"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "கூட்டு புகைப்படம்"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "முதல் பெயர் (தேவை)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "குடும்பப் பெயர் (விரும்பினால்)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "தொலைபேசி எண் மூலம் என்னை யார் கண்டுபிடிக்க முடியும்"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "மாற்றுக"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "முடிந்தது"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "தொடர்க"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "உங்கள் அவதாரம்"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "உங்கள் பின்னை உள்ளிடவும்"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "உங்கள் கணக்கிற்கு நீங்கள் உருவாக்கிய பின்னை உள்ளிடவும். இது உங்கள் SMS சரிபார்ப்புக் குறியீட்டிலிருந்து வேறுபட்டுள்ளது. <needHelp>உங்களுக்கு உதவி வேண்டுமா?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "உங்கள் பின்னை உள்ளிடவும்"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "தவறான பின்"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, one {தவறான பின். {triesRemaining,number} முயற்சிகள் மீதமுள்ளன.} other {தவறான பின். {triesRemaining,number}முயற்சிகள் மீதமுள்ளன.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "உங்களுக்கு உதவி வேண்டுமா?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "உங்கள் பின் என்பது நீங்கள் உருவாக்கிய 4-க்கும் மேற்பட்ட இலக்கங்களைக் கொண்ட குறியீடாகும், இது எண்களாகவோ அல்லது எழுத்துக்கள் மற்றும் எண்கள் கலந்ததாகவோ இருக்கலாம். உங்கள் பின்னை நினைவில் கொள்ள முடியாவிட்டால், புதிய ஒன்றை உருவாக்கலாம். நீங்கள் பதிவுசெய்து உங்கள் கணக்கைப் பயன்படுத்தலாம், ஆனால் உங்கள் சுயவிவரத் தகவல் போன்ற சேமிக்கப்பட்ட சில அமைப்புகளை இழப்பீர்கள். <learnMore>மேலும் அறிக</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "உங்கள் பின் என்பது நீங்கள் உருவாக்கிய 4-க்கும் மேற்பட்ட இலக்கங்களைக் கொண்ட குறியீடாகும், இது எண்களாகவோ அல்லது எழுத்துக்கள் மற்றும் எண்கள் கலந்ததாகவோ இருக்கலாம். உங்கள் பின் நினைவில் இல்லை எனில், உங்கள் கணக்கை மீண்டும் பதிவுசெய்ய நீங்கள் 7 நாட்கள் காத்திருக்க வேண்டும். <learnMore>மேலும் அறிக</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "தவிர்த்துவிட்டு, புதிய பின்னை உருவாக்குக"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "தொடர்பு ஆதரவு"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "தவறான பின்"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {உங்களிடம் {triesRemaining,number} முயற்சி மீதமுள்ளது. உங்கள் முயற்சிகளின் வரம்பு முடிந்தால், நீங்கள் ஒரு புதிய பின்னை உருவாக்கலாம். புதிய PIN மூலம் உங்கள் கணக்கைப் பதிவுசெய்து பயன்படுத்தலாம், ஆனால் உங்கள் சுயவிவரத் தகவல் போன்ற சில சேமிக்கப்பட்ட அமைப்புகளை இழப்பீர்கள். <learnMore>மேலும் அறிக</learnMore>.} other {உங்களிடம் {triesRemaining,number} முயற்சிகள் மீதமுள்ளன. உங்கள் முயற்சிகளின் வரம்பு முடிந்தால், நீங்கள் ஒரு புதிய பின்னை உருவாக்கலாம். புதிய PIN மூலம் உங்கள் கணக்கைப் பதிவுசெய்து பயன்படுத்தலாம், ஆனால் உங்கள் சுயவிவரத் தகவல் போன்ற சில சேமிக்கப்பட்ட அமைப்புகளை இழப்பீர்கள். <learnMore>மேலும் அறிக</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {உங்களிடம் இன்னும் {triesRemaining,number} முயற்சி மட்டுமே மீதமுள்ளது. உங்கள் முயற்சிகளின் வரம்பு முடிந்தால், உங்கள் கணக்கு 7 நாட்களுக்கு பூட்டப்பட்டிருக்கும். 7 நாட்கள் செயலற்ற நிலையில் இருந்த பிறகு, பின் இல்லாமல் மீண்டும் பதிவு செய்யலாம். அனைத்து உள்ளடக்கமும் நீக்கப்படும். <learnMore>மேலும் அறிக</learnMore>.} other {உங்களிடம் இன்னும் {triesRemaining,number} முயற்சிகள் மட்டுமே மீதமுள்ளன. உங்கள் முயற்சிகளின் வரம்பு முடிந்தால், உங்கள் கணக்கு 7 நாட்களுக்கு பூட்டப்பட்டிருக்கும். 7 நாட்கள் செயலற்ற நிலையில் இருந்த பிறகு, பின் இல்லாமல் மீண்டும் பதிவு செய்யலாம். அனைத்து உள்ளடக்கமும் நீக்கப்படும். <learnMore>மேலும் அறிக</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "தவறான பின்"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "பின்னை ஊகிப்பதற்கான உங்களின் முயற்சிகள் தீர்ந்துவிட்டன, ஆனால் நீங்கள் புதிய பின்னை உருவாக்குவதன் மூலம் உங்கள் சிக்னல் கணக்கை அணுகலாம். உங்கள் தனியுரிமை மற்றும் பாதுகாப்பிற்காகச் சேமிக்கப்பட்ட சுயவிவரத் தகவல் அல்லது அமைப்புகள் ஏதுமின்றி உங்கள் கணக்கு மீட்டமைக்கப்படும்."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "புதிய பின்னை உருவாக்கவும்"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "பின்கள் பற்றி மேலும் அறிக"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "பின்னைத் தவிர்"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "சிக்னல் பின்னைத் தவிர்க்கவா?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "உங்கள் பின்னை நினைவில் கொள்ள முடியாவிட்டால், புதிய ஒன்றை உருவாக்கலாம். நீங்கள் பதிவுசெய்து உங்கள் கணக்கைப் பயன்படுத்தலாம், ஆனால் உங்கள் சுயவிவரத் தகவல் போன்ற சேமிக்கப்பட்ட சில அமைப்புகளை இழப்பீர்கள். மேலும் அறிக."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "தவிர்த்துவிட்டு, புதிய பின்னை உருவாக்குக"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "உங்கள் பின்னை உருவாக்கவும்"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "உங்கள் கணக்கை மீட்டெடுக்கவும், உங்கள் தகவலை சிக்னல் மூலம் குறியாக்கம் செய்து வைத்திருக்கவும் பின்கள் உதவும். <learnMore>மேலும் அறிக</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "உங்கள் பின்னை உருவாக்கவும்"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "பின் குறைந்தது 4 எழுத்துக்களில் இருக்க வேண்டும்"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "தொடர்க"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "மெனுவைத் திறக்கவும்"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "பின்கள் குறித்து மேலும் அறிய"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "PIN-ஐ முடக்கு"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "எச்சரிக்கை"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "நீங்கள் பின்னை முடக்கினால், வேறொரு iOS சாதனத்திலிருந்து தரவை மாற்றாத வரையில், நீங்கள் சிக்னலை மீண்டும் பதிவுசெய்யும்போது அனைத்துத் தரவையும் இழப்பீர்கள். பின் முடக்கப்பட்டிருக்கும்போது பதிவு பூட்டை நீங்கள் ஆன் செய்ய முடியாது."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "PIN-ஐ முடக்கு"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "சிக்னல் பின்கள் பற்றிய தகவல்"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "நீங்கள் மட்டுமே அணுகும் வகையில் சிக்னலில் சேமிக்கப்பட்டுள்ள உங்கள் தகவல்களை பின்கள் குறியாக்கம் செய்யப்பட்டிருக்கும். நீங்கள் மீண்டும் நிறுவும்போது உங்கள் சுயவிவரம், அமைப்புகள் மற்றும் தொடர்புகள் மீட்டமைக்கப்படும்."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "மேலும் அறிக"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "உங்கள் பின்னை உறுதிப்படுத்துக"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "நீங்கள் தற்பொழுது உருவாக்கிய பின்னை மீண்டும் உள்ளிடவும்."
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "உங்கள் பின்னை உள்ளிடவும்"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "கணக்கில் பூட்டப்பட்டுள்ளது"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "உங்கள் தனியுரிமை மற்றும் பாதுகாப்பைப் பாதுகாக்க உங்கள் கணக்கு பூட்டப்பட்டுள்ளது. உங்கள் கணக்கில் 7 நாட்கள் செயலற்ற நிலையில் இருந்தபின், உங்கள் பின் இல்லாமல் இந்தத் தொலைபேசி எண்ணை மீண்டும் பதிவு செய்ய முடியும். எல்லா உள்ளடக்கமும் நீக்கப்படும். அனைத்து உள்ளடக்கங்களும் நீக்கப்படும்."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "வேறு எண்ணைப் பயன்படுத்துக"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "முடக்கப்பட்ட கணக்குகளைப் பற்றி அறிந்துகொள்ளுங்கள்"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "புதுப்பித்தல் தேவை"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "பதிவுசெய்தலைத் தொடர, சிக்னலின் அண்மைய பதிப்பிற்குப் புதுப்பிக்கவும்."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "புதுப்பிக்கப்பட்டது"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ரத்துசெய்"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "உங்கள் இணைப்பைச் சரிபார்க்கவும்"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "தொடர, உங்கள் கணினியின் இணைய இணைப்பைச் சரிபார்த்துவிட்டு மீண்டும் முயலவும்."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "சரி"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "பதிவுசெய்தலை நிறைவு செய்ய முடியாது"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "ஒரு பிழை ஏற்பட்டது மற்றும் பதிவுசெய்தலை நிறைவு செய்ய முடியாது. இந்தப் பிரச்சனை தொடர்ந்தால், ஆதரவுக் குழுவைத் தொடர்புகொள்ளவும்."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "மீண்டும் முயற்சிக்கவும்"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "ஆதரவைத் தொடர்பு கொள்க"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "சிக்னலை மூட முடியாது.",
@@ -8671,6 +8665,12 @@
     "messageformat": "இப்போது தனிப்பட்ட உரையாடல்களிலும்  வாக்கெடுப்புகளை உருவாக்கலாம்."
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "தொகுப்பு நிர்வாகிகள் இப்போது தொகுப்பு அமைப்புகளில் புதிய \"தொகுப்பை முடி\" விருப்பத்துடன் உரையாடல்களை ஒரு முடிவுக்கு கொண்டு வரலாம். ஒரு தொகுப்பை முடிப்பது தொகுப்பு உறுப்பினர்கள் செய்திகளை அனுப்புவதிலிருந்தோ அல்லது அழைப்புகளை மேற்கொள்வதிலிருந்தோ தடுக்கிறது. மேலும் அழைப்புகளை முடக்குகிறது."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

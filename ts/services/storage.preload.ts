@@ -381,6 +381,16 @@ async function generateManifest(
       };
       identifierType = ITEM_TYPE.CONTACT;
     } else if (conversationType === ConversationTypes.GroupV2) {
+      // Group just added via an incoming message, get updates from the server
+      // first before syncing it to storage service.
+      if (conversation.get('needsGroupUpdate') === true) {
+        log.warn(
+          `upload(${version}): ` +
+            `dropping group=${conversation.idForLogging()} until it is updated`
+        );
+        continue;
+      }
+
       storageRecord = {
         record: {
           groupV2: toGroupV2Record(conversation),
@@ -2326,7 +2336,10 @@ async function sync({
 
     strictAssert(manifest.version != null, 'Manifest without version');
     const version = toNumber(manifest.version) ?? 0;
-    if (version <= localManifestVersion && version > 0) {
+    if (
+      version <= localManifestVersion &&
+      (version !== 0 || localManifestVersion !== 0)
+    ) {
       log.error(
         'sync: remote manifest version mismatch ' +
           `${version} <= ${localManifestVersion}`

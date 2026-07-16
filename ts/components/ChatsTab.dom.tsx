@@ -74,7 +74,7 @@ export function ChatsTab({
               <WhatsNewLink i18n={i18n} showWhatsNewModal={showWhatsNewModal} />
             </p>
             <div className="Inbox__padding" />
-            <div className={tw('absolute bottom-0 p-5 text-label-secondary')}>
+            <div className={tw('absolute bottom-0 p-5 text-secondary')}>
               {i18n('icu:signalNonProfit')}
             </div>
           </div>

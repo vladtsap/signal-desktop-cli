@@ -132,13 +132,13 @@ export function ChatColorPicker({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={resetDefaultChatColor}
         >
           {i18n('icu:ChatColorPicker__confirm-reset-default')}
         </AxoConfirmDialog.Action>
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => {
             resetDefaultChatColor();
             resetAllChatColors();
@@ -154,7 +154,10 @@ export function ChatColorPicker({
         description={i18n('icu:ChatColorPicker__confirm-reset-message')}
       >
         <AxoConfirmDialog.Cancel />
-        <AxoConfirmDialog.Action variant="primary" onClick={resetAllChatColors}>
+        <AxoConfirmDialog.Action
+          variant="strong-primary"
+          onClick={resetAllChatColors}
+        >
           {i18n('icu:ChatColorPicker__confirm-reset')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>
@@ -305,7 +308,10 @@ function CustomColorBubble({
         })}
       >
         <AxoConfirmDialog.Cancel />
-        <AxoConfirmDialog.Action variant="destructive" onClick={onDelete}>
+        <AxoConfirmDialog.Action
+          variant="strong-destructive"
+          onClick={onDelete}
+        >
           {i18n('icu:ChatColorPicker__context--delete')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>

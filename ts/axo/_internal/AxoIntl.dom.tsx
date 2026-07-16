@@ -16,17 +16,21 @@ export namespace AxoIntl {
     'AxoDialog.Back': 'Back',
     'AxoDialog.Close': 'Close',
     'AxoTextField.Clear': 'Clear',
+    'AxoBadge.MaxOverflow': (max: number) => `${max}+`,
   };
 
-  /** A key for a built-in Axo UI string. */
-  export type MessageKey = keyof typeof DefaultMessages;
-
   /** Map of all message keys to their translated strings. */
-  export type Messages = Record<MessageKey, string>;
+  export type Messages = typeof DefaultMessages;
+
+  /** A key for a built-in Axo UI string. */
+  export type MessageKey = keyof Messages;
+
+  /** Directionality of text */
+  export type Direction = 'ltr' | 'rtl';
 
   /** The intl API available via `useAxoIntl`. */
   export type ContextType = Readonly<{
-    get: (key: MessageKey) => string;
+    get: <const K extends MessageKey>(key: K) => Messages[K];
   }>;
 
   function createIntlContext(messages: Messages): ContextType {

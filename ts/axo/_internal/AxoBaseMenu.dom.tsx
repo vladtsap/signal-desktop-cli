@@ -27,8 +27,7 @@ export namespace AxoBaseMenu {
   const baseContentStyles = tw(
     LEGACY_CONTEXT_MENU_Z_INDEX,
     'max-w-[300px] min-w-[200px]',
-    'select-none',
-    'curved-xl bg-elevated-background-tertiary shadow-elevation-3',
+    'curved-xl bg-material-tertiary shadow-elevation-3 backdrop-blur-regular',
     isTestOrMockEnvironment() ||
       'animate-opacity-0 data-[state=closed]:animate-exit',
     'forced-colors:border',
@@ -53,10 +52,10 @@ export namespace AxoBaseMenu {
   const navigableItemStyles = tw(
     labeledItemStyles,
     'curved-md type-body-medium',
-    'text-label-primary',
-    'data-highlighted:bg-fill-secondary-pressed',
-    'data-disabled:text-label-disabled',
-    'outline-none keyboard-mode:focus:outline-focus-ring',
+    'text-primary',
+    'data-highlighted:bg-primary-pressed',
+    'data-disabled:text-disabled',
+    'outline-none keyboard-mode:focus:axo-focus-ring',
     'forced-colors:text-[CanvasText]',
     'forced-colors:data-highlighted:bg-[Highlight]',
     'forced-colors:data-highlighted:text-[HighlightText]',
@@ -233,7 +232,7 @@ export namespace AxoBaseMenu {
       <span
         dir="auto"
         className={tw(
-          'ms-auto px-1 type-body-medium text-label-secondary forced-colors:text-inherit'
+          'ms-auto px-1 type-body-medium text-secondary forced-colors:text-inherit'
         )}
       >
         {props.keyboardShortcut}
@@ -350,7 +349,7 @@ export namespace AxoBaseMenu {
 
   const baseLabelStyles = tw(
     labeledItemStyles,
-    'type-body-small text-label-secondary'
+    'type-body-small text-secondary'
   );
 
   export const menuLabelStyles = tw(baseLabelStyles);
@@ -363,10 +362,10 @@ export namespace AxoBaseMenu {
 
   export const menuHeaderStyles = tw('col-span-full col-start-1 p-1.5');
   export const menuHeaderLabelStyles = tw(
-    'block truncate type-title-small text-label-primary'
+    'block truncate type-title-small text-primary'
   );
   export const menuHeaderDescriptionStyles = tw(
-    'block truncate type-caption text-label-secondary'
+    'block truncate type-caption text-secondary'
   );
 
   /**
@@ -430,7 +429,7 @@ export namespace AxoBaseMenu {
    * --------------------------------------------------------------------------
    */
 
-  const baseSeparatorStyles = tw('my-1 border-t-[0.5px] border-border-primary');
+  const baseSeparatorStyles = tw('my-1 border-t-[0.5px] border-primary');
 
   export const menuSeparatorStyles = tw(
     'col-span-full col-start-1 mx-0.5',
@@ -463,7 +462,7 @@ export namespace AxoBaseMenu {
 
   export const menuSubTriggerStyles = tw(
     navigableItemStyles,
-    'data-[state=open]:not-data-highlighted:bg-fill-secondary',
+    'data-[state=open]:not-data-highlighted:bg-primary',
     'forced-colors:data-[state=open]:not-data-highlighted:bg-[Highlight]',
     'forced-colors:data-[state=open]:not-data-highlighted:text-[HighlightText]'
   );

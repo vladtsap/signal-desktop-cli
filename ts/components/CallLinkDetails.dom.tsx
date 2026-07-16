@@ -248,7 +248,7 @@ export function CallLinkDetails({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={onDeleteCallLink}
         >
           {i18n('icu:CallLinkDetails__DeleteLinkModal__Delete')}

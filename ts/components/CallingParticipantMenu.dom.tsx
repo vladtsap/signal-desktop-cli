@@ -104,7 +104,7 @@ export function CallingParticipantMenu({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(onBlockFromCall, 'onBlockFromCall prop is required');
             onBlockFromCall();
@@ -113,7 +113,7 @@ export function CallingParticipantMenu({
           {i18n('icu:CallingAdhocCallInfo__RemoveClientDialogButton--block')}
         </AxoConfirmDialog.Action>
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(onRemoveFromCall, 'onRemoveFromCall prop is required');
             onRemoveFromCall();

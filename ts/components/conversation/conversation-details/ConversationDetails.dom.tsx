@@ -368,7 +368,7 @@ export function ConversationDetails({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={onDeleteNicknameAndNote}
           >
             {i18n('icu:delete')}
@@ -400,7 +400,7 @@ export function ConversationDetails({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setMuteDuration(conversation.id, 0)}
           >
             {i18n('icu:unmute')}

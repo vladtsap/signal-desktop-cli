@@ -189,7 +189,7 @@ export const ContactListItem: FunctionComponent<PropsType> = memo(
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => onBlock?.(id)}
           >
             {i18n('icu:MessageRequests--block')}
@@ -240,7 +240,7 @@ export const ContactListItem: FunctionComponent<PropsType> = memo(
           >
             <AxoConfirmDialog.Cancel />
             <AxoConfirmDialog.Action
-              variant="destructive"
+              variant="strong-destructive"
               onClick={() => onRemove?.(id)}
             >
               {i18n('icu:ContactListItem__remove--confirm')}

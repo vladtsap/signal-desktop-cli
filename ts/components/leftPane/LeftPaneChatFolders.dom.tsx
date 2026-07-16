@@ -44,9 +44,7 @@ export type LeftPaneChatFoldersProps = Readonly<{
   onChatFolderOpenSettings: (chatFolderId: ChatFolderId) => void;
 }>;
 
-function getBadgeValue(
-  unreadStats: UnreadStats | null
-): ExperimentalAxoSegmentedControl.ExperimentalItemBadgeProps['value'] | null {
+function getBadgeValue(unreadStats: UnreadStats | null): number | null {
   if (unreadStats == null) {
     return null;
   }
@@ -126,7 +124,7 @@ export function LeftPaneChatFolders(
           onValueChange={handleValueChange}
         >
           <AxoSelect.Trigger
-            variant="floating"
+            variant="elevated"
             width="full"
             placeholder=""
             chevron="on-hover"
@@ -210,16 +208,14 @@ function ChatFolderSelectItem(props: {
         {getChatFolderLabel(i18n, props.chatFolder, true)}
       </AxoSelect.ItemText>
       {badgeValue != null && (
-        <AxoSelect.ExperimentalItemBadge
+        <AxoSelect.ItemBadge
+          variant="primary"
           value={badgeValue}
           max={UNREAD_BADGE_MAX_COUNT}
-          maxDisplay={i18n(
-            'icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount',
-            {
-              maxCount: UNREAD_BADGE_MAX_COUNT,
-            }
+          label={i18n(
+            'icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel',
+            { count: badgeValue }
           )}
-          label={null}
         />
       )}
     </AxoSelect.Item>
@@ -256,14 +252,14 @@ function ChatFolderSegmentedControlItem(props: {
           {getChatFolderLabel(i18n, props.chatFolder, false)}
         </ExperimentalAxoSegmentedControl.ItemText>
         {badgeValue != null && (
-          <ExperimentalAxoSegmentedControl.ExperimentalItemBadge
+          <ExperimentalAxoSegmentedControl.ItemBadge
+            variant="primary"
             value={badgeValue}
             max={UNREAD_BADGE_MAX_COUNT}
-            maxDisplay={i18n(
-              'icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount',
-              { maxCount: UNREAD_BADGE_MAX_COUNT }
+            label={i18n(
+              'icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel',
+              { count: badgeValue }
             )}
-            label={null}
           />
         )}
       </ExperimentalAxoSegmentedControl.Item>

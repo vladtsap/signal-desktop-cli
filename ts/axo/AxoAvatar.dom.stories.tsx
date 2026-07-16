@@ -27,7 +27,7 @@ function Cell(props: { children: ReactNode; label: ReactNode }) {
   return (
     <div className={tw('flex flex-col items-center gap-2')}>
       {props.children}
-      <span className={tw('font-mono type-caption text-label-secondary')}>
+      <span className={tw('font-mono type-caption text-secondary')}>
         {props.label}
       </span>
     </div>

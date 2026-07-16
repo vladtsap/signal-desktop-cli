@@ -281,7 +281,7 @@ export function createIPCEvents(
             cancelText: i18n(
               'icu:ConfirmationDialog__Title--close-requested-not-now'
             ),
-            confirmStyle: 'destructive',
+            confirmStyle: 'strong-destructive',
             title: i18n(
               'icu:ConfirmationDialog__Title--in-call-close-requested'
             ),

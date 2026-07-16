@@ -6,9 +6,12 @@ import '../sandboxedInit.dom.ts';
 import { DebugLogWindow } from '../../components/DebugLogWindow.dom.tsx';
 import { strictAssert } from '../../util/assert.std.ts';
 import { AppProvider } from '../AppProvider.dom.tsx';
+import { setDocumentLocale } from '../../util/setDocumentLocale.dom.ts';
 
 const { DebugLogWindowProps } = window.Signal;
 const { i18n } = window.SignalContext;
+
+setDocumentLocale(document);
 
 strictAssert(DebugLogWindowProps, 'window values not provided');
 

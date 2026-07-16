@@ -36,10 +36,10 @@ export function ConfirmPhoneNumberDialog({
         'icu:StandaloneRegistration--PhoneNumber--Confirmation--description'
       )}
     >
-      <AxoConfirmDialog.Action variant="secondary" onClick={onEdit}>
+      <AxoConfirmDialog.Action variant="strong-secondary" onClick={onEdit}>
         {i18n('icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel')}
       </AxoConfirmDialog.Action>
-      <AxoConfirmDialog.Action variant="primary" onClick={onConfirm}>
+      <AxoConfirmDialog.Action variant="strong-primary" onClick={onConfirm}>
         {i18n('icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm')}
       </AxoConfirmDialog.Action>
     </AxoConfirmDialog.Root>

@@ -194,7 +194,7 @@ export namespace AxoScrollArea {
             'rounded-[2px]',
             // Move the outline from the viewport to the parent
             // so it doesn't get cut off by <Mask>
-            'keyboard-mode:has-[[data-axo-scroll-area-viewport]:focus]:outline-focus-ring'
+            'keyboard-mode:has-[[data-axo-scroll-area-viewport]:focus]:axo-focus-ring'
           )}
           style={style}
         >
@@ -410,7 +410,7 @@ export namespace AxoScrollArea {
   const edgeStyles = tw(
     'absolute z-10',
     'opacity-0',
-    'from-shadow-outline to-transparent dark:from-shadow-elevation-1',
+    'from-(--axo-shadow-color-outline) to-transparent dark:from-(--axo-shadow-color-elevation-1)',
     'animate-duration-1 [animation-name:axo-scroll-area-hint-reveal]',
     'forced-colors:bg-[ButtonBorder]'
   );

@@ -832,7 +832,7 @@ function renderToast({
       >
         <div>
           <strong>
-            <span className={tw('text-color-fill-warning')}>
+            <span className={tw('text-warning')}>
               <AxoSymbol.InlineGlyph symbol="error-triangle" label="Change" />
             </span>
             &nbsp;Remote Config changed:

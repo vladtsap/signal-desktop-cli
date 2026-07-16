@@ -155,7 +155,7 @@ export function CallLinkEditModal({
             </div>
           </div>
 
-          <div className={tw('my-3 h-px border-none bg-border-secondary')} />
+          <hr className={tw('my-3 border-t-[0.5px] border-primary')} />
 
           <RowButton onClick={onOpenCallLinkAddNameModal}>
             <Row>
@@ -183,7 +183,7 @@ export function CallLinkEditModal({
             />
           </Row>
 
-          <div className={tw('my-3 h-px border-none bg-border-secondary')} />
+          <hr className={tw('my-3 border-t-[0.5px] border-primary')} />
 
           <RowButton onClick={onCopyCallLink}>
             <Row>
@@ -203,7 +203,7 @@ export function CallLinkEditModal({
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="primary" onClick={onClose}>
+            <AxoDialog.Action variant="strong-primary" onClick={onClose}>
               {i18n('icu:done')}
             </AxoDialog.Action>
           </AxoDialog.Actions>

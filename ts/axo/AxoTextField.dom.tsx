@@ -151,17 +151,12 @@ export namespace AxoTextField {
           'group flex items-stretch',
           'overflow-hidden',
           GroupWidthStyles.get(props.width),
-          'curved-lg bg-fill-primary',
-          'border-[0.5px] border-border-primary',
+          'curved-lg bg-control',
+          'border-[0.5px] border-primary',
           'shadow-elevation-0 shadow-no-outline',
-          'placeholder:text-label-placeholder',
-          'select-none',
-          'outline-offset-[-1.5px]',
-          'not-forced-colors:has-[input:focus]:outline-[1.5px]',
-          'not-forced-colors:has-[input:focus]:outline-border-selected',
-          'forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]',
-          'not-forced-colors:has-[input:user-invalid]:outline-border-error',
-          'not-forced-colors:has-[input:user-invalid]:outline-[1.4px]'
+          'placeholder:text-placeholder',
+          'not-forced-colors:has-[input:focus]:axo-focus-ring',
+          'forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]'
         )}
       >
         {props.children}
@@ -331,9 +326,9 @@ export namespace AxoTextField {
 
               'py-1.5',
               'indent-1',
-              'text-label-primary',
+              'text-primary',
               'not-forced-colors:outline-none',
-              'disabled:text-label-disabled'
+              'disabled:text-disabled'
             )}
           />
         </div>
@@ -374,7 +369,7 @@ export namespace AxoTextField {
     return (
       <span
         className={tw(
-          'pointer-events-none z-10 flex items-center justify-center text-label-secondary',
+          'pointer-events-none z-10 flex items-center justify-center text-secondary',
           'px-1 first:ps-2.5 last:pe-2.5'
         )}
       >
@@ -440,9 +435,7 @@ export namespace AxoTextField {
           'pointer-events-none z-10 flex items-center',
           'px-1 first:ps-2.5 last:pe-2.5',
           'type-body-small tabular-nums',
-          warnRemainingCount
-            ? 'text-color-label-destructive'
-            : 'text-label-secondary'
+          warnRemainingCount ? 'text-destructive' : 'text-secondary'
         )}
       >
         {remainingCount}
@@ -503,10 +496,10 @@ export namespace AxoTextField {
             'flex items-center justify-center',
             'p-0.5',
             'rounded-full',
-            'text-label-secondary',
-            'group-enabled/clear:group-hover/clear:text-label-primary',
-            'group-enabled/clear:group-hover/clear:bg-background-secondary',
-            'group-focus-visible/clear:outline-focus-ring'
+            'text-secondary',
+            'group-enabled/clear:group-hover/clear:text-primary',
+            'group-enabled/clear:group-hover/clear:bg-surface-secondary',
+            'group-focus-visible/clear:axo-focus-ring'
           )}
         >
           <AxoSymbol.Icon size={16} symbol="x" label={null} />
@@ -581,10 +574,10 @@ export namespace AxoTextField {
         <span
           className={tw(
             'flex items-center justify-center rounded-full p-1',
-            'text-label-secondary',
-            'group-not-aria-disabled/action:group-hover/action:text-label-primary',
-            'group-not-aria-disabled/action:group-hover/action:bg-background-secondary',
-            'group-focus-visible/action:outline-focus-ring'
+            'text-secondary',
+            'group-not-aria-disabled/action:group-hover/action:text-primary',
+            'group-not-aria-disabled/action:group-hover/action:bg-surface-secondary',
+            'group-focus-visible/action:axo-focus-ring'
           )}
         >
           <AxoSymbol.Icon size={18} symbol={props.symbol} label={null} />

@@ -23,7 +23,7 @@ function Heading(props: { children: ReactNode }) {
     <h2
       className={tw(
         'mt-4 first:mt-0',
-        'type-title-small font-semibold text-label-primary'
+        'type-title-small font-semibold text-primary'
       )}
     >
       {props.children}
@@ -33,15 +33,13 @@ function Heading(props: { children: ReactNode }) {
 
 function Hint(props: { children: ReactNode }) {
   return (
-    <p className={tw('type-body-medium text-label-secondary')}>
-      {props.children}
-    </p>
+    <p className={tw('type-body-medium text-secondary')}>{props.children}</p>
   );
 }
 
 function Warn(props: { children: ReactNode }) {
   return (
-    <p className={tw('type-body-medium text-color-label-destructive italic')}>
+    <p className={tw('type-body-medium text-destructive italic')}>
       Warning: {props.children}
     </p>
   );
@@ -51,7 +49,7 @@ function Code(props: { children: ReactNode }) {
   return (
     <code
       className={tw(
-        'inline-block rounded-xs bg-background-secondary px-0.5 font-mono'
+        'inline-block rounded-xs bg-surface-secondary px-0.5 font-mono'
       )}
     >
       {props.children}

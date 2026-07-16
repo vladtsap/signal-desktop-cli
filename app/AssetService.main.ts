@@ -1,13 +1,12 @@
 // Copyright 2024 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { createReadStream } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { protocol } from 'electron';
 
 import type { OptionalResourceService } from './OptionalResourceService.main.ts';
 import { getAppRootDir } from '../ts/util/appRootDir.main.ts';
-import { toWebStream } from '../ts/util/toWebStream.node.ts';
 import * as Errors from '../ts/types/errors.std.ts';
 import { createLogger } from '../ts/logging/log.std.ts';
 
@@ -67,10 +66,8 @@ export class AssetService {
     const path = pathname.slice(1);
 
     if (LOCAL_ASSETS.has(path)) {
-      const stream = createReadStream(
-        join(getAppRootDir(), ...path.split('/'))
-      );
-      return new Response(toWebStream(stream), {
+      const content = await readFile(join(getAppRootDir(), ...path.split('/')));
+      return new Response(content, {
         status: 200,
         headers: {
           'cache-control': 'public, max-age=2592000, immutable',

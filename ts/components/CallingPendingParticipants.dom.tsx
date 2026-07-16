@@ -187,7 +187,10 @@ export function CallingPendingParticipants({
         )}
       >
         <AxoConfirmDialog.Cancel />
-        <AxoConfirmDialog.Action variant="primary" onClick={handleApproveAll}>
+        <AxoConfirmDialog.Action
+          variant="strong-primary"
+          onClick={handleApproveAll}
+        >
           {i18n('icu:CallingPendingParticipants__ApproveAll')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>
@@ -211,7 +214,10 @@ export function CallingPendingParticipants({
         )}
       >
         <AxoConfirmDialog.Cancel />
-        <AxoConfirmDialog.Action variant="destructive" onClick={handleDenyAll}>
+        <AxoConfirmDialog.Action
+          variant="strong-destructive"
+          onClick={handleDenyAll}
+        >
           {i18n('icu:CallingPendingParticipants__DenyAll')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>

@@ -216,7 +216,7 @@ export function StoryListItem({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => onHideStory(conversationId)}
         >
           {i18n('icu:StoryListItem__hide-modal--confirm')}

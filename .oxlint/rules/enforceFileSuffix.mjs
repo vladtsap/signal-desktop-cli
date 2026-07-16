@@ -239,6 +239,7 @@ const STD_PACKAGES = new Set([
   'filesize',
   'firstline',
   'form-data',
+  'micromatch',
   'motion',
   'motion/react',
   'fuse.js',

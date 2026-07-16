@@ -14,23 +14,23 @@ export default {
 } satisfies Meta;
 
 const Backgrounds = variants<AxoButton.Variant>('AxoButton.Variant', {
-  secondary: tw('bg-background-primary'),
-  primary: tw('bg-background-primary'),
-  affirmative: tw('bg-background-primary'),
-  destructive: tw('bg-background-primary'),
-  'subtle-primary': tw('bg-background-primary'),
-  'subtle-affirmative': tw('bg-background-primary'),
-  'subtle-destructive': tw('bg-background-primary'),
-  'floating-secondary': tw('bg-background-primary'),
-  'floating-primary': tw('bg-background-primary'),
-  'floating-affirmative': tw('bg-background-primary'),
-  'floating-destructive': tw('bg-background-primary'),
-  'borderless-secondary': tw('bg-background-primary'),
-  'borderless-primary': tw('bg-background-primary'),
-  'borderless-affirmative': tw('bg-background-primary'),
-  'borderless-destructive': tw('bg-background-primary'),
-  'message-incoming-secondary': tw('bg-message-fill-incoming-primary'),
-  'message-outgoing-secondary': tw('bg-message-fill-outgoing-primary'),
+  'strong-secondary': tw('bg-transparent'),
+  'strong-primary': tw('bg-transparent'),
+  'strong-affirmative': tw('bg-transparent'),
+  'strong-warning': tw('bg-transparent'),
+  'strong-destructive': tw('bg-transparent'),
+  'subtle-secondary': tw('bg-transparent'),
+  'subtle-primary': tw('bg-transparent'),
+  'subtle-affirmative': tw('bg-transparent'),
+  'subtle-warning': tw('bg-transparent'),
+  'subtle-destructive': tw('bg-transparent'),
+  'elevated-secondary': tw('bg-transparent'),
+  'implied-secondary': tw('bg-transparent'),
+  'implied-primary': tw('bg-transparent'),
+  'implied-affirmative': tw('bg-transparent'),
+  'implied-destructive': tw('bg-transparent'),
+  'message-incoming-primary': tw('bg-surface-message-incoming'),
+  'message-outgoing-primary': tw('bg-surface-message-outgoing'),
 });
 
 export function Basic(): JSX.Element {
@@ -163,7 +163,7 @@ const LONG_TEXT = (
 
 function Fit(props: { longText?: boolean }) {
   return (
-    <AxoButton.Root variant="primary" size="md" width="fit">
+    <AxoButton.Root variant="strong-primary" size="md" width="fit">
       Fit {props.longText && LONG_TEXT}
     </AxoButton.Root>
   );
@@ -171,7 +171,7 @@ function Fit(props: { longText?: boolean }) {
 
 function Grow(props: { longText?: boolean }) {
   return (
-    <AxoButton.Root variant="affirmative" size="md" width="grow">
+    <AxoButton.Root variant="strong-affirmative" size="md" width="grow">
       Grow {props.longText && LONG_TEXT}
     </AxoButton.Root>
   );
@@ -179,7 +179,7 @@ function Grow(props: { longText?: boolean }) {
 
 function Full(props: { longText?: boolean }) {
   return (
-    <AxoButton.Root variant="destructive" size="md" width="full">
+    <AxoButton.Root variant="strong-destructive" size="md" width="full">
       Fill {props.longText && LONG_TEXT}
     </AxoButton.Root>
   );

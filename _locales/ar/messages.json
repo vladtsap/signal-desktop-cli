@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "مسح"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "إضافة إلى مجموعة"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "اعتبار كل الرسائل مقروءة"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "إلغاء تثبيت الدردشة"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "يمكنك تثبيت فقط حتى أربع دردشات."
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, zero {يمكنك تثبيت ما يصل إلى {maxPinnedConversations,number} دردشات فقط} one {يمكنك تثبيت ما يصل إلى {maxPinnedConversations,number} دردشة فقط} two {يمكنك تثبيت ما يصل إلى {maxPinnedConversations,number} دردشتين فقط} few {يمكنك تثبيت ما يصل إلى {maxPinnedConversations,number} دردشات فقط} many {يمكنك تثبيت ما يصل إلى {maxPinnedConversations,number} دردشة فقط} other {يمكنك تثبيت ما يصل إلى {maxPinnedConversations,number} دردشة فقط}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "لم يتم تثبيت مجموعة المُلصَقات"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "متاح"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "مُثبَّتة"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "لا توجد مُلصقَات مُثبَّتة"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "لا توجد حزم مُلصَقات. قُم بإضافة مُلصَقات لإرسالها لأصدقائك."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "لا توجد حزَم مُلصَقات فنية على سيجنال"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "المُلصَقات المستلَمة"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "تمَّت مشاركتها معك"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "عندما تستلم مُلصَق من شخص ما، ستظهر حزمة المُلصَقات هنا."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "ستظهر هنا المُلصَقات القادمة من الرسائل الواردة"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "تثبيت"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "إزالة"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "مجموعة المُلصَقات"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "إضافة مُلصَق"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "إلغاء"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "أدخِل المفتاح"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "قُم بتسجيل مفتاح الاستعادة الخاص بك"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "مفتاح الاستعادة الخاص بك"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "هذا المفتاح مطلوب لاسترجاع بياناتك وحسابك. احتفِظ بهذا المفتاح في مكانٍ آمن. إذا فقدته، لن تتمكّن من استرجاع حسابك. <learnMoreLink>اعرف المزيد.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "هذا المفتاح مطلوب لاسترجاع بياناتك وحسابك. احتفِظ بمفتاح الاستعادة الخاص بك في مكانٍ آمن ولا تشارِكه مع أي أحد. لن يُرسِل لك سيجنال أبدًا رسالة يطلب فيها مفتاح الاستعادة. <learnMoreLink>اعرف المزيد.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "لا تشارِك مفتاح الاستعادة"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>لن يُرسِل لك سيجنال أبدًا رسالة</strong> يطلب فيها مفتاح الاستعادة. تجنَّب الرد نهائيًا على الدردشات التي تدعي أنها مُرسَلة من طرف سيجنال. احتفِظ بمفتاح الاستعادة الخاص بك في مكانٍ آمن ولا تشارِكه مع أي أحد. <learnMoreLink>اعرف المزيد.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "تم"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "لا تشارِك المفتاح"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "لا تشارِك مفتاح الاستعادة الخاص بك مع أي أحد. سيمكنه هذا من الاستيلاء على حسابك. <strong>لن يُرسِل لك سيجنال أبدًا رسالة</strong> يطلب فيها مفتاح الاستعادة. تجنَّب الرد نهائيًا على الدردشات التي تدعي أنها مُرسَلة من طرف سيجنال."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "لا تشارِك مفتاح الاستعادة الخاص بك مع أي أحد. سيمكنه هذا من الاستيلاء على حسابك. <strong>لن يُرسِل لك سيجنال أبدًا رسالة</strong> يطلب فيها مفتاح الاستعادة. تجنَّب الرد نهائيًا على الدردشات التي تدعي أنها مُرسَلة من طرف سيجنال. <learnMoreLink>اعرف المزيد.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "لا تشارِك"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "لصق المفتاح"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "قُم بتأكيد مفتاح الاستعادة الخاص بك"
@@ -6749,403 +6743,403 @@
     "messageformat": "تعذَّر تحديث سيجنال Desktop، لكن هناك إصدار جديد متوفر. انتقِل إلى {downloadUrl} وثبِّت الإصدار الجديد يدويًا، ثم تواصَل مع الدعم أو بلِّغ عن خطأ بشأن هذا المشكلة."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "شعار سيجنال"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "الرجوع"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "رقم الهاتف"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "أدخِل رقم الهاتف الخاص بك للتحقُّق من حسابك."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "قد يتم تطبيق رسوم من قِبَل شركة الاتصالات المُستخدَمة."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "يُرجى المحاولة لاحقًا {duration}"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "رقم الهاتف"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "متابعة"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "هل رقم هاتفك المُحدَّد أعلاه صحيح؟"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "تعديل الرقم"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "نعم"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "تحقّق من أنك إنسان للمتابعة"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "لمنع وصول الرسائل غير المرغوب فيها في سيجنال، يُرجى إتمام التحقُّق. بعد التحقُّق، يمكنك مواصلة التسجيل."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "حاول التحقُّق من جديد"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "تحقَّق في المُتصفِّح"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "التحقُّق في {duration}"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "التحقُّق الإضافي مطلوب"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "يُرجى إكمال اختبار اختبار تحقُّق آخر لمتابعة عملية التسجيل."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "حاول التحقُّق من جديد"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "حاوِل مرّة أخرى لاحقًا"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "تعذَّر إتمام التحقُّق الآن."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "حاوِل مرّة أخرى بعد {duration}"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "خطأ في التحقُّق"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "حاوِل التحقُّق من جديد لمواصلة التسجيل."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "حاوِل مُجدَّدًا"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "كود التحقُّق"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "أدخِل الكود الذي أرسلناه إلى {phoneNumber}"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "متابعة"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "أعِد إرسال الكود"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "إعادة إرسال الكود بعد {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "اتصل بي"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "اتصل بي بعد {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "هل هو رقم غير صحيح؟"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "هل تواجه مشكلة في التسجيل؟"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "كود غير صحيح"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "الكود الذي أدخلته غير صحيح. يُرجى التحقُّق من الكود المُكوَّن من 6 أرقام ومحاولة الإدخال مرّة أخرى."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "كود غير صحيح"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "الكود الذي أدخلته غير صحيح. يُرجى إعادة إرسال الكود والمحاولة مرّة أخرى."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "أعِد إرسال الكود"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "تعديل الرقم"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "تعذَّر إرسال الرسالة القصيرة"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "تعذَّر إرسال كود التحقُّق عبر رسالة نصية. حاوِل الحصول على الكود الخاص بك عبر مكالمة صوتية بدلًا من ذلك."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "ابدأ مكالمة صوتية"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "حاوِل مرّة أخرى لاحقًا"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "قُمتَ بمحاولاتٍ كثيرة لإدخال الكود. حاوِل مرّة أُخرى بعد {duration}."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "محاولات كثيرة"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "قُمتَ بمحاولاتٍ كثيرة لإدخال الكود. يُرجى إعادة إرسال الكود والمحاولة مرّة أخرى."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "أعِد إرسال الكود"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "تعديل الرقم"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "تعذّر الاتصال"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "تعذّر علينا الاتصال برقم الهاتف الذي أدخلته. تأكَّد من صحة رقم الهاتف وحاوِل مرة أخرى."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "تعذَّر إرسال الكود"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "لا يمكن إرسال كود التحقّق إلى رقم الهاتف الذي أدخلته. تأكد من صحة الرقم الذي أدخلته، أو جرِّب رقمًا آخر."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "حاوِل مرّة أخرى لاحقًا"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "حدث خطأ ولم يتم إرسال كود التحقُّق. حاوِل مرّة أخرى خلال {duration}."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "إعداد الحساب الشخصي"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "الحسابات الشخصية مرئية للأشخاص الذين تُراسلهم وجهات الاتصال والمجموعات لديك."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "اعرف المزيد"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "إضافة صورة"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "الاسم الأول (مطلوب)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "اسم العائلة (اختياري)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "من يمكنه العثور على حسابي باستخدام رقم هاتفي"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "تغيير"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "تمّ"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "متابعة"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "صورتك الرمزية"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "أدخِل رقم PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "أدخِل رقم التعريف الشخصي (PIN) الذي أنشأته لحسابك. هو مختلف عن كود التحقُّق الذي وصلك عبر رسالة قصيرة. <needHelp>هل تحتاج لمُساعدة؟</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "أدخِل رقم PIN"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "رقم التعريف الشخصي (PIN) غير صحيح"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, zero {رقم التعريف الشخصي (PIN) غير صحيح. تبقى لديك {triesRemaining,number} محاولات.} one {رقم التعريف الشخصي (PIN) غير صحيح. تبقى لديك {triesRemaining,number} محاولة.} two {رقم التعريف الشخصي (PIN) غير صحيح. تبقى لديك {triesRemaining,number} محاولتين.} few {رقم التعريف الشخصي (PIN) غير صحيح. تبقى لديك {triesRemaining,number} محاولات.} many {رقم التعريف الشخصي (PIN) غير صحيح. تبقى لديك {triesRemaining,number} محاولة.} other {رقم التعريف الشخصي (PIN) غير صحيح. تبقى لديك {triesRemaining,number} محاولة.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "هل تحتاج لمُساعدة؟"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "رقم التعريف الشخصي (PIN) الخاص بك عِبارة عن كود مُكوَّن من 4 أرقام أو أكثر ويُمكن أن يكون رقميًا أو أبجديًا ورقميًا. إذا لم تستطع تَذكُّر رقم التعريف الشخصي (PIN) الخاص بك، يمكنك إنشاء رقم جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك، لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد.</learnMore>"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "رقم التعريف الشخصي (PIN) الخاص بك عِبارة عن كود مُكوَّن من 4 أرقام أو أكثر ويُمكن أن يكون رقميًا أو أبجديًا ورقميًا. إذا لم تستطع تَذكُّر رقم التعريف الشخصي (PIN) الخاص بك، يجبُ عليك الانتظار لمدة سبعة أيام لكي تُعيد تسجيل الحساب الخاص بك. <learnMore>اعرف المزيد.</learnMore>"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "تجاهُل وإنشاء رقم (PIN) جديد"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "الاتصال بقسم الدعم"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "رقم التعريف الشخصي (PIN) غير صحيح"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, zero {تبقت لديك {triesRemaining,number} محاولة. إذا استنفدتَ جميع المُحاولات، يُمكنك إنشاء كود الـ PIN جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد</learnMore>.} one {تبقت لديك {triesRemaining,number} محاولة. إذا استنفدتَ جميع المُحاولات، يُمكنك إنشاء كود الـ PIN جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد</learnMore>.} two {تبقت لديك محاولتين {triesRemaining,number}. إذا استنفدتَ جميع المُحاولات، يُمكنك إنشاء كود الـ PIN جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد</learnMore>.} few {تبقت لديك {triesRemaining,number} محاولات. إذا استنفدتَ جميع المُحاولات، يُمكنك إنشاء كود الـ PIN جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد</learnMore>.} many {تبقت لديك {triesRemaining,number} محاولة. إذا استنفدتَ جميع المُحاولات، يُمكنك إنشاء كود الـ PIN جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد</learnMore>.} other {تبقت لديك {triesRemaining,number} محاولة. إذا استنفدتَ جميع المُحاولات، يُمكنك إنشاء كود الـ PIN جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. <learnMore>اعرف المزيد</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, zero {لديك {triesRemaining,number} محاولة متبقية. إذا استنفدتَ جميع المُحاولات، فسيتم قفل حسابك لمدة 7 أيام. بعد مرور 7 أيام من عدم النشاط، يمكنك إعادة التسجيل دون الحاجة إلى رقم التعريف الشخصي (PIN). وسَيتم حذف جميع المحتويات. <learnMore>اعرف المزيد</learnMore>.} one {لديك {triesRemaining,number} محاولة متبقية. إذا استنفدتَ جميع المُحاولات، فسيتم قفل حسابك لمدة 7 أيام. بعد مرور 7 أيام من عدم النشاط، يمكنك إعادة التسجيل دون الحاجة إلى رقم التعريف الشخصي (PIN). وسيتم حذف جميع المحتويات. <learnMore>اعرف المزيد</learnMore>.} two {لديك {triesRemaining,number} محاولتان متبقيتان. إذا استنفدتَ جميع المُحاولات، فسيتم قفل حسابك لمدة 7 أيام. بعد مرور 7 أيام من عدم النشاط، يمكنك إعادة التسجيل دون الحاجة إلى رقم التعريف الشخصي (PIN). وسيتم حذف جميع المحتويات. <learnMore>اعرف المزيد</learnMore>.} few {لديك {triesRemaining,number} محاولات متبقية. إذا استنفدتَ جميع المُحاولات، فسيتم قفل حسابك لمدة 7 أيام. بعد مرور 7 أيام من عدم النشاط، يمكنك إعادة التسجيل دون الحاجة إلى رقم التعريف الشخصي (PIN). وسيتم حذف جميع المحتويات. <learnMore>اعرف المزيد</learnMore>.} many {لديك {triesRemaining,number} محاولة متبقية. إذا استنفدتَ جميع المُحاولات، فسيتم قفل حسابك لمدة 7 أيام. بعد مرور 7 أيام من عدم النشاط، يمكنك إعادة التسجيل دون الحاجة إلى رقم التعريف الشخصي (PIN). وسيتم حذف جميع المحتويات. <learnMore>اعرف المزيد</learnMore>.} other {لديك {triesRemaining,number} محاولة متبقية. إذا استنفدتَ جميع المُحاولات، فسيتم قفل حسابك لمدة 7 أيام. بعد مرور 7 أيام من عدم النشاط، يمكنك إعادة التسجيل دون الحاجة إلى رقم التعريف الشخصي (PIN). وسيتم حذف جميع المحتويات. <learnMore>اعرف المزيد</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "رقم التعريف الشخصي (PIN) غير صحيح"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "استنفدتَ تخمينات رقم التعريف الشخصي (PIN) المسموحة لك، ولكن مازال بإمكانك الوصول إلى حسابك على سيجنال من خلال إنشاء رقم تعريف لشخصي (PIN) جديد. للحفاظ على خصوصيتك وأمانك، ستتمُّ استعادة حسابك بدون أي معلومات حساب أو إعدادات محفوظة."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "إنشاء رقم تعريف شخصي (PIN) جديد"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "اعرف المزيد عن أرقام التعريف الشخصية (PINs)"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "تَخَطَّ رقم (PIN)"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "هل ترغبُ بتخطي إدخال رقم التعريف الشخصي (PIN)؟"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "إذا لم تستطع تَذكُّر رقم التعريف الشخصي (PIN) الخاص بك، يمكنك إنشاء رقم جديد. يُمكنك التسجيل واستخدام الحساب الخاص بك، لكِنَك ستفقِد بعض الإعدادات المحفوظة مِثل معلومات حسابك الشخصي. لمعرفة المزيد."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "تجاهُل وإنشاء رقم (PIN) جديد"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "أنشِئ رقم الـ PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "يمكن أن تساعدك أرقام التعريف الشخصية (PIN) على استعادة حسابك والحفاظ على معلوماتك مُشفَّرة مع سيجنال. <learnMore>اعرف المزيد</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "أنشِئ رقم الـ PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "رقم التعريف الشخصي (PIN) يجب أن يحوي أربعة رموز على الأقل."
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "متابعة"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "فتح القائمة"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "المزيد عن رقم الـ(PIN)"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "تعطيل رقم الـ PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "تحذير"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "إذا عطَّلتَ رقم التعريف الشخصي (PIN)، ستفقد جميع البيانات عند إعادة التسجيل في سيجنال إلّا إذا قُمتَ بنقلِها مِن جهاز iOS آخر. لا يُمكنُك تفعيل قفل التسجيل في حال كان رقم التعريف الشخصي (PIN) مُعطَّلًا."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "تعطيل رقم الـ PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "نبذة حول رقم الـ (PIN) على سيجنال"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "يُمكِّنك رقم التعريف الشخصي (PIN) من حفظ معلوماتك بشكلٍ مُشفَّر في سيجنال بحيث يمكنك الوصول إليها وحدك. سَتتمُّ استعادة حسابك وإعداداتك وجهات اتصالك عند إعادة تثبيت سيجنال."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "اعرف المزيد"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "قُم بتأكيد رقم الـ PIN"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "أعِد إدخال رقم التعريف الشخصي (PIN) الذي أنشأته للتو."
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "أدخِل رقم PIN"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "تمَّ قفل الحساب"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "تمَّ قفل حسابك لِحماية خصوصيتك وأمانك. بعد مرور 7 أيام من عدم استخدام حسابك، ستتمكّن من إعادة تسجيل رقم هاتفك دون الحاجة إلى إدخال رقم التعريف الشخصي (PIN). ستُحذَف جميع محتويات حسابك."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "استخدم رقم هاتف مُختلِف"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "اعرف المزيد عن الحِسابات المُقفلة"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "التحديث مطلوب"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "لمتابعة التسجيل، يُرجى التحديث إلى أحدث إصدار من سيجنال."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "تحديث"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "إلغاء"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "تحقق من الاتصال بالشبكة"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "للمواصلة، تحقَّق من اتصال حاسوبك من شبكة الإنترنت وحاوِل من جديد."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "موافق"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "تعذَّر إتمام التسجيل"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "حدث خطأ وتعذَّر إتمام التسجيل. إذا استمرت المشكلة، يُرجى التواصل مع فريق الدعم."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "حاوِل مُجدَّدًا"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "الاتصال بالدعم"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "‫لا يمكن إغلاق سيجنال.",
@@ -8671,6 +8665,12 @@
     "messageformat": "يُمكن إنشاء استطلاعات الرأي في الدردشات الفردية أيضًا. قدِّم قائمة مختارة بعناية من الخيارات لصديقك المُتردِّد، أو استرجِع سحر تمرير رسالة إلى المهتمين بك من خلال إنشاء استطلاع رأي بعنوان \"هل أنا أعجبك؟ نعم/لا/ربما\"."
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "يمكن لمُشرِفي المجموعات الآن إنهاء الدردشات بطريقة طبيعية بفضل خيار \"حلّ المجموعة\" الجديد في إعدادات المجموعة. يؤدي حلّ المجموعة إلى منع أعضاء المجموعة من إرسال الرسائل أو إجراء المكالمات، كما يُؤدي إلى تعطيل إمكانية إرسال الدعوات. يمكنك الآن التأكُّد من بقاء الجميع في سلسلة الدردشة الصحيحة عن طريق إنهاء مجموعة لقاءات الخياطة الخاصة بالسنة الماضية قبل البدء في حياكة مجموعة جديدة."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

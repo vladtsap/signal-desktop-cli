@@ -161,13 +161,13 @@ export namespace AxoRadioGroup {
         disabled={context.disabled}
         className={tw(
           'flex size-5 shrink-0 items-center justify-center rounded-full',
-          'border border-border-primary inset-shadow-on-color',
-          'data-[state=unchecked]:bg-fill-primary',
-          'data-[state=unchecked]:enabled:active:bg-fill-primary-pressed',
-          'data-[state=checked]:bg-color-fill-primary',
-          'data-[state=checked]:active:bg-color-fill-primary-pressed',
-          'data-disabled:border-border-secondary',
-          'outline-none keyboard-mode:focus:outline-focus-ring',
+          'border border-primary inset-shadow-on-color',
+          'data-[state=unchecked]:bg-control',
+          'data-[state=unchecked]:enabled:active:bg-control-pressed',
+          'data-[state=checked]:bg-accent',
+          'data-[state=checked]:active:bg-accent-pressed',
+          'data-disabled:border-secondary',
+          'outline-none keyboard-mode:focus:axo-focus-ring',
           'overflow-hidden',
           'forced-colors:data-[state=checked]:bg-[SelectedItem]'
         )}
@@ -176,8 +176,8 @@ export namespace AxoRadioGroup {
           <span
             className={tw(
               'size-2.25 rounded-full',
-              'data-[state=checked]:bg-label-primary-on-color',
-              'data-[state=checked]:data-disabled:bg-label-disabled-on-color',
+              'data-[state=checked]:bg-(--axo-color-label-primary-oncolor)',
+              'data-[state=checked]:data-disabled:bg-(--axo-color-label-disabled-oncolor)',
               'forced-colors:data-[state=checked]:bg-[SelectedItemText]'
             )}
           />
@@ -205,7 +205,7 @@ export namespace AxoRadioGroup {
    */
   export const Label: FC<LabelProps> = memo(props => {
     return (
-      <span className={tw('truncate type-body-large text-label-primary')}>
+      <span className={tw('truncate type-body-large text-primary')}>
         {props.children}
       </span>
     );

@@ -139,9 +139,7 @@ export function ConversationHero({
         <div className={tw('my-2')}>
           <OfficialChatBadge i18n={i18n} />
         </div>
-        <div
-          className={tw('mt-2 text-center type-body-medium text-label-primary')}
-        >
+        <div className={tw('mt-2 text-center type-body-medium text-primary')}>
           {i18n('icu:noteToSelfHero')}
         </div>
       </Root>
@@ -152,7 +150,7 @@ export function ConversationHero({
     return (
       <Root
         className={tw(
-          'border-border-secondary bg-legacy-signal-conversation-bg'
+          'border-secondary bg-(--axo-color-legacy-signal-conversation-bg)'
         )}
       >
         {avatar}
@@ -160,7 +158,7 @@ export function ConversationHero({
         <div className={tw('my-2')}>
           <OfficialChatBadge i18n={i18n} />
         </div>
-        <div className={tw('text-center type-body-medium text-label-primary')}>
+        <div className={tw('text-center type-body-medium text-primary')}>
           {i18n('icu:ConversationHero--signal-official-account--description')}
         </div>
       </Root>
@@ -185,11 +183,7 @@ export function ConversationHero({
           />
         ) : null}
 
-        <div
-          className={tw(
-            'mt-2.5 text-center type-body-medium text-label-primary'
-          )}
-        >
+        <div className={tw('mt-2.5 text-center type-body-medium text-primary')}>
           <AxoSymbol.InlineGlyph symbol="group" label={null} />
           &nbsp;
           <SharedGroupNames
@@ -223,7 +217,7 @@ export function ConversationHero({
         ) : null}
 
         {groupDescription ? (
-          <div className={tw('mt-2 w-full text-center text-label-primary')}>
+          <div className={tw('mt-2 w-full text-center text-primary')}>
             <GroupDescription
               i18n={i18n}
               title={title}
@@ -234,7 +228,7 @@ export function ConversationHero({
 
         <div
           className={tw(
-            'mt-2.5 w-full text-center type-body-medium text-label-primary'
+            'mt-2.5 w-full text-center type-body-medium text-primary'
           )}
         >
           <AxoSymbol.InlineGlyph symbol="group" label={null} />
@@ -268,7 +262,7 @@ const Root: FC<RootProps> = props => {
     <div
       data-testid="conversation-hero"
       className={tw(
-        'flex w-3xs flex-col items-center rounded-4xl border-2 border-border-secondary p-5 pt-0',
+        'flex w-3xs flex-col items-center rounded-4xl border-2 border-secondary p-5 pt-0',
         props.className
       )}
     >
@@ -317,7 +311,7 @@ const Title: FC<TitleProps> = props => {
       >
         {contactName}
         &nbsp;
-        <span className={tw('text-[18px] text-label-secondary')}>
+        <span className={tw('text-[18px] text-secondary')}>
           <AxoSymbol.InlineGlyph symbol="chevron-[end]" label={null} />
         </span>
       </button>
@@ -335,8 +329,8 @@ const NameNotVerifiedWarning: FC<{
   return (
     <button
       className={tw(
-        'mt-2 rounded-3xl bg-legacy-warning-badge/12 px-2.5 py-1',
-        'type-body-medium font-medium text-legacy-warning-badge'
+        'mt-2 rounded-3xl bg-(--axo-color-legacy-warning-badge)/12 px-2.5 py-1',
+        'type-body-medium font-medium text-(--axo-color-legacy-warning-badge)'
       )}
       type="button"
       onClick={ev => {
@@ -361,7 +355,11 @@ const SafetyTips: FC<{
 }> = ({ i18n, onShowSafetyTips }) => {
   return (
     <div className={tw('mt-3')}>
-      <AxoButton.Root variant="secondary" size="md" onClick={onShowSafetyTips}>
+      <AxoButton.Root
+        variant="strong-secondary"
+        size="md"
+        onClick={onShowSafetyTips}
+      >
         {i18n('icu:MessageRequestWarning__safety-tips-v2')}
       </AxoButton.Root>
     </div>
@@ -374,8 +372,8 @@ const OfficialChatBadge: FC<{
   return (
     <div
       className={tw(
-        'rounded-3xl bg-legacy-official-chat-badge-bg px-2.5 py-1',
-        'type-body-medium font-medium text-legacy-official-chat-badge-text'
+        'rounded-3xl bg-(--axo-color-legacy-official-chat-badge-bg) px-2.5 py-1',
+        'type-body-medium font-medium text-(--axo-color-legacy-official-chat-badge-text)'
       )}
     >
       <AxoSymbol.InlineGlyph symbol="officialbadge" label={null} />

@@ -43,17 +43,18 @@ export function PollVotesModal({
       <AxoDialog.Content size="md" escape="cancel-is-noop">
         <AxoDialog.Header>
           <AxoDialog.Title>{i18n('icu:PollVotesModal__title')}</AxoDialog.Title>
+          <AxoDialog.Close />
         </AxoDialog.Header>
         <AxoDialog.Body>
           <div className={tw('flex flex-col gap-5')}>
-            <div className={tw('mt-4 text-label-primary')}>
+            <div className={tw('mt-4 text-primary')}>
               <div className={tw('mb-3 type-title-small')}>
                 {i18n('icu:PollVotesModal__questionLabel')}
               </div>
 
               <div
                 className={tw(
-                  'rounded-md bg-fill-secondary px-3 py-1 type-body-large'
+                  'rounded-md bg-primary px-3 py-1 type-body-large'
                 )}
               >
                 <UserText text={poll.question} />
@@ -72,9 +73,7 @@ export function PollVotesModal({
                   <div className={tw('flex flex-col')}>
                     {/* Option Header */}
                     <div
-                      className={tw(
-                        'mb-3 flex items-start gap-3 text-label-primary'
-                      )}
+                      className={tw('mb-3 flex items-start gap-3 text-primary')}
                     >
                       <div className={tw('type-title-small')}>
                         <UserText text={option} />
@@ -99,9 +98,7 @@ export function PollVotesModal({
 
                     {/* Voters List */}
                     {voters.length === 0 ? (
-                      <div
-                        className={tw('type-body-medium text-label-secondary')}
-                      >
+                      <div className={tw('type-body-medium text-secondary')}>
                         {i18n('icu:PollVotesModal__noVotes')}
                       </div>
                     ) : (
@@ -126,9 +123,7 @@ export function PollVotesModal({
                             <div className={tw('min-w-0 flex-1')}>
                               <ContactName
                                 title={vote.from.title}
-                                module={tw(
-                                  'type-body-large text-label-primary'
-                                )}
+                                module={tw('type-body-large text-primary')}
                               />
                             </div>
                           </div>
@@ -137,9 +132,7 @@ export function PollVotesModal({
                     )}
                   </div>
                   {!isLastOption && (
-                    <hr
-                      className={tw('border-t-[0.5px] border-label-secondary')}
-                    />
+                    <hr className={tw('border-t-[0.5px] border-primary')} />
                   )}
                 </Fragment>
               );
@@ -149,7 +142,7 @@ export function PollVotesModal({
               <div
                 className={tw(
                   'flex items-center justify-center',
-                  'type-body-large text-label-secondary'
+                  'type-body-large text-secondary'
                 )}
               >
                 {i18n('icu:PollVotesModal__noVotes')}
@@ -158,11 +151,11 @@ export function PollVotesModal({
 
             {!poll.terminatedAt && canEndPoll && (
               <>
-                <hr className={tw('border-t-[0.5px] border-label-secondary')} />
+                <hr className={tw('border-t-[0.5px] border-primary')} />
                 <div className={tw('flex justify-center')}>
                   <AxoButton.Root
                     size="lg"
-                    variant="secondary"
+                    variant="strong-secondary"
                     onClick={() => {
                       endPoll(messageId);
                       onClose();

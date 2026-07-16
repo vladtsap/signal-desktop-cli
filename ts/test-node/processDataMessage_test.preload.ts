@@ -126,6 +126,25 @@ describe('processDataMessage', () => {
     ]);
   });
 
+  it('should process attachments with null fileName', () => {
+    const out = check({
+      attachments: [
+        {
+          ...UNPROCESSED_ATTACHMENT,
+          fileName: null,
+        },
+      ],
+    });
+
+    assert.deepStrictEqual(out.attachments, [
+      {
+        ...PROCESSED_ATTACHMENT,
+        fileName: undefined,
+        downloadPath: 'random-path',
+      },
+    ]);
+  });
+
   it('should process attachments with 0 cdnId', () => {
     const out = check({
       attachments: [
@@ -472,5 +491,43 @@ describe('processDataMessage', () => {
     assert.isFalse(check({ isViewOnce: null }).isViewOnce);
     assert.isFalse(check({ isViewOnce: false }).isViewOnce);
     assert.isTrue(check({ isViewOnce: true }).isViewOnce);
+  });
+
+  it('should process poll votes', () => {
+    assert.deepStrictEqual(
+      check({
+        pollVote: {
+          targetAuthorAciBinary: ACI_BINARY_1,
+          targetSentTimestamp: BigInt(TIMESTAMP),
+          optionIndexes: [0],
+          voteCount: 1,
+        },
+      }).pollVote,
+      {
+        targetAuthorAci: ACI_1,
+        targetTimestamp: TIMESTAMP,
+        optionIndexes: [0],
+        voteCount: 1,
+      }
+    );
+  });
+
+  it('should drop duplicate poll vote indexes', () => {
+    assert.deepStrictEqual(
+      check({
+        pollVote: {
+          targetAuthorAciBinary: ACI_BINARY_1,
+          targetSentTimestamp: BigInt(TIMESTAMP),
+          optionIndexes: [0, 0, 1, 1],
+          voteCount: 1,
+        },
+      }).pollVote,
+      {
+        targetAuthorAci: ACI_1,
+        targetTimestamp: TIMESTAMP,
+        optionIndexes: [0, 1],
+        voteCount: 1,
+      }
+    );
   });
 });

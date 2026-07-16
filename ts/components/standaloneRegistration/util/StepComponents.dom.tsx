@@ -5,9 +5,9 @@ import type { JSX, ReactNode } from 'react';
 import classNames from 'classnames';
 
 import { tw } from '../../../axo/tw.dom.tsx';
-import { AxoSymbol } from '../../../axo/AxoSymbol.dom.tsx';
 
 import type { LocalizerType } from '../../../types/I18N.std.ts';
+import { AxoIconButton } from '../../../axo/AxoIconButton.dom.tsx';
 
 export function Container({
   children,
@@ -40,15 +40,13 @@ export function TopMatter({
   return (
     <div className={tw('flex w-full items-center')}>
       {onBackClick ? (
-        <button type="button" onClick={onBackClick}>
-          <div className={tw('text-label-secondary')}>
-            <AxoSymbol.Icon
-              symbol="chevron-[start]"
-              size={18}
-              label={i18n('icu:StandaloneRegistration--back')}
-            />
-          </div>
-        </button>
+        <AxoIconButton.Root
+          variant="implied-secondary"
+          size="sm"
+          symbol="chevron-[start]"
+          onClick={onBackClick}
+          label={i18n('icu:StandaloneRegistration--back')}
+        />
       ) : undefined}
       <Spacer className={tw('grow')} />
       {rightContent}
@@ -88,7 +86,7 @@ export function Description({
   return (
     <div
       className={classNames(
-        tw('w-90.5 max-w-full type-body-large text-label-secondary'),
+        tw('w-90.5 max-w-full type-body-large text-secondary'),
         className
       )}
     >

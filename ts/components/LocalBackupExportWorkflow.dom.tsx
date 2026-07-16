@@ -97,11 +97,7 @@ export function LocalBackupExportWorkflow({
           <AxoDialog.Body padding="normal">
             <div className={tw('mx-auto my-[29px] w-[331px]')}>
               {progressElements}
-              <div
-                className={tw(
-                  'text-center type-body-small text-label-secondary'
-                )}
-              >
+              <div className={tw('text-center type-body-small text-secondary')}>
                 {i18n('icu:PlaintextExport--ProgressDialog--TimeWarning')}
               </div>
             </div>
@@ -115,7 +111,10 @@ export function LocalBackupExportWorkflow({
                 'items-center gap-x-2 gap-y-3'
               )}
             >
-              <AxoDialog.Action variant="secondary" onClick={cancelWorkflow}>
+              <AxoDialog.Action
+                variant="strong-secondary"
+                onClick={cancelWorkflow}
+              >
                 {i18n('icu:cancel')}
               </AxoDialog.Action>
             </div>
@@ -187,7 +186,7 @@ export function LocalBackupExportWorkflow({
           </AxoAlertDialog.Body>
           <AxoAlertDialog.Footer>
             <AxoAlertDialog.Action
-              variant="secondary"
+              variant="strong-secondary"
               onClick={() => {
                 openFileInFolder(workflow.localBackupFolder);
                 clearWorkflow();
@@ -195,7 +194,10 @@ export function LocalBackupExportWorkflow({
             >
               {showInFolderText}
             </AxoAlertDialog.Action>
-            <AxoAlertDialog.Action variant="primary" onClick={clearWorkflow}>
+            <AxoAlertDialog.Action
+              variant="strong-primary"
+              onClick={clearWorkflow}
+            >
               {i18n('icu:ok')}
             </AxoAlertDialog.Action>
           </AxoAlertDialog.Footer>
@@ -237,7 +239,10 @@ export function LocalBackupExportWorkflow({
             <AxoAlertDialog.Description>{detail}</AxoAlertDialog.Description>
           </AxoAlertDialog.Body>
           <AxoAlertDialog.Footer>
-            <AxoAlertDialog.Action variant="primary" onClick={clearWorkflow}>
+            <AxoAlertDialog.Action
+              variant="strong-primary"
+              onClick={clearWorkflow}
+            >
               {i18n('icu:ok')}
             </AxoAlertDialog.Action>
           </AxoAlertDialog.Footer>
@@ -260,7 +265,7 @@ function ListItemWithIcon({
     <li className={tw('flex items-center gap-2')}>
       <div
         className={tw(
-          'flex size-8 shrink-0 items-center justify-center rounded-full bg-fill-secondary'
+          'flex size-8 shrink-0 items-center justify-center rounded-full bg-primary'
         )}
       >
         <AxoSymbol.Icon size={20} symbol={iconName} label={null} />

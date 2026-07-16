@@ -6,7 +6,6 @@ import type { z } from 'zod';
 
 import { createLogger } from '../logging/log.std.ts';
 import * as Errors from '../types/errors.std.ts';
-import * as LinkPreview from '../types/LinkPreview.std.ts';
 
 import { isStory } from './helpers.std.ts';
 import { getAuthor } from './sources.preload.ts';
@@ -48,8 +47,7 @@ import { strictAssert } from '../util/assert.std.ts';
 import { isAciString } from '../util/isAciString.std.ts';
 import { copyFromQuotedMessage } from './copyQuote.preload.ts';
 import { findStoryMessage } from '../util/findStoryMessage.preload.ts';
-import { getRoomIdFromCallLink } from '../util/callLinksRingrtc.node.ts';
-import { isNotNil } from '../util/isNotNil.std.ts';
+import { getValidLinkPreviews } from '../util/getValidLinkPreviews.node.ts';
 import { normalizeServiceId } from '../types/ServiceId.std.ts';
 import { BodyRange, trimMessageWhitespace } from '../types/BodyRange.std.ts';
 import { hydrateStoryContext } from '../util/hydrateStoryContext.preload.ts';
@@ -78,7 +76,6 @@ import type {
   ProcessedUnidentifiedDeliveryStatus,
 } from '../textsecure/Types.d.ts';
 import type { ServiceIdString } from '../types/ServiceId.std.ts';
-import type { LinkPreviewType } from '../types/message/LinkPreviews.std.ts';
 import { getCachedSubscriptionConfiguration } from '../util/subscriptionConfiguration.preload.ts';
 import { itemStorage } from '../textsecure/Storage.preload.ts';
 
@@ -509,35 +506,17 @@ export async function handleDataMessage(
 
     try {
       const now = new Date().getTime();
-
-      const urls = LinkPreview.findLinks(dataMessage.body || '');
       const incomingPreview = dataMessage.preview || [];
-      const preview = incomingPreview
-        .map((item: LinkPreviewType) => {
-          if (LinkPreview.isCallLink(item.url)) {
-            return {
-              ...item,
-              isCallLink: true,
-              callLinkRoomId: getRoomIdFromCallLink(item.url),
-            };
-          }
 
-          if (
-            !LinkPreview.isValidLinkPreview(urls, item, {
-              isStory: isStory(message.attributes),
-            })
-          ) {
-            return null;
-          }
+      const preview = getValidLinkPreviews(incomingPreview, dataMessage.body, {
+        isStory: isStory(message.attributes),
+      });
 
-          return item;
-        })
-        .filter(isNotNil);
       if (preview.length < incomingPreview.length) {
-        log.info(
+        log.warn(
           `${getMessageIdForLogging(message.attributes)}: Eliminated ${
             incomingPreview.length - preview.length
-          } previews with invalid urls'`
+          } previews with invalid urls`
         );
       }
 

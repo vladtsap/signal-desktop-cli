@@ -58,11 +58,11 @@ export namespace AxoSwitch {
         required={props.required}
         className={tw(
           'group relative z-0 flex h-[18px] w-8 items-center rounded-full',
-          'border border-border-secondary inset-shadow-on-color',
-          'bg-fill-secondary',
-          'data-disabled:bg-fill-primary',
-          'enabled:active:bg-fill-secondary-pressed',
-          'outline-none keyboard-mode:focus:outline-focus-ring',
+          'border border-secondary inset-shadow-on-color',
+          'bg-primary',
+          'data-disabled:bg-control',
+          'enabled:active:bg-primary-pressed',
+          'outline-none keyboard-mode:focus:axo-focus-ring',
           'overflow-hidden'
         )}
       >
@@ -73,7 +73,7 @@ export namespace AxoSwitch {
             'group-data-disabled:w-7.5 group-data-disabled:rounded-full',
             'opacity-0 group-data-[state=checked]:opacity-100',
             '-translate-x-3.5 group-data-[state=checked]:translate-x-0 rtl:translate-x-3.5',
-            'bg-color-fill-primary group-enabled:group-active:bg-color-fill-primary-pressed',
+            'bg-accent group-enabled:group-active:bg-accent-pressed',
             'transition-all duration-200 ease-out-cubic',
             'forced-colors:bg-[AccentColor]',
             'forced-colors:group-data-disabled:bg-[GrayText]'
@@ -95,8 +95,8 @@ export namespace AxoSwitch {
             // oxlint-disable-next-line better-tailwindcss/no-restricted-classes
             'shadow-[#000]/12',
             'shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px]',
-            'bg-label-primary-on-color',
-            'data-disabled:bg-label-disabled-on-color',
+            'bg-(--axo-color-label-primary-oncolor)',
+            'data-disabled:bg-(--axo-color-label-disabled-oncolor)',
             'transition-all duration-200 ease-out-cubic',
             'data-[state=checked]:translate-x-3.5',
             'rtl:data-[state=checked]:-translate-x-3.5',

@@ -747,7 +747,7 @@ export function UsernameLinkEditor({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={onConfirmReset}
           >
             {i18n('icu:UsernameLinkModalBody__reset')}
@@ -762,7 +762,10 @@ export function UsernameLinkEditor({
           description={i18n('icu:UsernameLinkModalBody__error__text')}
         >
           <AxoConfirmDialog.Cancel />
-          <AxoConfirmDialog.Action variant="primary" onClick={onConfirmReset}>
+          <AxoConfirmDialog.Action
+            variant="strong-primary"
+            onClick={onConfirmReset}
+          >
             {i18n('icu:UsernameLinkModalBody__error__fix-now')}
           </AxoConfirmDialog.Action>
         </AxoConfirmDialog.Root>

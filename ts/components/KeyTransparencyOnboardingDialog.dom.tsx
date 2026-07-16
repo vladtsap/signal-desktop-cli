@@ -51,7 +51,7 @@ export function KeyTransparencyOnboardingDialog(
             {i18n('icu:KeyTransparencyOnboardingDialog__Title')}
           </h3>
           <AxoDialog.Description>
-            <div className={tw('mb-5 type-body-large text-label-secondary')}>
+            <div className={tw('mb-5 type-body-large text-secondary')}>
               {i18n('icu:KeyTransparencyOnboardingDialog__Description')}
             </div>
           </AxoDialog.Description>
@@ -59,12 +59,12 @@ export function KeyTransparencyOnboardingDialog(
         <AxoDialog.Footer>
           <AxoDialog.Actions>
             <AxoDialog.Action
-              variant="secondary"
+              variant="strong-secondary"
               onClick={openKeyTransparencyUrl}
             >
               {i18n('icu:KeyTransparencyOnboardingDialog__LearnMore')}
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={onContinue}>
+            <AxoDialog.Action variant="strong-primary" onClick={onContinue}>
               {i18n('icu:KeyTransparencyOnboardingDialog__Continue')}
             </AxoDialog.Action>
           </AxoDialog.Actions>

@@ -268,7 +268,7 @@ export function ContactModal({
           >
             <AxoConfirmDialog.Cancel />
             <AxoConfirmDialog.Action
-              variant="destructive"
+              variant="strong-destructive"
               onClick={() => toggleAdmin(conversation.id, contact.id)}
             >
               {i18n('icu:ContactModal--rm-admin')}
@@ -296,7 +296,7 @@ export function ContactModal({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant={isAdmin ? 'destructive' : 'primary'}
+            variant={isAdmin ? 'strong-destructive' : 'strong-primary'}
             onClick={() => toggleAdmin(conversation.id, contact.id)}
           >
             {isAdmin
@@ -339,7 +339,7 @@ export function ContactModal({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => blockConversation(contact.id)}
           >
             {i18n('icu:MessageRequests--block')}
@@ -360,7 +360,7 @@ export function ContactModal({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => {
               strictAssert(
                 activeCallDemuxId != null,
@@ -391,7 +391,7 @@ export function ContactModal({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => {
               strictAssert(
                 activeCallDemuxId != null,
@@ -404,7 +404,7 @@ export function ContactModal({
             {i18n('icu:CallingAdhocCallInfo__RemoveClientDialogButton--block')}
           </AxoConfirmDialog.Action>
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => {
               strictAssert(
                 activeCallDemuxId != null,

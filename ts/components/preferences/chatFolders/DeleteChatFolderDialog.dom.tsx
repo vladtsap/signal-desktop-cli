@@ -19,7 +19,10 @@ export function DeleteChatFolderDialog(props: {
       </AxoAlertDialog.Body>
       <AxoAlertDialog.Footer>
         <AxoAlertDialog.Cancel />
-        <AxoAlertDialog.Action variant="destructive" onClick={props.onConfirm}>
+        <AxoAlertDialog.Action
+          variant="strong-destructive"
+          onClick={props.onConfirm}
+        >
           {props.deleteText}
         </AxoAlertDialog.Action>
       </AxoAlertDialog.Footer>

@@ -63,7 +63,7 @@ export function DonationVerificationModal(props: PropsType): JSX.Element {
       </AxoConfirmDialog.Cancel>
       <AxoConfirmDialog.Action
         pending={isOpening}
-        variant="primary"
+        variant="strong-primary"
         onClick={handleClick}
       >
         {hasOpened

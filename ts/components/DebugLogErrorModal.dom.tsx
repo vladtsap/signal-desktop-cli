@@ -25,7 +25,7 @@ export function DebugLogErrorModal(props: PropsType): JSX.Element {
       </AxoConfirmDialog.Cancel>
       <AxoConfirmDialog.Action
         autoFocus
-        variant="primary"
+        variant="strong-primary"
         onClick={props.onSubmitDebugLog}
       >
         {i18n('icu:DebugLogErrorModal__SubmitDebugLog')}

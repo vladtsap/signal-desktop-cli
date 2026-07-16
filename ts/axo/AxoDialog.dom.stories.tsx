@@ -28,7 +28,7 @@ function Box(props: { children: ReactNode }) {
   return (
     <div
       className={tw(
-        'flex items-center justify-center rounded-2xl bg-color-fill-primary p-10 type-title-large font-semibold text-label-primary-on-color'
+        'flex items-center justify-center rounded-2xl bg-accent p-10 type-title-large font-semibold text-primary-oncolor'
       )}
     >
       {props.children}
@@ -48,7 +48,7 @@ function Template(props: {
   return (
     <AxoDialog.Root open={open} onOpenChange={setOpen}>
       <AxoDialog.Trigger>
-        <AxoButton.Root variant="secondary" size="md">
+        <AxoButton.Root variant="strong-secondary" size="md">
           Open Dialog
         </AxoButton.Root>
       </AxoDialog.Trigger>
@@ -71,19 +71,22 @@ function Template(props: {
             {props.iconAction ? (
               <AxoDialog.IconAction
                 label="Send message"
-                variant="primary"
+                variant="strong-primary"
                 symbol="send-fill"
                 onClick={action('onSend')}
               />
             ) : (
               <>
                 <AxoDialog.Action
-                  variant="secondary"
+                  variant="strong-secondary"
                   onClick={action('onCancel')}
                 >
                   Cancel
                 </AxoDialog.Action>
-                <AxoDialog.Action variant="primary" onClick={action('onSave')}>
+                <AxoDialog.Action
+                  variant="strong-primary"
+                  onClick={action('onSave')}
+                >
                   Save
                 </AxoDialog.Action>
               </>
@@ -188,9 +191,9 @@ function TextInputField(props: { placeholder: string }) {
         placeholder={props.placeholder}
         className={tw(
           'w-full px-3 py-1.5',
-          'border-[0.5px] border-border-primary shadow-elevation-0',
-          'rounded-lg bg-fill-primary',
-          'placeholder:text-label-placeholder',
+          'border-[0.5px] border-primary shadow-elevation-0',
+          'rounded-lg bg-control',
+          'placeholder:text-placeholder',
           'forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]'
         )}
       />
@@ -203,7 +206,7 @@ export function ExampleNicknameAndNoteDialog(): JSX.Element {
   return (
     <AxoDialog.Root open={open} onOpenChange={setOpen}>
       <AxoDialog.Trigger>
-        <AxoButton.Root variant="secondary" size="md">
+        <AxoButton.Root variant="strong-secondary" size="md">
           Open Dialog
         </AxoButton.Root>
       </AxoDialog.Trigger>
@@ -213,13 +216,13 @@ export function ExampleNicknameAndNoteDialog(): JSX.Element {
           <AxoDialog.Close />
         </AxoDialog.Header>
         <AxoDialog.Body>
-          <p className={tw('mb-4 type-body-small text-label-secondary')}>
+          <p className={tw('mb-4 type-body-small text-secondary')}>
             Nicknames &amp; notes are stored with Signal and end-to-end
             encrypted. They are only visible to you.
           </p>
           <div
             className={tw(
-              'mx-auto size-20 rounded-full bg-color-fill-primary',
+              'mx-auto size-20 rounded-full bg-accent',
               'forced-colors:border'
             )}
           />
@@ -231,10 +234,16 @@ export function ExampleNicknameAndNoteDialog(): JSX.Element {
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={action('onCancel')}>
+            <AxoDialog.Action
+              variant="strong-secondary"
+              onClick={action('onCancel')}
+            >
               Cancel
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={action('onSave')}>
+            <AxoDialog.Action
+              variant="strong-primary"
+              onClick={action('onSave')}
+            >
               Save
             </AxoDialog.Action>
           </AxoDialog.Actions>
@@ -258,7 +267,7 @@ function CheckboxField(props: { label: string }) {
       />
       <label
         htmlFor={id}
-        className={tw('truncate type-body-large text-label-primary')}
+        className={tw('truncate type-body-large text-primary')}
       >
         {props.label}
       </label>
@@ -271,7 +280,7 @@ export function ExampleMuteNotificationsDialog(): JSX.Element {
   return (
     <AxoDialog.Root open={open} onOpenChange={setOpen}>
       <AxoDialog.Trigger>
-        <AxoButton.Root variant="secondary" size="md">
+        <AxoButton.Root variant="strong-secondary" size="md">
           Open Dialog
         </AxoButton.Root>
       </AxoDialog.Trigger>
@@ -291,10 +300,16 @@ export function ExampleMuteNotificationsDialog(): JSX.Element {
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={action('onCancel')}>
+            <AxoDialog.Action
+              variant="strong-secondary"
+              onClick={action('onCancel')}
+            >
               Cancel
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={action('onSave')}>
+            <AxoDialog.Action
+              variant="strong-primary"
+              onClick={action('onSave')}
+            >
               Save
             </AxoDialog.Action>
           </AxoDialog.Actions>
@@ -315,17 +330,14 @@ function ExampleItem(props: { label: string; description: string }) {
       aria-labelledby={labelId}
       aria-describedby={descriptionId}
       tabIndex={0}
-      className={tw('rounded-lg px-[13px] py-2.5 hover:bg-fill-secondary')}
+      className={tw('rounded-lg px-[13px] py-2.5 hover:bg-primary')}
     >
-      <div
-        id={labelId}
-        className={tw('truncate type-body-large text-label-primary')}
-      >
+      <div id={labelId} className={tw('truncate type-body-large text-primary')}>
         {props.label}
       </div>
       <div
         id={descriptionId}
-        className={tw('truncate type-body-small text-label-secondary')}
+        className={tw('truncate type-body-small text-secondary')}
       >
         {props.description}
       </div>
@@ -338,7 +350,7 @@ export function ExampleLanguageDialog(): JSX.Element {
   return (
     <AxoDialog.Root open={open} onOpenChange={setOpen}>
       <AxoDialog.Trigger>
-        <AxoButton.Root variant="secondary" size="md">
+        <AxoButton.Root variant="strong-secondary" size="md">
           Open Dialog
         </AxoButton.Root>
       </AxoDialog.Trigger>
@@ -355,7 +367,7 @@ export function ExampleLanguageDialog(): JSX.Element {
             autoFocus
             placeholder="Search languages"
             className={tw(
-              'w-full rounded-lg bg-fill-secondary px-3 py-[5px]',
+              'w-full rounded-lg bg-primary px-3 py-[5px]',
               'forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]'
             )}
           />
@@ -381,10 +393,16 @@ export function ExampleLanguageDialog(): JSX.Element {
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={action('onCancel')}>
+            <AxoDialog.Action
+              variant="strong-secondary"
+              onClick={action('onCancel')}
+            >
               Cancel
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={action('onSet')}>
+            <AxoDialog.Action
+              variant="strong-primary"
+              onClick={action('onSet')}
+            >
               Set
             </AxoDialog.Action>
           </AxoDialog.Actions>

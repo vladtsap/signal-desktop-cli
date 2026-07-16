@@ -91,7 +91,7 @@ export function PanelHeader({
       <div className={tw('block @min-[260px]:hidden')}>
         <AxoSelect.Root value={tab} onValueChange={setSelectedTabWithDefault}>
           <AxoSelect.Trigger
-            variant="floating"
+            variant="elevated"
             width="fit"
             placeholder=""
             chevron="always"
@@ -124,7 +124,9 @@ export function PanelHeader({
       <AxoDropdownMenu.Root>
         <AxoDropdownMenu.Trigger>
           <AxoIconButton.Root
-            variant={isNonDefaultSorting ? 'primary' : 'borderless-secondary'}
+            variant={
+              isNonDefaultSorting ? 'strong-primary' : 'implied-secondary'
+            }
             size="md"
             symbol="sort-vertical"
             label={i18n('icu:MediaGallery__sort')}

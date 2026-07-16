@@ -99,7 +99,7 @@ export function ListItem({
     button = (
       <div
         className={tw(
-          'relative -ms-1 size-7 shrink-0 rounded-full bg-fill-secondary',
+          'relative -ms-1 size-7 shrink-0 rounded-full bg-primary',
           'flex items-center justify-center'
         )}
       >
@@ -116,7 +116,7 @@ export function ListItem({
         )}
         <div
           className={tw(
-            'absolute flex items-center justify-center text-label-primary'
+            'absolute flex items-center justify-center text-primary'
           )}
         >
           <AxoSymbol.Icon
@@ -133,9 +133,9 @@ export function ListItem({
     <AriaClickable.Root
       className={tw(
         'mx-2.5 flex flex-row gap-3 rounded-lg px-3.5 py-2',
-        'data-hovered:bg-fill-secondary',
-        'data-focused:bg-fill-secondary',
-        'data-pressed:bg-fill-secondary-pressed',
+        'data-hovered:bg-primary',
+        'data-focused:bg-primary',
+        'data-pressed:bg-primary-pressed',
         mediaItem.type === 'link' ? undefined : 'items-center'
       )}
     >
@@ -144,7 +144,7 @@ export function ListItem({
         <h3 className={tw('truncate')}>
           <UserText text={title} />
         </h3>
-        <div className={tw('type-body-small leading-4 text-label-secondary')}>
+        <div className={tw('type-body-small leading-4 text-secondary')}>
           {subtitle}
         </div>
       </div>
@@ -158,7 +158,7 @@ export function ListItem({
           className={tw(
             'shrink-0 self-stretch',
             mediaItem.type === 'link' ? undefined : 'flex items-center',
-            'type-body-small text-label-secondary'
+            'type-body-small text-secondary'
           )}
           aria-label={i18n('icu:ListItem__show-message')}
           onClick={handleDateClick}

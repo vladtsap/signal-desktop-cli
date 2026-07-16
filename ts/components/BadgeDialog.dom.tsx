@@ -106,7 +106,11 @@ function BadgeDialogWithBadges({
             />
           </div>
           {!areWeASubscriber && (
-            <AxoButton.Root size="lg" variant="primary" onClick={onDonate}>
+            <AxoButton.Root
+              size="lg"
+              variant="strong-primary"
+              onClick={onDonate}
+            >
               {i18n('icu:BadgeDialog__become-a-sustainer-button')}
             </AxoButton.Root>
           )}

@@ -80,7 +80,7 @@ export function ConfirmAdditionsModal({
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="primary"
+        variant="strong-primary"
         pending={requestState === RequestState.Active}
         onClick={makeRequest}
       >

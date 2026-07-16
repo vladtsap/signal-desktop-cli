@@ -115,7 +115,7 @@ export function DisappearingTimeDialog(props: PropsType): JSX.Element {
         <AxoAlertDialog.Footer>
           <AxoAlertDialog.Cancel />
           <AxoAlertDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => {
               onSubmit(
                 DurationInSeconds.fromSeconds(

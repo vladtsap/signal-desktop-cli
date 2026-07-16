@@ -28,61 +28,107 @@ export namespace AxoIconButton {
    */
 
   const baseStyles = tw(
-    'relative rounded-full leading-none select-none',
-    'not-forced-colors:outline-none keyboard-mode:focus:outline-focus-ring',
+    'relative rounded-full leading-none',
+    'not-forced-colors:outline-none keyboard-mode:focus:axo-focus-ring',
     'forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText]',
     'forced-colors:aria-disabled:text-[GrayText]',
     'forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]'
   );
 
   const pressedInvertedStyles = tw(
-    'aria-pressed:bg-fill-inverted aria-pressed:not-aria-disabled:active:bg-fill-inverted-pressed',
-    'aria-pressed:text-label-primary-inverted aria-pressed:aria-disabled:text-label-disabled-inverted'
+    'aria-pressed:bg-inverted aria-pressed:not-aria-disabled:active:bg-inverted-pressed',
+    'aria-pressed:text-primary-inverted aria-pressed:aria-disabled:text-disabled-inverted'
   );
 
   const pressedPrimaryStyles = tw(
-    'aria-pressed:bg-color-fill-primary aria-pressed:not-aria-disabled:active:bg-color-fill-primary-pressed',
-    'aria-pressed:text-label-primary-on-color aria-pressed:aria-disabled:text-label-disabled-on-color'
+    'aria-pressed:bg-accent aria-pressed:not-aria-disabled:active:bg-accent-pressed',
+    'aria-pressed:text-primary-oncolor aria-pressed:aria-disabled:text-disabled-oncolor'
   );
 
   const Variants = variants<Variant>('AxoIconButton.Variant', {
-    secondary: tw(
-      'bg-fill-secondary not-aria-disabled:active:bg-fill-secondary-pressed',
-      'data-[axo-dropdownmenu-state=open]:bg-fill-secondary-pressed',
-      'text-label-primary aria-disabled:text-label-disabled',
+    'strong-secondary': tw(
+      'bg-secondary text-primary',
+      'not-aria-disabled:active:bg-secondary-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-secondary-pressed',
+      'aria-disabled:text-disabled',
       pressedInvertedStyles
     ),
-    primary: tw(
-      'bg-color-fill-primary not-aria-disabled:active:bg-color-fill-primary-pressed',
-      'data-[axo-dropdownmenu-state=open]:bg-color-fill-primary-pressed',
-      'text-label-primary-on-color aria-disabled:text-label-disabled-on-color',
+    'strong-primary': tw(
+      'bg-accent text-primary-oncolor',
+      'not-aria-disabled:active:bg-accent-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-accent-pressed',
+      'aria-disabled:text-disabled-oncolor'
+    ),
+    'strong-affirmative': tw(
+      'bg-affirmative text-primary-oncolor',
+      'not-aria-disabled:active:bg-affirmative-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-affirmative-pressed',
+      'aria-disabled:text-disabled-oncolor'
+    ),
+    'strong-warning': tw(
+      'bg-warning-bright text-primary-onbright',
+      'not-aria-disabled:active:bg-warning-bright-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-warning-bright-pressed',
+      'aria-disabled:text-disabled-onbright'
+    ),
+    'strong-destructive': tw(
+      'bg-destructive text-primary-oncolor',
+      'not-aria-disabled:active:bg-destructive-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-destructive-pressed',
+      'aria-disabled:text-disabled-oncolor'
+    ),
+    'subtle-secondary': tw(
+      'bg-primary text-primary',
+      'not-aria-disabled:active:bg-primary-pressed',
+      'aria-disabled:text-disabled',
       pressedInvertedStyles
     ),
-    affirmative: tw(
-      'bg-color-fill-affirmative not-aria-disabled:active:bg-color-fill-affirmative-pressed',
-      'data-[axo-dropdownmenu-state=open]:bg-color-fill-affirmative-pressed',
-      'text-label-primary-on-color aria-disabled:text-label-disabled-on-color',
-      pressedInvertedStyles
+    'subtle-primary': tw(
+      'bg-accent-tint text-accent',
+      'not-aria-disabled:active:bg-accent-tint-pressed',
+      'aria-disabled:text-accent-disabled'
     ),
-    destructive: tw(
-      'bg-color-fill-destructive not-aria-disabled:active:bg-color-fill-destructive-pressed',
-      'data-[axo-dropdownmenu-state=open]:bg-color-fill-destructive-pressed',
-      'text-label-primary-on-color aria-disabled:text-label-disabled-on-color',
-      pressedInvertedStyles
+    'subtle-affirmative': tw(
+      'bg-affirmative-tint text-affirmative',
+      'not-aria-disabled:active:bg-affirmative-tint-pressed',
+      'aria-disabled:text-affirmative-disabled'
     ),
-    'borderless-secondary': tw(
-      'not-aria-disabled:hover:not-aria-pressed:bg-fill-secondary not-aria-disabled:active:bg-fill-secondary-pressed',
-      'focus:bg-fill-secondary',
-      'data-[axo-dropdownmenu-state=open]:bg-fill-secondary-pressed',
-      'text-label-primary aria-disabled:text-label-disabled',
+    'subtle-warning': tw(
+      'bg-warning-tint text-warning',
+      'not-aria-disabled:active:bg-warning-tint-pressed',
+      'aria-disabled:text-warning-disabled'
+    ),
+    'subtle-destructive': tw(
+      'bg-destructive-tint text-destructive',
+      'not-aria-disabled:active:bg-destructive-tint-pressed',
+      'aria-disabled:text-destructive-disabled'
+    ),
+    'implied-secondary': tw(
+      'bg-transparent text-primary',
+      'not-aria-disabled:hover:not-aria-pressed:bg-primary',
+      'not-aria-disabled:active:bg-primary-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-primary-pressed',
+      'focus:bg-primary',
+      'aria-disabled:text-disabled',
       pressedPrimaryStyles
     ),
-    'floating-secondary': tw(
-      'bg-fill-floating not-aria-disabled:active:bg-fill-floating-pressed',
-      'data-[axo-dropdownmenu-state=open]:bg-fill-floating-pressed',
-      'text-label-primary aria-disabled:text-label-disabled',
-      'shadow-elevation-1',
+    'material-subtle': tw(
+      'bg-material-secondary text-primary backdrop-blur-thin',
+      'not-aria-disabled:active:bg-material-tertiary-pressed',
+      'aria-disabled:text-disabled',
       pressedInvertedStyles
+    ),
+    'material-strong': tw(
+      'bg-material-primary text-primary backdrop-blur-thin',
+      'not-aria-disabled:active:bg-material-quaternary-pressed',
+      'aria-disabled:text-disabled'
+    ),
+    'elevated-secondary': tw(
+      'bg-material-tertiary text-primary backdrop-blur-thin',
+      'not-aria-disabled:active:bg-material-tertiary-pressed',
+      'data-[axo-dropdownmenu-state=open]:bg-material-tertiary-pressed',
+      'aria-disabled:text-disabled',
+      'shadow-elevation-1'
     ),
   });
 
@@ -112,12 +158,20 @@ export namespace AxoIconButton {
    * Visual style of the button.
    */
   export type Variant =
-    | 'secondary'
-    | 'primary'
-    | 'affirmative'
-    | 'destructive'
-    | 'borderless-secondary'
-    | 'floating-secondary';
+    | 'strong-secondary'
+    | 'strong-primary'
+    | 'strong-affirmative'
+    | 'strong-warning'
+    | 'strong-destructive'
+    | 'subtle-secondary'
+    | 'subtle-primary'
+    | 'subtle-affirmative'
+    | 'subtle-warning'
+    | 'subtle-destructive'
+    | 'implied-secondary'
+    | 'material-subtle'
+    | 'material-strong'
+    | 'elevated-secondary';
 
   /**
    * Size of the button.
@@ -191,7 +245,7 @@ export namespace AxoIconButton {
    * ```tsx
    * <AxoIconButton.Root
    *   label="Close"
-   *   variant="borderless-secondary"
+   *   variant="implied-secondary"
    *   size="md"
    *   symbol="x"
    *   onClick={onClose}
@@ -202,7 +256,7 @@ export namespace AxoIconButton {
    * ```tsx
    * <AxoIconButton.Root
    *   label={muted ? 'Unmute' : 'Mute'}
-   *   variant="borderless-secondary"
+   *   variant="implied-secondary"
    *   size="md"
    *   symbol={muted ? 'mic-slash' : 'mic'}
    *   pressed={muted}
@@ -305,12 +359,20 @@ export namespace AxoIconButton {
   const SpinnerVariants = variants<Variant, SpinnerVariant>(
     'AxoIconButton.Variant',
     {
-      primary: 'axo-button-spinner-on-color',
-      secondary: 'axo-button-spinner-secondary',
-      affirmative: 'axo-button-spinner-on-color',
-      destructive: 'axo-button-spinner-on-color',
-      'floating-secondary': 'axo-button-spinner-secondary',
-      'borderless-secondary': 'axo-button-spinner-secondary',
+      'strong-primary': 'axo-button-spinner-oncolor',
+      'strong-secondary': 'axo-button-spinner-secondary',
+      'strong-affirmative': 'axo-button-spinner-oncolor',
+      'strong-warning': 'axo-button-spinner-onbright',
+      'strong-destructive': 'axo-button-spinner-oncolor',
+      'subtle-primary': 'axo-button-spinner-primary',
+      'subtle-secondary': 'axo-button-spinner-secondary',
+      'subtle-affirmative': 'axo-button-spinner-affirmative',
+      'subtle-warning': 'axo-button-spinner-warning',
+      'subtle-destructive': 'axo-button-spinner-destructive',
+      'elevated-secondary': 'axo-button-spinner-secondary',
+      'material-subtle': 'axo-button-spinner-secondary',
+      'material-strong': 'axo-button-spinner-secondary',
+      'implied-secondary': 'axo-button-spinner-secondary',
     }
   );
 

@@ -170,7 +170,7 @@ export function GroupV2Permissions({
           </AxoAlertDialog.Body>
           <AxoAlertDialog.Footer>
             <AxoAlertDialog.Action
-              variant="secondary"
+              variant="strong-secondary"
               onClick={() => {
                 setIsWarningAboutClearingLabels(false);
               }}
@@ -178,7 +178,7 @@ export function GroupV2Permissions({
               {i18n('icu:cancel')}
             </AxoAlertDialog.Action>
             <AxoAlertDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={() => {
                 setAccessControlMemberLabelSetting(
                   conversation.id,

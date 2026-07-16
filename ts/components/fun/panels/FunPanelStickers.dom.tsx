@@ -174,6 +174,7 @@ export type FunStickerSelection = Readonly<{
 }>;
 
 export type FunPanelStickersProps = Readonly<{
+  isReply: boolean;
   showTimeStickers: boolean;
   onSelectTimeSticker?: (style: FunTimeStickerStyle) => void;
   onSelectSticker: (stickerSelection: FunStickerSelection) => void;
@@ -182,6 +183,7 @@ export type FunPanelStickersProps = Readonly<{
 }>;
 
 export function FunPanelStickers({
+  isReply,
   showTimeStickers,
   onSelectTimeSticker,
   onSelectSticker,
@@ -196,6 +198,7 @@ export function FunPanelStickers({
     recentStickers,
     installedStickerPacks,
     onSelectSticker: onFunSelectSticker,
+    onStageStickerReply,
   } = fun;
 
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -358,6 +361,11 @@ export function FunPanelStickers({
 
   const handleClickSticker = useCallback(
     (event: PointerEvent, stickerSelection: FunStickerSelection) => {
+      if (isReply) {
+        onStageStickerReply(stickerSelection);
+        return;
+      }
+
       onFunSelectSticker(stickerSelection);
       onSelectSticker(stickerSelection);
       if (!(event.ctrlKey || event.metaKey)) {
@@ -365,7 +373,7 @@ export function FunPanelStickers({
         onClose();
       }
     },
-    [onFunSelectSticker, onSelectSticker, onClose]
+    [isReply, onFunSelectSticker, onSelectSticker, onStageStickerReply, onClose]
   );
 
   const handleClickTimeSticker = useCallback(

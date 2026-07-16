@@ -5,9 +5,12 @@ import '../sandboxedInit.dom.ts';
 import { PermissionsPopup } from '../../components/PermissionsPopup.dom.tsx';
 import { strictAssert } from '../../util/assert.std.ts';
 import { AppProvider } from '../AppProvider.dom.tsx';
+import { setDocumentLocale } from '../../util/setDocumentLocale.dom.ts';
 
 const { PermissionsWindowProps } = window.Signal;
 const { i18n } = window.SignalContext;
+
+setDocumentLocale(document);
 
 strictAssert(PermissionsWindowProps, 'window values not provided');
 

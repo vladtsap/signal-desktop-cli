@@ -47,7 +47,7 @@ export function BackupMediaDownloadCancelConfirmationDialog({
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="destructive"
+        variant="strong-destructive"
         onClick={handleConfirmCancel}
       >
         {i18n(

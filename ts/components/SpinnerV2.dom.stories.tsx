@@ -36,7 +36,7 @@ export default {
 
 export function Default(args: Props): JSX.Element {
   return (
-    <div className={tw('bg-background-overlay')}>
+    <div className={tw('bg-overlay')}>
       <SpinnerV2 {...args} />
     </div>
   );
@@ -44,7 +44,7 @@ export function Default(args: Props): JSX.Element {
 
 export function Thin(args: Props): JSX.Element {
   return (
-    <div className={tw('bg-background-overlay')}>
+    <div className={tw('bg-overlay')}>
       <SpinnerV2 {...args} strokeWidth={1} />
     </div>
   );
@@ -52,7 +52,7 @@ export function Thin(args: Props): JSX.Element {
 
 export function Thick(args: Props): JSX.Element {
   return (
-    <div className={tw('bg-background-overlay')}>
+    <div className={tw('bg-overlay')}>
       <SpinnerV2 {...args} strokeWidth={6} />
     </div>
   );
@@ -60,7 +60,7 @@ export function Thick(args: Props): JSX.Element {
 
 export function NoMargin(args: Props): JSX.Element {
   return (
-    <div className={tw('bg-background-overlay')}>
+    <div className={tw('bg-overlay')}>
       <SpinnerV2 {...args} marginRatio={1} strokeWidth={6} />
     </div>
   );
@@ -68,7 +68,7 @@ export function NoMargin(args: Props): JSX.Element {
 
 export function BigMargin(args: Props): JSX.Element {
   return (
-    <div className={tw('bg-background-overlay')}>
+    <div className={tw('bg-overlay')}>
       <SpinnerV2 {...args} marginRatio={0.5} strokeWidth={6} />
     </div>
   );
@@ -90,7 +90,7 @@ export function SpinnerToProgress(args: Props): JSX.Element {
     };
   });
   return (
-    <div className={tw('bg-background-overlay')}>
+    <div className={tw('bg-overlay')}>
       <SpinnerV2 {...args} value={value} />
     </div>
   );

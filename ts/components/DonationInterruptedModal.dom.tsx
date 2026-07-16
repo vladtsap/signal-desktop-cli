@@ -22,7 +22,7 @@ export function DonationInterruptedModal(props: PropsType): JSX.Element {
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="primary"
+        variant="strong-primary"
         onClick={props.onRetryDonation}
       >
         {i18n('icu:Donations__DonationInterrupted__RetryButton')}

@@ -201,7 +201,7 @@ export function VerificationCodeScreen({
           phoneNumber: formatPhoneNumber(phoneNumber, {}),
         })}
         <AxoButton.Root
-          variant="borderless-secondary"
+          variant="implied-secondary"
           size="md"
           onClick={() =>
             startRegistration({ startingPhoneNumber: phoneNumber })
@@ -223,7 +223,8 @@ export function VerificationCodeScreen({
             ref={i === 0 ? focusRef : undefined}
             className={classNames(
               tw(
-                'me-2.5 size-8 rounded-xl border-[0.5px] border-fill-primary p-2.5 type-body-medium shadow-elevation-0'
+                'me-2.5 size-8 rounded-xl border-[0.5px] border-primary p-2.5 type-body-medium shadow-elevation-0',
+                'focus:outline-none keyboard-mode:focus:axo-focus-ring'
               ),
               i === 2 ? tw('me-6') : undefined
             )}
@@ -233,7 +234,7 @@ export function VerificationCodeScreen({
       <Spacer className={tw('h-18')} />
       {workflow.failedToSendSMS ? undefined : (
         <AxoButton.Root
-          variant="borderless-primary"
+          variant="implied-primary"
           size="md"
           pending={
             status.type === 'requesting-code' &&
@@ -256,7 +257,7 @@ export function VerificationCodeScreen({
         <>
           <Spacer className={tw('h-3')} />
           <AxoButton.Root
-            variant="borderless-primary"
+            variant="implied-primary"
             size="md"
             pending={
               status.type === 'requesting-code' &&
@@ -279,7 +280,7 @@ export function VerificationCodeScreen({
         leftSideContent={
           shouldShowHavingTrouble ? (
             <AxoButton.Root
-              variant="borderless-primary"
+              variant="implied-primary"
               size="md"
               onClick={
                 () => undefined
@@ -294,7 +295,7 @@ export function VerificationCodeScreen({
         }
       >
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           pending={status.type === 'submitting-code'}
           disabled={
@@ -435,7 +436,7 @@ function IncorrectCodeDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -489,7 +490,7 @@ function InvalidCodeDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="secondary"
+            variant="strong-secondary"
             onClick={() =>
               startRegistration({ startingPhoneNumber: workflow.phoneNumber })
             }
@@ -499,7 +500,7 @@ function InvalidCodeDialog({
             )}
           </AxoConfirmDialog.Action>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -553,7 +554,7 @@ function MaximumAttemptsDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="secondary"
+            variant="strong-secondary"
             onClick={() =>
               startRegistration({ startingPhoneNumber: workflow.phoneNumber })
             }
@@ -563,7 +564,7 @@ function MaximumAttemptsDialog({
             )}
           </AxoConfirmDialog.Action>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -616,7 +617,7 @@ function VoiceCallNeededDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="secondary"
+            variant="strong-secondary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -624,7 +625,7 @@ function VoiceCallNeededDialog({
             )}
           </AxoConfirmDialog.Action>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() =>
               requestVerificationCode({
                 transport: VerificationTransport.Voice,
@@ -683,7 +684,7 @@ function FailedToCallDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() =>
               startRegistration({ startingPhoneNumber: workflow.phoneNumber })
             }
@@ -740,7 +741,7 @@ function MustWaitDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -795,7 +796,7 @@ function CannotSendCodeTemporaryDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -849,7 +850,7 @@ function CannotSendCodePermanentDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() =>
               startRegistration({ startingPhoneNumber: workflow.phoneNumber })
             }

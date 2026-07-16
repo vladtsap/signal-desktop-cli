@@ -55,6 +55,7 @@ import type {
   CallEventDetails,
   CallHistoryDetails,
   CallLogEventDetails,
+  CallLogEventTarget,
   CallStatus,
   GroupCallMeta,
 } from '../types/CallDisposition.std.ts';
@@ -72,6 +73,7 @@ import { itemStorage } from '../textsecure/Storage.preload.ts';
 import { update as updateExpiringMessagesService } from '../services/expiringMessagesDeletion.preload.ts';
 import type { DurationInSeconds } from './durations/duration-in-seconds.std.ts';
 import { isFeaturedEnabledNoRedux } from './isFeatureEnabled.dom.ts';
+import type { GetUnreadCallMessagesAndMarkReadResult } from '../sql/Interface.std.ts';
 
 const { isEqual } = lodash;
 
@@ -1297,6 +1299,11 @@ async function saveCallHistory({
   message.set({ id });
   log.info('saveCallHistory: Saved call history message:', message.id);
 
+  if (prevMessage != null) {
+    // Remove the previous message so it's forced to update in the cache
+    window.MessageCache.unregister(prevMessage.id);
+  }
+
   const model = window.MessageCache.register(message);
 
   if (prevMessage == null) {
@@ -1511,38 +1518,91 @@ export async function clearCallHistoryDataAndSync(
   return ClearCallHistoryResult.Success;
 }
 
+export type MarkCallHistoryReadParams =
+  | {
+      mode: 'only-target-call';
+      target: { callId: string; timestamp?: never };
+      readAt: number;
+    }
+  | {
+      mode: 'all-calls-in-conversation' | 'all-calls';
+      target: CallLogEventTarget;
+      readAt: number;
+    };
+
+export async function markCallHistoryReadWithoutSync(
+  params: MarkCallHistoryReadParams
+): Promise<void> {
+  log.info(
+    `markAllCallHistoryReadWithoutSync: Marking call history read before (${params.target.callId}, ${params.target.timestamp})`
+  );
+  const activeCallIds = calling.getActiveCallIds();
+  let updatedMessages: ReadonlyArray<GetUnreadCallMessagesAndMarkReadResult>;
+  if (params.mode === 'only-target-call') {
+    const updatedMessage = await DataWriter.getUnreadCallMessageAndMarkRead(
+      params.target.callId,
+      params.readAt
+    );
+    updatedMessages = updatedMessage != null ? [updatedMessage] : [];
+  } else if (params.mode === 'all-calls-in-conversation') {
+    updatedMessages =
+      await DataWriter.getUnreadCallMessagesInConversationAndMarkRead(
+        params.target,
+        params.readAt,
+        activeCallIds
+      );
+  } else if (params.mode === 'all-calls') {
+    updatedMessages = await DataWriter.getUnreadCallMessagesAndMarkRead(
+      params.target,
+      params.readAt,
+      activeCallIds
+    );
+  } else {
+    throw missingCaseError(params.mode);
+  }
+
+  const count = updatedMessages.length;
+
+  log.info(
+    `markAllCallHistoryReadWithoutSync: Marked ${count} call history messages read`
+  );
+
+  const conversationIds = new Set<string>();
+
+  for (const updatedMessage of updatedMessages) {
+    conversationIds.add(updatedMessage.conversationId);
+
+    const model = window.MessageCache.getById(updatedMessage.id);
+    if (model == null) {
+      continue;
+    }
+    model.set({
+      readStatus: updatedMessage.readStatus,
+      seenStatus: updatedMessage.seenStatus,
+      expirationStartTimestamp: updatedMessage.expirationStartTimestamp,
+    });
+  }
+
+  if (count > 0) {
+    updateExpiringMessagesService();
+  }
+
+  window.reduxActions.callHistory.updateCallHistoryUnreadCount(
+    Array.from(conversationIds)
+  );
+}
+
 export async function markAllCallHistoryReadAndSync(
   latestCall: CallHistoryDetails,
+  readAt: number,
   inConversation: boolean
 ): Promise<void> {
   try {
-    log.info(
-      `markAllCallHistoryReadAndSync: Marking call history read before (${latestCall.callId}, ${latestCall.timestamp})`
-    );
-    const readAt = Date.now();
-    const activeCallIds = calling.getActiveCallIds();
-    let count: number;
-    if (inConversation) {
-      count = await DataWriter.markAllCallHistoryReadInConversation(
-        latestCall,
-        readAt,
-        activeCallIds
-      );
-    } else {
-      count = await DataWriter.markAllCallHistoryRead(
-        latestCall,
-        readAt,
-        activeCallIds
-      );
-    }
-
-    log.info(
-      `markAllCallHistoryReadAndSync: Marked ${count} call history messages read`
-    );
-
-    if (count > 0) {
-      updateExpiringMessagesService();
-    }
+    await markCallHistoryReadWithoutSync({
+      mode: inConversation ? 'all-calls-in-conversation' : 'all-calls',
+      target: latestCall,
+      readAt,
+    });
 
     const ourAci = itemStorage.user.getCheckedAci();
 

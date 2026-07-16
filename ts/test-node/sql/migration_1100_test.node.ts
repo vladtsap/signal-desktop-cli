@@ -4,7 +4,7 @@
 import { assert } from 'chai';
 import lodash from 'lodash';
 import type { WritableDB } from '../../sql/Interface.std.ts';
-import { markAllCallHistoryRead } from '../../sql/Server.node.ts';
+import { getUnreadCallMessagesAndMarkRead } from '../../sql/Server.node.ts';
 import { SeenStatus } from '../../MessageSeenStatus.std.ts';
 import {
   CallMode,
@@ -92,7 +92,7 @@ describe('SQL/updateToSchemaVersion1100', () => {
       const readAt = target.timestamp + 1;
 
       const start = performance.now();
-      const changes = markAllCallHistoryRead(
+      const changes = getUnreadCallMessagesAndMarkRead(
         db,
         target,
         readAt,
@@ -100,7 +100,7 @@ describe('SQL/updateToSchemaVersion1100', () => {
         true
       );
       const end = performance.now();
-      assert.equal(changes, Math.ceil(COUNT / CONVERSATIONS));
+      assert.equal(changes.length, Math.ceil(COUNT / CONVERSATIONS));
       assert.isBelow(end - start, 50);
     });
   });

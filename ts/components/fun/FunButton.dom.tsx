@@ -22,7 +22,7 @@ export function FunPickerButton(props: FunPickerButtonProps): JSX.Element {
     <Pressable>
       <AxoIconButton.Root
         symbol="emoji"
-        variant="borderless-secondary"
+        variant="implied-secondary"
         label={i18n('icu:FunButton__Label--FunPicker')}
         size="md"
         tooltip={false}

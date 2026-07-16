@@ -6,9 +6,11 @@ import { AppProvider } from '../windows/AppProvider.dom.tsx';
 // oxlint-disable-next-line signal-desktop/no-restricted-paths
 import { AxoConfirmDialog } from '../axo/AxoConfirmDialog.dom.tsx';
 
+type ConfirmStyleVariant = 'strong-primary' | 'strong-destructive';
+
 type ConfirmationDialogViewProps = {
   cancelText?: string;
-  confirmStyle?: 'primary' | 'destructive';
+  confirmStyle?: ConfirmStyleVariant;
   title: string;
   description: string;
   okText: string;
@@ -63,7 +65,7 @@ export function showConfirmationDialog(
         description={options.description}
       >
         <AxoConfirmDialog.Action
-          variant="secondary"
+          variant="strong-secondary"
           onClick={() => {
             options.reject?.(
               new Error('showConfirmationDialog: onCancel called')
@@ -73,7 +75,7 @@ export function showConfirmationDialog(
           {options.cancelText ?? i18n('icu:cancel')}
         </AxoConfirmDialog.Action>
         <AxoConfirmDialog.Action
-          variant={options.confirmStyle ?? 'primary'}
+          variant={options.confirmStyle ?? 'strong-primary'}
           onClick={options.resolve}
         >
           {options.okText || i18n('icu:ok')}

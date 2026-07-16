@@ -499,6 +499,9 @@ export type ConversationAttributesType = {
   publicParams?: string;
   revision?: number;
   senderKeyInfo?: SenderKeyInfoType;
+  needsGroupUpdate?: boolean; // `true` only for groups we learned about through
+  // an incoming message. Reset when we update the
+  // group or fail.
 
   // GroupV2 other fields
   accessControl?: {

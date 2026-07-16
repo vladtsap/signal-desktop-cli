@@ -33,8 +33,8 @@ export function ProfileNameWarningModal({
           <div className={tw('flex justify-center')}>
             <div
               className={tw(
-                'rounded-3xl bg-legacy-warning-badge/12 px-4 py-1.5',
-                'type-title-large font-regular text-legacy-warning-badge'
+                'rounded-3xl bg-(--axo-color-legacy-warning-badge)/12 px-4 py-1.5',
+                'type-title-large font-regular text-(--axo-color-legacy-warning-badge)'
               )}
             >
               {conversationType === 'direct' ? (
@@ -44,7 +44,7 @@ export function ProfileNameWarningModal({
               )}
             </div>
           </div>
-          <div className={tw('mt-5 mb-12 type-body-medium text-label-primary')}>
+          <div className={tw('mt-5 mb-12 type-body-medium text-primary')}>
             {conversationType === 'direct' ? (
               <>
                 {i18n('icu:ProfileNameWarningModal__description--direct')}

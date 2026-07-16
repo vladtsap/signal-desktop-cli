@@ -9,7 +9,6 @@
   @mixin icon-element($icon, $margin-right: 4px) {
     display: flex;
     align-items: center;
-    user-select: none;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -95,7 +94,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        user-select: none;
 
         &__in-contacts-icon {
           margin-inline-start: 4px;

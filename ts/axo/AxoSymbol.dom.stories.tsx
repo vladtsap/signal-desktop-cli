@@ -42,14 +42,14 @@ const SymbolInfo = memo(function SymbolInfo(props: {
   return (
     <figure
       className={tw(
-        'flex flex-col items-center gap-2 border border-border-primary bg-background-secondary p-4'
+        'flex flex-col items-center gap-2 border border-primary bg-surface-secondary p-4'
       )}
     >
       <div className={tw('flex w-full flex-1 flex-row justify-between')}>
         {variants.map(variant => {
           return (
             <div className={tw('flex flex-1 flex-col items-center gap-2')}>
-              <span className={tw('type-caption text-label-secondary')}>
+              <span className={tw('type-caption text-secondary')}>
                 {variant.title}
               </span>
               <span className={tw('text-[20px]')}>
@@ -60,7 +60,7 @@ const SymbolInfo = memo(function SymbolInfo(props: {
                   />
                 </Direction.Provider>
               </span>
-              <code className={tw('type-caption text-label-secondary')}>
+              <code className={tw('type-caption text-secondary')}>
                 {Array.from(variant.text, char => {
                   const codePoint = char.codePointAt(0) ?? -1;
                   return `U+${codePoint.toString(16).toUpperCase()}`;
@@ -72,7 +72,7 @@ const SymbolInfo = memo(function SymbolInfo(props: {
       </div>
       <figcaption
         className={tw(
-          'w-full truncate border-t border-dotted border-border-primary pt-4 text-center type-body-medium text-color-label-primary'
+          'w-full truncate border-t border-dotted border-primary pt-4 text-center type-body-medium text-accent'
         )}
       >
         <code>{props.symbolName}</code>
@@ -97,7 +97,7 @@ export function All(): JSX.Element {
     <>
       <div
         className={tw(
-          'sticky top-4 mb-3 bg-elevated-background-primary p-4 shadow-elevation-2'
+          'sticky top-4 mb-3 bg-material-primary p-4 shadow-elevation-2'
         )}
       >
         {/* FIXME */}
@@ -110,7 +110,7 @@ export function All(): JSX.Element {
             setInput(event.currentTarget.value);
           }}
           className={tw(
-            'w-full rounded-sm bg-elevated-background-secondary p-3 type-body-medium'
+            'w-full rounded-sm bg-material-secondary p-3 type-body-medium'
           )}
         />
       </div>

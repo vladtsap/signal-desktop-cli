@@ -72,7 +72,7 @@ export function StickerManagerHeader({
       <div className={tw('block @min-[200px]:hidden')}>
         <AxoSelect.Root value={tab} onValueChange={setSelectedTabWithDefault}>
           <AxoSelect.Trigger
-            variant="floating"
+            variant="elevated"
             width="fit"
             placeholder=""
             chevron="always"

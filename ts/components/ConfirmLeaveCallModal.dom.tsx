@@ -41,7 +41,7 @@ export function ConfirmLeaveCallModal({
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="primary"
+        variant="strong-primary"
         onClick={() => leaveCurrentCallAndStartCallingLobby(data)}
       >
         {i18n('icu:CallsList__LeaveCallDialogButton--leave')}

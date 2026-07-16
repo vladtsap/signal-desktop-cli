@@ -38,6 +38,7 @@ function Template(props: TemplateProps) {
       onOpenCustomizePreferredReactionsModal={() => null}
       onSelectEmoji={() => null}
       // Stickers
+      isStickerReplySendEnabled
       installedStickerPacks={packs}
       showStickerPickerHint={false}
       onClearStickerPickerHint={() => null}
@@ -60,6 +61,7 @@ export default {
   title: 'Components/Fun/FunPicker',
   component: Template,
   args: {
+    isReply: false,
     placement: 'bottom',
     theme: undefined,
     onSelectEmoji: action('onSelectEmoji'),

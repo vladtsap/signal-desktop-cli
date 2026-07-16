@@ -75,6 +75,7 @@ const createProps = (overrideProps: Partial<Props> = {}): Props => ({
   setTab: action('setTab'),
   showToast: action('showToast'),
   uninstallStickerPack: action('uninstallStickerPack'),
+  updateStickerPacksPositions: action('updateStickerPacksPositions'),
 });
 
 export function Full(args: Props): JSX.Element {

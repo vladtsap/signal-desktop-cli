@@ -1,6 +1,6 @@
 {
   "NSCameraUsageDescription": {
-    "messageformat": "Signal uses your camera for video calling."
+    "messageformat": "Signal usa la tua fotocamera per le videochiamate."
   },
   "NSMicrophoneUsageDescription": {
     "messageformat": "Signal deve accedere al tuo microfono per fare e ricevere telefonate e registrare messaggi vocali."

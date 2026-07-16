@@ -49,7 +49,7 @@ export function NeedsScreenRecordingPermissionsModal({
             {i18n('icu:calling__presenting--permission-cancel')}
           </AxoAlertDialog.Cancel>
           <AxoAlertDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => {
               openSystemPreferencesAction();
               toggleScreenRecordingPermissionsDialog();

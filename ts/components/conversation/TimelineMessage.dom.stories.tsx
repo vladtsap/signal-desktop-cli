@@ -2895,7 +2895,7 @@ export function PollAnimationPlayground(): JSX.Element {
 
       <div
         className={tw(
-          'mt-6 max-w-[300px] rounded-lg border border-solid border-label-primary p-4'
+          'mt-6 max-w-[300px] rounded-lg border border-solid border-primary p-4'
         )}
       >
         <label className={tw('mb-2 flex cursor-pointer items-center gap-2')}>

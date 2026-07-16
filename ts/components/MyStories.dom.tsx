@@ -86,7 +86,7 @@ export function MyStories({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmDeleteStory != null,

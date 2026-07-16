@@ -101,7 +101,7 @@ export async function uploadAttachment(
   let { fileName } = attachment;
   if (isImageAttachment(attachment) || isVideoAttachment(attachment)) {
     assertDev(
-      fileName == null,
+      fileName == null || fileName === '',
       'Filename should be stripped from visual attachments'
     );
 

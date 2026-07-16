@@ -52,7 +52,7 @@ export function GroupMemberLabelInfoModal(props: PropsType): JSX.Element {
             </div>
           </AxoDialog.Title>
           <AxoDialog.Description>
-            <div className={tw('mb-1.5 type-body-medium text-label-secondary')}>
+            <div className={tw('mb-1.5 type-body-medium text-secondary')}>
               {i18n('icu:GroupMemberLabelInfoModal--description')}
             </div>
           </AxoDialog.Description>
@@ -60,7 +60,7 @@ export function GroupMemberLabelInfoModal(props: PropsType): JSX.Element {
         <AxoDialog.Footer>
           {isEditMemberLabelEnabled && canAddLabel && (
             <AxoDialog.Action
-              variant="secondary"
+              variant="strong-secondary"
               onClick={() => {
                 showEditMemberLabelScreen();
                 onClose();
@@ -72,7 +72,7 @@ export function GroupMemberLabelInfoModal(props: PropsType): JSX.Element {
             </AxoDialog.Action>
           )}
           <AxoDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => {
               onClose();
             }}

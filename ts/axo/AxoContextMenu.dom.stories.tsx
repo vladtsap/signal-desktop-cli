@@ -18,11 +18,7 @@ export function Basic(): JSX.Element {
     <div className={tw('flex h-96 w-full items-center justify-center')}>
       <AxoContextMenu.Root>
         <AxoContextMenu.Trigger>
-          <div
-            className={tw('bg-fill-secondary p-12 text-color-label-primary')}
-          >
-            Right-Click
-          </div>
+          <div className={tw('bg-primary p-12 text-accent')}>Right-Click</div>
         </AxoContextMenu.Trigger>
         <AxoContextMenu.Content>
           <AxoContextMenu.Item

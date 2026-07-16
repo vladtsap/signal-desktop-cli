@@ -545,14 +545,14 @@ export function PreferencesEditChatFolderPage(
         <>
           <AxoButton.Root
             size="lg"
-            variant="secondary"
+            variant="strong-secondary"
             onClick={handleDiscardAndBack}
           >
             {i18n('icu:Preferences__EditChatFolderPage__CancelButton')}
           </AxoButton.Root>
           <AxoButton.Root
             size="lg"
-            variant="primary"
+            variant="strong-primary"
             onClick={handleSaveChangesAndBack}
             disabled={!(isChanged && isValid)}
           >
@@ -582,12 +582,15 @@ function SaveChangesFolderDialog(props: {
         'icu:Preferences__EditChatFolderPage__SaveChangesFolderDialog__Description'
       )}
     >
-      <AxoConfirmDialog.Action variant="secondary" onClick={props.onDiscard}>
+      <AxoConfirmDialog.Action
+        variant="strong-secondary"
+        onClick={props.onDiscard}
+      >
         {i18n(
           'icu:Preferences__EditChatFolderPage__SaveChangesFolderDialog__DiscardButton'
         )}
       </AxoConfirmDialog.Action>
-      <AxoConfirmDialog.Action variant="primary" onClick={props.onSave}>
+      <AxoConfirmDialog.Action variant="strong-primary" onClick={props.onSave}>
         {i18n(
           'icu:Preferences__EditChatFolderPage__SaveChangesFolderDialog__SaveButton'
         )}

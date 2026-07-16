@@ -78,7 +78,7 @@ export function CreatePINConfirmScreen({
       <Spacer className={tw('h-8 grow')} />
       <Buttons>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           disabled={!isValidPIN || pending}
           pending={pending}

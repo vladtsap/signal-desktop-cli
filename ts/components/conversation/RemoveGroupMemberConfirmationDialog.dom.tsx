@@ -53,7 +53,7 @@ export function RemoveGroupMemberConfirmationDialog({
       description={null}
     >
       <AxoConfirmDialog.Cancel />
-      <AxoConfirmDialog.Action variant="destructive" onClick={onRemove}>
+      <AxoConfirmDialog.Action variant="strong-destructive" onClick={onRemove}>
         {i18n('icu:RemoveGroupMemberConfirmation__remove-button')}
       </AxoConfirmDialog.Action>
     </AxoConfirmDialog.Root>

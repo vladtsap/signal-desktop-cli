@@ -1,8 +1,8 @@
 // Copyright 2025 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
-import { useCallback } from 'react';
-import type { ReactNode } from 'react';
+import { memo, useCallback } from 'react';
+import type { FC, ReactNode } from 'react';
 import { tw } from '../tw.dom.tsx';
 
 export namespace AxoBaseDialog {
@@ -29,15 +29,40 @@ export namespace AxoBaseDialog {
   }>;
 
   /**
+   * <AxoBaseDialog.Host>
+   * --------------------------------------------------------------------------
+   */
+
+  export type HostProps = Readonly<{
+    children: ReactNode;
+  }>;
+
+  export const Host: FC<HostProps> = memo(props => {
+    return (
+      <div
+        className={tw(
+          'absolute inset-0',
+          'legacy-z-index-modal-host',
+          'flex items-center-safe justify-center-safe',
+          // Allow the entire host to be scrolled in case the window is extremely small
+          'scrollbar-width-none overflow-auto'
+        )}
+      >
+        {props.children}
+      </div>
+    );
+  });
+
+  Host.displayName = 'AxoBaseDialog.Host';
+
+  /**
    * <AxoBaseDialog.Overlay>
    * --------------------------------------------------------------------------
    */
 
   export const overlayStyles = tw(
-    'legacy-z-index-modal-host',
-    'absolute inset-0 flex items-center-safe justify-center-safe bg-background-overlay p-4',
-    // Allow the entire overlay to be scrolled in case the window is extremely small
-    'scrollbar-width-none overflow-auto',
+    'absolute inset-0 bg-overlay',
+    'z-0',
     'data-[state=closed]:animate-exit data-[state=open]:animate-enter',
     'animate-opacity-0',
     'forced-colors:bg-[Canvas]'
@@ -50,12 +75,14 @@ export namespace AxoBaseDialog {
 
   export const contentStyles = tw(
     'relative',
+    'z-10',
     'max-h-full min-h-fit',
-    'curved-3xl bg-elevated-background-primary shadow-elevation-3 select-none',
-    'text-label-primary',
-    'not-forced-colors:outline-none not-forced-colors:keyboard-mode:focus:outline-focus-ring',
+    'curved-3xl bg-material-dialog text-primary shadow-elevation-3',
+    'backdrop-blur-thick',
+    'not-forced-colors:outline-none not-forced-colors:keyboard-mode:focus:axo-focus-ring',
     'data-[state=closed]:animate-exit data-[state=open]:animate-enter',
-    'animate-scale-98 animate-translate-y-1',
+    'animate-opacity-0 animate-scale-98 animate-translate-y-1',
+    'will-change-transform',
     'forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[Canvas] forced-colors:text-[CanvasText]'
   );
 

@@ -46,7 +46,7 @@ export function GroupV2PendingApprovalActions({
           {i18n('icu:GroupV2--join--cancel-request-to-join--no')}
         </AxoConfirmDialog.Cancel>
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => cancelJoinRequest(conversationId)}
         >
           {i18n('icu:GroupV2--join--cancel-request-to-join--yes')}

@@ -69,6 +69,12 @@ button.BackupMediaDownloadProgress__button {
       color: variables.$color-ultramarine-light;
     }
   }
+  &:focus {
+    outline: none;
+    @include mixins.keyboard-mode {
+      @include mixins.axo-focus-ring;
+    }
+  }
 }
 
 button.BackupMediaDownloadProgress__button-more {
@@ -96,6 +102,12 @@ button.BackupMediaDownloadProgress__button-more {
       );
     }
   }
+  &:focus {
+    outline: none;
+    @include mixins.keyboard-mode {
+      @include mixins.axo-focus-ring;
+    }
+  }
 }
 button.BackupMediaDownloadProgress__button-close {
   @include mixins.button-reset;
@@ -120,6 +132,12 @@ button.BackupMediaDownloadProgress__button-close {
         '../images/icons/v3/x/x.svg',
         variables.$color-gray-20
       );
+    }
+  }
+  &:focus {
+    outline: none;
+    @include mixins.keyboard-mode {
+      @include mixins.axo-focus-ring;
     }
   }
 }

@@ -63,6 +63,16 @@ export const globalTypes = {
       showName: true,
     },
   },
+  background: {
+    name: 'Background',
+    defaultValue: 'Default',
+    toolbar: {
+      dynamicTitle: true,
+      icon: 'circlehollow',
+      items: ['default', 'checkerboard', 'wallpaper', 'scrolling'],
+      showName: true,
+    },
+  },
   direction: {
     name: 'Direction',
     description: 'Direction of text',
@@ -188,6 +198,7 @@ const withGlobalTypesProvider = (Story, context) => {
     context.globals.theme === 'light' ? ThemeType.light : ThemeType.dark;
   const mode = context.globals.mode;
   const direction = context.globals.direction ?? 'auto';
+  const background = context.globals.background;
 
   window.SignalContext.getResolvedMessagesLocaleDirection = () =>
     direction === 'auto' ? 'ltr' : direction;
@@ -209,6 +220,19 @@ const withGlobalTypesProvider = (Story, context) => {
     document.body.classList.remove('mouse-mode');
     document.body.classList.add('keyboard-mode');
   }
+
+  document.body.classList.toggle(
+    'background-checkerboard',
+    background === 'checkerboard'
+  );
+  document.body.classList.toggle(
+    'background-wallpaper',
+    background === 'wallpaper'
+  );
+  document.body.classList.toggle(
+    'background-scrolling',
+    background === 'scrolling'
+  );
 
   document.body.classList.add('page-is-visible');
 
@@ -250,6 +274,7 @@ function withFunProvider(Story, context) {
       recentGifs={[]}
       emojiSkinToneDefault={Emoji.SkinTone.None}
       onEmojiSkinToneDefaultChange={noop}
+      isStickerReplySendEnabled
       installedStickerPacks={[]}
       showStickerPickerHint={false}
       onClearStickerPickerHint={noop}

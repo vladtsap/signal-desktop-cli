@@ -124,4 +124,17 @@
 
     margin-block-end: 8px;
   }
+
+  &__button-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    padding-block: 1em 16px;
+    gap: 8px;
+
+    .module-Button:not(:first-child) {
+      margin-inline-start: 4px;
+    }
+  }
 }

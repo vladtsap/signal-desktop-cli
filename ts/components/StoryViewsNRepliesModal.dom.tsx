@@ -502,7 +502,7 @@ export function StoryViewsNRepliesModal({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(deleteReplyId != null, 'Missing deleteReplyId');
             deleteGroupStoryReply(deleteReplyId);
@@ -519,7 +519,7 @@ export function StoryViewsNRepliesModal({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               deleteForEveryoneReplyId != null,

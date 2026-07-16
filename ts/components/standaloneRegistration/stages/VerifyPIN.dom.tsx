@@ -115,14 +115,14 @@ export function VerifyPINScreen({
       </div>
       <div className="nav">
         <AxoButton.Root
-          variant="borderless-primary"
+          variant="implied-primary"
           size="md"
           onClick={() => goToCreatePINStage()}
         >
           TODO: Create new PIN
         </AxoButton.Root>
         <AxoButton.Root
-          variant="borderless-primary"
+          variant="implied-primary"
           size="md"
           onClick={() => goToAccountLockedStage()}
         >
@@ -130,7 +130,7 @@ export function VerifyPINScreen({
         </AxoButton.Root>
 
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           disabled={!isValidPIN}
           onClick={() => verifyPIN({ pin, workflow })}

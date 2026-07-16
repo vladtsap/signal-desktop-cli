@@ -102,9 +102,7 @@ export function PhoneNumberScreen({
       <div className={tw('w-81 max-w-[calc(100%-48px)]')}>
         <AxoTextField.Root width="lg">
           {regionCode ? (
-            <div
-              className={tw('p-1.5 ps-3 type-body-large text-label-primary')}
-            >
+            <div className={tw('p-1.5 ps-3 type-body-large text-primary')}>
               {codeByRegion.get(regionCode)}
             </div>
           ) : undefined}
@@ -138,7 +136,7 @@ export function PhoneNumberScreen({
       ) : undefined}
       <Buttons>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           disabled={!isValidNumber || Boolean(duration)}
           pending={status.type === 'in-progress'}

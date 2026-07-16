@@ -256,14 +256,14 @@ export function EditConversationAttributesModal({
           <AxoDialog.Footer>
             <AxoDialog.Actions>
               <AxoDialog.Action
-                variant="secondary"
+                variant="strong-secondary"
                 onClick={onClose}
                 disabled={isRequestActive}
               >
                 {i18n('icu:cancel')}
               </AxoDialog.Action>
               <AxoDialog.Action
-                variant="primary"
+                variant="strong-primary"
                 onClick={onRequestSubmit}
                 disabled={!canSubmit}
                 pending={isRequestActive}

@@ -57,13 +57,11 @@ export function MaybeTransferModal({
               {i18n('icu:MaybeTransferModal__title')}
             </div>
           </div>
-          <div
-            className={tw('mt-3 mb-5 flex flex-col gap-5 text-label-secondary')}
-          >
+          <div className={tw('mt-3 mb-5 flex flex-col gap-5 text-secondary')}>
             <div className={tw('text-center')}>
               <div>{i18n('icu:MaybeTransferModal__description')}</div>
               <a
-                className={tw('text-label-primary')}
+                className={tw('text-primary')}
                 href={LEARN_MORE_LINK}
                 rel="noreferrer"
                 target="_blank"
@@ -95,10 +93,13 @@ export function MaybeTransferModal({
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={onDontTransfer}>
+            <AxoDialog.Action
+              variant="strong-secondary"
+              onClick={onDontTransfer}
+            >
               {i18n('icu:MaybeTransferModal__dontTransfer')}
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={onTransfer}>
+            <AxoDialog.Action variant="strong-primary" onClick={onTransfer}>
               {i18n('icu:MaybeTransferModal__transfer')}
             </AxoDialog.Action>
           </AxoDialog.Actions>
@@ -119,7 +120,7 @@ function ListItemWithIcon({
     <li className={tw('flex gap-2')}>
       <div
         className={tw(
-          'flex size-8 shrink-0 items-center justify-center rounded-full bg-fill-secondary'
+          'flex size-8 shrink-0 items-center justify-center rounded-full bg-primary'
         )}
       >
         <AxoSymbol.Icon size={20} symbol={iconName} label={null} />
@@ -163,11 +164,11 @@ export function DeleteDataAndRelinkConfirmationDialog({
           </AxoAlertDialog.Description>
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
-          <AxoAlertDialog.Action variant="secondary" onClick={onCancel}>
+          <AxoAlertDialog.Action variant="strong-secondary" onClick={onCancel}>
             {i18n('icu:cancel')}
           </AxoAlertDialog.Action>
           <AxoButton.Root
-            variant="destructive"
+            variant="strong-destructive"
             size="md"
             width="grow"
             onClick={onConfirm}

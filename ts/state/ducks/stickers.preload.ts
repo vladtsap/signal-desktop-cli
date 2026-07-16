@@ -3,6 +3,8 @@
 
 import lodash, { type Dictionary } from 'lodash';
 import type { ReadonlyDeep } from 'type-fest';
+import type { ThunkAction } from 'redux-thunk';
+
 import type {
   StickerPackStatusType,
   StickerType as StickerDBType,
@@ -30,6 +32,8 @@ import type { BoundActionCreatorsMapObject } from '../../hooks/useBoundActions.s
 import { useBoundActions } from '../../hooks/useBoundActions.std.ts';
 import { strictAssert } from '../../util/assert.std.ts';
 import type { Emoji } from '../../axo/emoji.std.ts';
+import type { StateType as RootStateType } from '../reducer.preload.ts';
+import { getPacks } from '../selectors/stickers.std.ts';
 
 const { omit, reject } = lodash;
 
@@ -145,6 +149,10 @@ type SetStickerManagerTabAction = ReadonlyDeep<{
   type: 'stickers/SET_STICKER_MANAGER_TAB';
   payload: StickerManagerTabType;
 }>;
+type StickerPacksPositionsUpdatedAction = ReadonlyDeep<{
+  type: 'stickers/STICKER_PACKS_POSITIONS_UPDATED';
+  payload: ReadonlyArray<{ id: string; position: number }>;
+}>;
 
 export type StickersActionType = ReadonlyDeep<
   | ClearInstalledStickerPackAction
@@ -157,6 +165,7 @@ export type StickersActionType = ReadonlyDeep<
   | StickerPackUpdatedAction
   | UninstallStickerPackFulfilledAction
   | UseStickerFulfilledAction
+  | StickerPacksPositionsUpdatedAction
 >;
 
 // Action Creators
@@ -172,6 +181,7 @@ export const actions = {
   stickerPackUpdated,
   uninstallStickerPack,
   useSticker,
+  updateStickerPacksPositions,
 };
 
 export const useStickersActions = (): BoundActionCreatorsMapObject<
@@ -408,6 +418,33 @@ function setStickerManagerTab(
   };
 }
 
+function updateStickerPacksPositions(
+  orderedPackIds: ReadonlyArray<string>
+): ThunkAction<
+  void,
+  RootStateType,
+  unknown,
+  StickerPacksPositionsUpdatedAction
+> {
+  return async (dispatch, getState) => {
+    const packs = getPacks(getState());
+    const nextPackPositions = new Array<{ id: string; position: number }>();
+    orderedPackIds.forEach((id, index) => {
+      const nextPosition = index + 1;
+      if (packs[id]?.position !== nextPosition) {
+        nextPackPositions.push({ id, position: nextPosition });
+      }
+    });
+    await DataWriter.updateStickerPacksPositions(nextPackPositions);
+
+    storageServiceUploadJob({ reason: 'updateStickerPacksPositions' });
+    dispatch({
+      type: 'stickers/STICKER_PACKS_POSITIONS_UPDATED',
+      payload: nextPackPositions,
+    });
+  };
+}
+
 // Reducer
 
 export function getEmptyState(): StickersStateType {
@@ -615,6 +652,26 @@ export function reducer(
       ];
     });
 
+    return {
+      ...state,
+      packs: Object.fromEntries(entries),
+    };
+  }
+
+  if (action.type === 'stickers/STICKER_PACKS_POSITIONS_UPDATED') {
+    const { packs } = state;
+
+    const { payload } = action;
+    const packPositionMap = new Map<string, number>();
+    for (const packIdPosition of payload) {
+      const { id, position } = packIdPosition;
+      packPositionMap.set(id, position);
+    }
+
+    const entries = Object.entries(packs).map(([id, pack]) => {
+      const position = packPositionMap.get(id);
+      return [id, position ? { ...pack, position } : pack];
+    });
     return {
       ...state,
       packs: Object.fromEntries(entries),

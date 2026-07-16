@@ -162,11 +162,11 @@ export class LeftPaneInboxHelper extends LeftPaneHelper<LeftPaneInboxPropsType> 
       if (selectedChatFolder?.folderType === ChatFolderType.CUSTOM) {
         return (
           <EmptyView>
-            <h3 className={tw('type-body-large text-label-primary')}>
+            <h3 className={tw('type-body-large text-primary')}>
               {i18n('icu:LeftPane__EmptyView--WithSelectedChatFolder')}
             </h3>
             <AxoButton.Root
-              variant="floating-secondary"
+              variant="elevated-secondary"
               size="md"
               onClick={() => {
                 changeLocation({
@@ -190,10 +190,10 @@ export class LeftPaneInboxHelper extends LeftPaneHelper<LeftPaneInboxPropsType> 
 
       return (
         <EmptyView>
-          <h3 className={tw('type-title-medium text-label-secondary')}>
+          <h3 className={tw('type-title-medium text-secondary')}>
             {i18n('icu:emptyInbox__title')}
           </h3>
-          <p className={tw('type-body-medium text-label-secondary')}>
+          <p className={tw('type-body-medium text-secondary')}>
             {i18n('icu:emptyInbox__subtitle')}
           </p>
         </EmptyView>

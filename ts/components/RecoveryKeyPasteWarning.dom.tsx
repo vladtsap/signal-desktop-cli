@@ -54,9 +54,7 @@ export const RecoveryKeyPasteWarning = ({
                   strong: Strong,
                   learnMoreLink: parts => (
                     <a
-                      className={tw(
-                        'whitespace-nowrap text-color-label-primary'
-                      )}
+                      className={tw('whitespace-nowrap text-accent')}
                       href={SIGNAL_USER_SAFETY_LINK}
                       rel="noreferrer"
                       target="_blank"
@@ -76,7 +74,11 @@ export const RecoveryKeyPasteWarning = ({
           >
             {i18n('icu:CompositionInput__recovery-key-paste__share-key')}
           </AxoAlertDialog.Action>
-          <AxoAlertDialog.Action variant="primary" autoFocus onClick={onCancel}>
+          <AxoAlertDialog.Action
+            variant="strong-primary"
+            autoFocus
+            onClick={onCancel}
+          >
             {i18n('icu:CompositionInput__recovery-key-paste__do-not-share-key')}
           </AxoAlertDialog.Action>
         </AxoAlertDialog.Footer>

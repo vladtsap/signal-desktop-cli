@@ -253,7 +253,7 @@ function GroupV2Detail({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => blockGroupLinkRequests(conversationId, detail.aci)}
           >
             {i18n('icu:PendingRequests--block--confirm')}

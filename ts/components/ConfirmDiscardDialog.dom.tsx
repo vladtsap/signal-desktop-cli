@@ -34,7 +34,7 @@ export function ConfirmDiscardDialog({
       description={description ?? i18n('icu:ConfirmDiscardDialog--discard')}
     >
       <AxoConfirmDialog.Cancel>{cancelLabel}</AxoConfirmDialog.Cancel>
-      <AxoConfirmDialog.Action variant="destructive" onClick={onDiscard}>
+      <AxoConfirmDialog.Action variant="strong-destructive" onClick={onDiscard}>
         {discardLabel ?? i18n('icu:discard')}
       </AxoConfirmDialog.Action>
     </AxoConfirmDialog.Root>

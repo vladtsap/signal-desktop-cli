@@ -382,7 +382,7 @@ export function UsernameEditor({
       </div>
       <div className="UsernameEditor__button-footer">
         <AxoButton.Root
-          variant="secondary"
+          variant="strong-secondary"
           size="lg"
           disabled={isConfirming}
           onClick={onCancel}
@@ -390,7 +390,7 @@ export function UsernameEditor({
           {i18n('icu:cancel')}
         </AxoButton.Root>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="lg"
           disabled={!canSave}
           onClick={onSave}
@@ -451,7 +451,7 @@ export function UsernameEditor({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={onConfirmUsername}
         >
           {i18n('icu:EditUsernameModalBody__change-confirmation__continue')}
@@ -467,7 +467,7 @@ export function UsernameEditor({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={onConfirmUsername}
         >
           {i18n('icu:EditUsernameModalBody__change-confirmation__continue')}

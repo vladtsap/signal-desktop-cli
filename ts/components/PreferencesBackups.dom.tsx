@@ -253,7 +253,7 @@ export function PreferencesBackups({
                 )}
               >
                 <AxoButton.Root
-                  variant="secondary"
+                  variant="strong-secondary"
                   size="lg"
                   onClick={() =>
                     setSettingsLocation({ page: SettingsPage.BackupsDetails })
@@ -294,7 +294,7 @@ export function PreferencesBackups({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               disabled={isAuthPending}
               onClick={async () => {

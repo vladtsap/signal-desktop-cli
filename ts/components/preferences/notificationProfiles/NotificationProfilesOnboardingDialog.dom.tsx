@@ -23,12 +23,12 @@ export function NotificationProfilesOnboardingDialog(
             <div className={tw('mt-6 mb-3')}>
               <ProfileAvatar i18n={i18n} size="large" />
             </div>
-            <h1 className={tw('mb-2 type-title-medium text-label-primary')}>
+            <h1 className={tw('mb-2 type-title-medium text-primary')}>
               {i18n('icu:NotificationProfiles--title')}
             </h1>
             <p
               className={tw(
-                'text-center type-body-large text-pretty text-label-secondary'
+                'text-center type-body-large text-pretty text-secondary'
               )}
             >
               {i18n('icu:NotificationProfiles--setup-description')}
@@ -37,7 +37,7 @@ export function NotificationProfilesOnboardingDialog(
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="primary" onClick={onDismiss}>
+            <AxoDialog.Action variant="strong-primary" onClick={onDismiss}>
               {i18n('icu:NotificationProfiles--setup-continue')}
             </AxoDialog.Action>
           </AxoDialog.Actions>

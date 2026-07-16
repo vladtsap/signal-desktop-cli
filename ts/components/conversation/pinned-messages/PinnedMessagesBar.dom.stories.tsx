@@ -108,7 +108,7 @@ function Template(props: {
 
 function Stack(props: { children: ReactNode }) {
   return (
-    <div className={tw('flex max-w-4xl flex-col gap-4 bg-fill-inverted p-4')}>
+    <div className={tw('flex max-w-4xl flex-col gap-4 bg-inverted p-4')}>
       {props.children}
     </div>
   );

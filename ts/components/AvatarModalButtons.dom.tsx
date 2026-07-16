@@ -28,7 +28,7 @@ export function AvatarModalButtons({
   return (
     <div className={tw('flex w-full justify-end-safe gap-2 py-2.5')}>
       <AxoButton.Root
-        variant="secondary"
+        variant="strong-secondary"
         size="lg"
         onClick={() => {
           if (hasChanges) {
@@ -41,7 +41,7 @@ export function AvatarModalButtons({
         {i18n('icu:cancel')}
       </AxoButton.Root>
       <AxoButton.Root
-        variant="primary"
+        variant="strong-primary"
         size="lg"
         disabled={!hasChanges}
         onClick={onSave}
@@ -57,7 +57,7 @@ export function AvatarModalButtons({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmDiscardAction != null,

@@ -203,12 +203,12 @@ export function ContactSpoofingReviewDialog(props: PropsType): JSX.Element {
       title = i18n('icu:ContactSpoofingReviewDialog__title');
       contents = (
         <>
-          <div className={tw('mb-2.5 type-body-medium text-label-secondary')}>
+          <div className={tw('mb-2.5 type-body-medium text-secondary')}>
             <AxoDialog.Description>
               {i18n('icu:ContactSpoofingReviewDialog__description')}
             </AxoDialog.Description>
           </div>
-          <h2 className={tw('type-title-small text-label-primary')}>
+          <h2 className={tw('type-title-small text-primary')}>
             {i18n('icu:ContactSpoofingReviewDialog__possibly-unsafe-title')}
           </h2>
           <ContactSpoofingReviewDialogPerson
@@ -248,10 +248,8 @@ export function ContactSpoofingReviewDialog(props: PropsType): JSX.Element {
               </AxoButton.Root>
             </div>
           </ContactSpoofingReviewDialogPerson>
-          <hr
-            className={tw('my-2.5 border-0 border-t border-t-border-secondary')}
-          />
-          <h2 className={tw('type-title-small text-label-primary')}>
+          <hr className={tw('my-2.5 border-0 border-t border-t-secondary')} />
+          <h2 className={tw('type-title-small text-primary')}>
             {i18n('icu:ContactSpoofingReviewDialog__safe-title')}
           </h2>
           <ContactSpoofingReviewDialogPerson
@@ -283,7 +281,7 @@ export function ContactSpoofingReviewDialog(props: PropsType): JSX.Element {
       title = i18n('icu:ContactSpoofingReviewDialog__group__title');
       contents = (
         <>
-          <div className={tw('mb-2.5 type-body-medium text-label-secondary')}>
+          <div className={tw('mb-2.5 type-body-medium text-secondary')}>
             <AxoDialog.Description>
               {numSharedTitles > 1
                 ? i18n(
@@ -379,7 +377,7 @@ export function ContactSpoofingReviewDialog(props: PropsType): JSX.Element {
                     conversationIdx < conversationInfos.length - 1 ? (
                       <hr
                         className={tw(
-                          'my-2.5 border-0 border-t border-t-border-secondary'
+                          'my-2.5 border-0 border-t border-t-secondary'
                         )}
                       />
                     ) : null}

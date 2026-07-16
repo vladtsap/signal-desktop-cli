@@ -16,10 +16,10 @@ function Card(props: { children: ReactNode }) {
   return (
     <AriaClickable.Root
       className={tw(
-        'group flex items-center gap-4 rounded-md border border-border-secondary p-4',
-        'data-hovered:bg-background-secondary',
-        'data-pressed:bg-fill-secondary-pressed',
-        'outline-none data-focused:outline-focus-ring'
+        'group flex items-center gap-4 rounded-md border border-secondary p-4',
+        'data-hovered:bg-surface-secondary',
+        'data-pressed:bg-primary-pressed',
+        'outline-none data-focused:axo-focus-ring'
       )}
     >
       {props.children}
@@ -29,9 +29,7 @@ function Card(props: { children: ReactNode }) {
 
 function CardTitle(props: { children: ReactNode }) {
   return (
-    <h3 className={tw('type-title-medium text-label-primary')}>
-      {props.children}
-    </h3>
+    <h3 className={tw('type-title-medium text-primary')}>{props.children}</h3>
   );
 }
 
@@ -45,10 +43,7 @@ function CardSeeMoreLink(props: { onClick: () => void; children: ReactNode }) {
     <>
       <span
         id={id}
-        className={tw(
-          'text-color-label-primary',
-          'group-data-hovered:underline'
-        )}
+        className={tw('text-accent', 'group-data-hovered:underline')}
       >
         {props.children}
       </span>
@@ -94,10 +89,10 @@ export function Basic(): JSX.Element | null {
         </p>
       </CardContent>
       <CardActions>
-        <CardButton variant="borderless-primary" onClick={action('onEdit')}>
+        <CardButton variant="implied-primary" onClick={action('onEdit')}>
           Edit
         </CardButton>
-        <CardButton variant="destructive" onClick={action('onDelete')}>
+        <CardButton variant="strong-destructive" onClick={action('onDelete')}>
           Delete
         </CardButton>
       </CardActions>

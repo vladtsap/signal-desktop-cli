@@ -228,7 +228,7 @@ export function AddUserToAnotherGroupModal({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => {
               showToast({
                 toastType: ToastType.AddingUserToGroup,

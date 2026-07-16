@@ -1,6 +1,6 @@
 {
   "NSCameraUsageDescription": {
-    "messageformat": "Signal uses your camera for video calling."
+    "messageformat": "يستخدِم سيجنال الكاميرا لإجراء مكالمات الفيديو."
   },
   "NSMicrophoneUsageDescription": {
     "messageformat": "يحتاج سيجنال إلى الوصول للميكروفون على جهازك ليصبح بإمكانك الاتصال أو تسجيل الرسائل الصوتية."

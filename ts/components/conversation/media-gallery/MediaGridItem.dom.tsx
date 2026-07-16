@@ -126,7 +126,7 @@ function SpinnerOverlay(props: SpinnerOverlayProps): JSX.Element | undefined {
   return (
     <div
       className={tw(
-        'absolute size-12.5 rounded-full bg-fill-on-media',
+        'absolute size-12.5 rounded-full bg-(--axo-color-deprecated-fill-on-media)',
         'flex items-center justify-center'
       )}
     >
@@ -141,7 +141,7 @@ function SpinnerOverlay(props: SpinnerOverlayProps): JSX.Element | undefined {
           value={status.totalDownloaded}
         />
       )}
-      <div className={tw('absolute text-label-primary-on-color')}>
+      <div className={tw('absolute text-primary-oncolor')}>
         <AxoSymbol.Icon
           symbol={status.state === 'Downloading' ? 'x' : 'arrow-down'}
           size={24}
@@ -197,7 +197,7 @@ function MetadataOverlay(props: MetadataOverlayProps): JSX.Element | undefined {
       <span
         className={tw(
           'absolute inset-e-2 bottom-1.5',
-          'type-caption text-[12px] text-label-primary-on-color'
+          'type-caption text-[12px] text-primary-oncolor'
         )}
       >
         {text}

@@ -58,6 +58,8 @@ import { DonationsOfflineTooltip } from './conversation/DonationsOfflineTooltip.
 import { getInProgressDonation } from '../util/donations.dom.ts';
 import { AxoButton } from '../axo/AxoButton.dom.tsx';
 import { tw } from '../axo/tw.dom.tsx';
+import { BadgeImage } from './BadgeImage.dom.tsx';
+import { SpinnerV2 } from './SpinnerV2.dom.tsx';
 
 const { groupBy, sortBy } = lodash;
 
@@ -75,7 +77,7 @@ export type PropsDataType = {
   didResumeWorkflowAtStartup: boolean;
   lastError: DonationErrorType | undefined;
   workflow: DonationWorkflow | undefined;
-  badge: BadgeType | undefined;
+  myBadge: BadgeType | undefined;
   color: AvatarColorType | undefined;
   firstName: string | undefined;
   profileAvatarUrl?: string;
@@ -129,6 +131,7 @@ type PreferencesHomeProps = Pick<
   | 'i18n'
   | 'setSettingsLocation'
   | 'isOnline'
+  | 'donationBadge'
   | 'donationReceipts'
   | 'workflow'
 > & {
@@ -145,13 +148,13 @@ export function isDonationsPage(page: SettingsPage): page is DonationPage {
 
 type DonationHeroProps = Pick<
   PropsDataType,
-  'badge' | 'color' | 'firstName' | 'i18n' | 'profileAvatarUrl' | 'theme'
+  'myBadge' | 'color' | 'firstName' | 'i18n' | 'profileAvatarUrl' | 'theme'
 > & {
   showPrivacyModal: () => void;
 };
 
 function DonationHero({
-  badge,
+  myBadge,
   color,
   firstName,
   i18n,
@@ -179,7 +182,7 @@ function DonationHero({
       <div className="PreferencesDonations__avatar">
         <Avatar
           avatarUrl={profileAvatarUrl}
-          badge={badge}
+          badge={myBadge}
           color={color}
           conversationType="direct"
           title={firstName ?? ''}
@@ -209,6 +212,7 @@ function DonationsHome({
   renderDonationHero,
   setSettingsLocation,
   isOnline,
+  donationBadge,
   donationReceipts,
   workflow,
 }: PreferencesHomeProps): JSX.Element {
@@ -238,7 +242,7 @@ function DonationsHome({
   const donateButton = (
     <span className={tw('mb-8')}>
       <AxoButton.Root
-        variant={isOnline ? 'primary' : 'secondary'}
+        variant={isOnline ? 'strong-primary' : 'strong-secondary'}
         size="lg"
         disabled={!isOnline}
         onClick={handleDonateButtonClicked}
@@ -281,7 +285,13 @@ function DonationsHome({
             className="PreferencesDonations__badge"
             onAction={handleInProgressDonationClicked}
           >
-            <div className="PreferencesDonations__badge-icon PreferencesDonations__badge-icon--one-time" />
+            <div className="PreferencesDonations__badge-icon">
+              {donationBadge ? (
+                <BadgeImage badge={donationBadge} size={40} />
+              ) : (
+                <SpinnerV2 size={40} strokeWidth={3} variant="brand" />
+              )}
+            </div>
             <div className="PreferencesDonations__badge-info">
               <div className="PreferencesDonations__badge-label">
                 {i18n('icu:PreferencesDonations__badge-label-one-time', {
@@ -336,12 +346,14 @@ function DonationsHome({
 
 function PreferencesReceiptList({
   i18n,
+  donationBadge,
   donationReceipts,
   saveAttachmentToDisk,
   generateDonationReceiptBlob,
   showToast,
 }: {
   i18n: LocalizerType;
+  donationBadge: BadgeType | undefined;
   donationReceipts: ReadonlyArray<DonationReceipt>;
   saveAttachmentToDisk: (options: {
     data: Uint8Array<ArrayBuffer>;
@@ -450,7 +462,13 @@ function PreferencesReceiptList({
                     onClick={() => setSelectedReceipt(receipt)}
                     type="button"
                   >
-                    <div className="PreferencesDonations--receiptList__receipt-item__icon" />
+                    <div className="PreferencesDonations--receiptList__receipt-item__icon">
+                      {donationBadge ? (
+                        <BadgeImage badge={donationBadge} size={32} />
+                      ) : (
+                        <SpinnerV2 size={32} strokeWidth={3} variant="brand" />
+                      )}
+                    </div>
                     <div className="PreferencesDonations--receiptList__receipt-item__details">
                       <div className="PreferencesDonations--receiptList__receipt-item__date">
                         {dateFormatter.format(new Date(receipt.timestamp))}
@@ -557,7 +575,7 @@ export function PreferencesDonations({
   resumeWorkflow,
   setSettingsLocation,
   submitDonation,
-  badge,
+  myBadge,
   color,
   firstName,
   profileAvatarUrl,
@@ -606,7 +624,7 @@ export function PreferencesDonations({
   const renderDonationHero = useCallback(
     () => (
       <DonationHero
-        badge={badge}
+        myBadge={myBadge}
         color={color}
         firstName={firstName}
         i18n={i18n}
@@ -615,7 +633,7 @@ export function PreferencesDonations({
         showPrivacyModal={() => setIsPrivacyModalVisible(true)}
       />
     ),
-    [badge, color, firstName, i18n, profileAvatarUrl, theme]
+    [myBadge, color, firstName, i18n, profileAvatarUrl, theme]
   );
 
   if (!isDonationsPage(settingsLocation.page)) {
@@ -748,6 +766,7 @@ export function PreferencesDonations({
         {dialog}
         {privacyModal}
         <PreferencesDonateFlow
+          badge={donationBadge}
           contentsRef={contentsRef}
           i18n={i18n}
           isOnline={isOnline}
@@ -777,6 +796,7 @@ export function PreferencesDonations({
         contentsRef={contentsRef}
         i18n={i18n}
         isOnline={isOnline}
+        donationBadge={donationBadge}
         donationReceipts={donationReceipts}
         renderDonationHero={renderDonationHero}
         setSettingsLocation={setSettingsLocation}
@@ -787,6 +807,7 @@ export function PreferencesDonations({
     content = (
       <PreferencesReceiptList
         i18n={i18n}
+        donationBadge={donationBadge}
         donationReceipts={donationReceipts}
         saveAttachmentToDisk={saveAttachmentToDisk}
         generateDonationReceiptBlob={generateDonationReceiptBlob}

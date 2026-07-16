@@ -83,7 +83,7 @@ export function TimelineFloatingHeader({
     >
       <div
         className={tw(
-          'rounded-full bg-fill-floating px-2.5 py-1.5 type-body-medium text-label-secondary shadow-elevation-1'
+          'rounded-full bg-material-tertiary px-2.5 py-1.5 type-body-medium text-secondary shadow-elevation-1 backdrop-blur-thin'
         )}
       >
         <TimelineDate i18n={i18n} timestamp={timestamp} />

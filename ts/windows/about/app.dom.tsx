@@ -7,9 +7,12 @@ import '../sandboxedInit.dom.ts';
 import { About } from '../../components/About.dom.tsx';
 import { strictAssert } from '../../util/assert.std.ts';
 import { AppProvider } from '../AppProvider.dom.tsx';
+import { setDocumentLocale } from '../../util/setDocumentLocale.dom.ts';
 
 const { AboutWindowProps } = window.Signal;
 const { i18n } = window.SignalContext;
+
+setDocumentLocale(document);
 
 strictAssert(AboutWindowProps, 'window values not provided');
 

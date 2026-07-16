@@ -36,7 +36,7 @@ export function RemoteMegaphone({
   const wrapperClassName = tw(
     '@container flex flex-col',
     'max-w-[500px] curved-3xl p-3',
-    'bg-elevated-background-primary dark:bg-elevated-background-tertiary',
+    'bg-material-primary dark:bg-material-tertiary',
     'shadow-elevation-1',
     isFullSize ? '' : 'size-[76px]'
   );
@@ -70,16 +70,12 @@ export function RemoteMegaphone({
           <div className={tw('w-full')}>
             <h2
               className={tw(
-                'mt-[2px] type-body-medium font-semibold text-label-primary select-none'
+                'mt-[2px] type-body-medium font-semibold text-primary'
               )}
             >
               {title}
             </h2>
-            <p
-              className={tw(
-                'mt-[2px] type-body-small text-label-secondary select-none'
-              )}
-            >
+            <p className={tw('mt-[2px] type-body-small text-secondary')}>
               {body}
             </p>
           </div>
@@ -89,7 +85,7 @@ export function RemoteMegaphone({
             {secondaryCtaId && (
               <AxoButton.Root
                 size="md"
-                variant="secondary"
+                variant="strong-secondary"
                 onClick={() =>
                   onInteractWithMegaphone(remoteMegaphoneId, secondaryCtaId)
                 }
@@ -101,7 +97,7 @@ export function RemoteMegaphone({
             {primaryCtaId && (
               <AxoButton.Root
                 size="md"
-                variant="primary"
+                variant="strong-primary"
                 onClick={() =>
                   onInteractWithMegaphone(remoteMegaphoneId, primaryCtaId)
                 }
@@ -118,7 +114,7 @@ export function RemoteMegaphone({
 
   // Narrow collapsed sidebar
   const tooltipContent: JSX.Element = (
-    <div className={tw('text-start text-label-primary')}>
+    <div className={tw('text-start text-primary')}>
       <h2 className={tw('mt-1 type-body-medium font-semibold')}>{title}</h2>
       <p className={tw('mt-1 mb-2 type-body-medium')}>{body}</p>
     </div>

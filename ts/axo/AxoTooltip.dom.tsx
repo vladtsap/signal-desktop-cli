@@ -382,9 +382,9 @@ export namespace AxoTooltip {
               hideWhenDetached
               className={tw(
                 'group flex items-baseline justify-center gap-2 overflow-hidden',
-                'rounded-[14px] px-2.5 py-1.5 type-body-small select-none',
+                'rounded-[14px] px-2.5 py-1.5 type-body-small',
                 'legacy-z-index-above-popup',
-                'bg-elevated-background-quaternary text-label-primary-on-color',
+                'bg-material-dim-primary text-primary-oncolor backdrop-blur-thin',
                 'shadow-elevation-3 shadow-no-outline',
                 'min-w-12',
                 hasAccessory ? 'max-w-[228px]' : 'max-w-[192px]',
@@ -401,7 +401,7 @@ export namespace AxoTooltip {
                   <svg
                     role="none"
                     className={tw(
-                      'fill-elevated-background-quaternary',
+                      'fill-(--axo-color-material-dim-primary) backdrop-blur-thin',
                       'forced-colors:fill-[Highlight]'
                     )}
                     xmlns="http://www.w3.org/2000/svg"
@@ -424,7 +424,7 @@ export namespace AxoTooltip {
               {keyboardShortcut != null && (
                 <span
                   className={tw(
-                    'type-body-small text-label-secondary-on-color',
+                    'type-body-small text-secondary-oncolor',
                     'forced-colors:text-inherit forced-colors:italic'
                   )}
                 >
@@ -434,7 +434,7 @@ export namespace AxoTooltip {
               {formattedTimestamp != null && (
                 <span
                   className={tw(
-                    'type-caption whitespace-nowrap text-label-secondary-on-color',
+                    'type-caption whitespace-nowrap text-secondary-oncolor',
                     'forced-colors:text-inherit forced-colors:italic'
                   )}
                 >

@@ -192,9 +192,7 @@ export function PreferencesChatFoldersPage(
       });
     },
     renderDropIndicator: () => {
-      return (
-        <div className={tw('-my-px h-0.5 rounded-full bg-fill-inverted')} />
-      );
+      return <div className={tw('-my-px h-0.5 rounded-full bg-inverted')} />;
     },
   });
 
@@ -391,7 +389,7 @@ function ChatFolderPresetItem(props: ChatFolderPresetItemProps) {
         </ItemBody>
         <AxoButton.Root
           size="md"
-          variant="secondary"
+          variant="subtle-secondary"
           onClick={handleCreateChatFolder}
         >
           {i18n(

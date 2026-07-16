@@ -100,7 +100,7 @@ export function GroupLinkManagement({
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => {
               generateNewGroupLink(conversation.id);
             }}

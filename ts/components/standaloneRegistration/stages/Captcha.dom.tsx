@@ -123,7 +123,7 @@ export function CaptchaScreen({
           <Spacer className={tw('h-15 grow')} />
           <AxoButton.Root
             size="md"
-            variant="borderless-primary"
+            variant="implied-primary"
             onClick={() => openBrowserForCaptcha()}
           >
             {i18n('icu:StandaloneRegistration--Captcha--retry-button')}
@@ -135,7 +135,7 @@ export function CaptchaScreen({
       )}
       <Buttons>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           disabled={Boolean(duration)}
           onClick={() => moveToVerificationStage({ workflow })}
@@ -205,13 +205,13 @@ function NeedAnotherDialog({
       )}
     >
       <AxoConfirmDialog.Action
-        variant="secondary"
+        variant="strong-secondary"
         onClick={() => setOpen(false)}
       >
         {i18n('icu:StandaloneRegistration--Captcha--NeedAnother--cancel')}
       </AxoConfirmDialog.Action>
       <AxoConfirmDialog.Action
-        variant="primary"
+        variant="strong-primary"
         onClick={() => {
           moveToVerificationStage({ workflow });
         }}
@@ -266,7 +266,7 @@ function MustWaitDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n('icu:StandaloneRegistration--Captcha--MustWait--button')}
@@ -308,13 +308,13 @@ function ErrorDialog({
       )}
     >
       <AxoConfirmDialog.Action
-        variant="secondary"
+        variant="strong-secondary"
         onClick={() => setOpen(false)}
       >
         {i18n('icu:StandaloneRegistration--Captcha--Error--cancel')}
       </AxoConfirmDialog.Action>
       <AxoConfirmDialog.Action
-        variant="primary"
+        variant="strong-primary"
         onClick={() => moveToVerificationStage({ workflow })}
       >
         {i18n('icu:StandaloneRegistration--Captcha--Error--try-again')}

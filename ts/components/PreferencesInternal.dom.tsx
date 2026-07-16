@@ -345,7 +345,7 @@ export function PreferencesInternal({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               onClick={validateBackup}
               pending={isValidationPending}
@@ -374,7 +374,7 @@ export function PreferencesInternal({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               onClick={async () => {
                 setMessageCountBySchemaVersion(
@@ -467,7 +467,7 @@ export function PreferencesInternal({
               )}
             >
               <AxoButton.Root
-                variant="secondary"
+                variant="strong-secondary"
                 size="lg"
                 onClick={handleAddTestReceipt}
               >
@@ -518,7 +518,7 @@ export function PreferencesInternal({
                       </td>
                       <td style={{ padding: '8px' }}>
                         <AxoButton.Root
-                          variant="secondary"
+                          variant="strong-secondary"
                           size="lg"
                           onClick={() => handleGenerateReceipt(receipt)}
                           pending={isGeneratingReceipt}
@@ -565,7 +565,7 @@ export function PreferencesInternal({
             moduleClassName="Preferences__ReadonlySqlPlayground__Textarea"
           />
           <AxoButton.Root
-            variant="destructive"
+            variant="strong-destructive"
             size="lg"
             onClick={handleReadOnlySqlInputSubmit}
           >
@@ -597,7 +597,7 @@ export function PreferencesInternal({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               onClick={async () => {
                 const megaphone = internalGetTestMegaphone();
@@ -633,7 +633,7 @@ export function PreferencesInternal({
             )}
           >
             <AxoButton.Root
-              variant="destructive"
+              variant="strong-destructive"
               size="lg"
               onClick={async () => {
                 const result = await internalDeleteAllMegaphones();
@@ -662,7 +662,7 @@ export function PreferencesInternal({
           </div>
           <div className="Preferences__one-third-flow Preferences__one-third-flow--justify-end">
             <AxoButton.Root
-              variant="destructive"
+              variant="strong-destructive"
               size="lg"
               onClick={handleResetCallingOverrides}
             >
@@ -749,7 +749,7 @@ export function PreferencesInternal({
           <div className="Preferences__one-third-flow Preferences__one-third-flow--justify-end">
             <AxoButton.Root
               symbol={keyTransparencySymbol}
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               onClick={handleKeyTransparencyCheck}
               pending={isKeyTransparencyRunning}

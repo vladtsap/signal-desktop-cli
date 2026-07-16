@@ -304,7 +304,7 @@ export function ConversationDetailsActions({
         )}
       >
         <AxoConfirmDialog.Cancel />
-        <AxoConfirmDialog.Action variant="destructive" onClick={onLeave}>
+        <AxoConfirmDialog.Action variant="strong-destructive" onClick={onLeave}>
           {i18n('icu:ConversationDetailsActions--leave-group-modal-confirm')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>
@@ -321,7 +321,7 @@ export function ConversationDetailsActions({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => blockConversation(conversationId)}
         >
           {i18n('icu:ConversationDetailsActions--block-group-modal-confirm')}
@@ -343,7 +343,7 @@ export function ConversationDetailsActions({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => acceptConversation(conversationId)}
         >
           {i18n('icu:ConversationDetailsActions--unblock-group-modal-confirm')}
@@ -360,7 +360,7 @@ export function ConversationDetailsActions({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => blockConversation(conversationId)}
         >
           {i18n('icu:MessageRequests--block')}
@@ -377,7 +377,7 @@ export function ConversationDetailsActions({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => acceptConversation(conversationId)}
         >
           {i18n('icu:MessageRequests--unblock')}
@@ -399,14 +399,17 @@ export function ConversationDetailsActions({
         }
       >
         <AxoConfirmDialog.Cancel />
-        <AxoConfirmDialog.Action variant="destructive" onClick={onReportSpam}>
+        <AxoConfirmDialog.Action
+          variant="strong-destructive"
+          onClick={onReportSpam}
+        >
           {i18n(
             'icu:ConversationDetailsActions--report-spam-modal-report-spam'
           )}
         </AxoConfirmDialog.Action>
         {!isBlocked && (
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={onReportSpamAndBlock}
           >
             {i18n(
@@ -431,7 +434,7 @@ export function ConversationDetailsActions({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => gConfirmTerminateGroup(true)}
         >
           {i18n(
@@ -451,7 +454,7 @@ export function ConversationDetailsActions({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={onTerminateGroup}
         >
           {i18n(

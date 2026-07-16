@@ -37,7 +37,7 @@ export function KeyTransparencyErrorDialog(
           <h3 className={tw('mt-6 mb-2 type-title-small')}>
             {i18n('icu:KeyTransparencyErrorDialog__Title')}
           </h3>
-          <p className={tw('mb-3 type-body-medium text-label-primary')}>
+          <p className={tw('mb-3 type-body-medium text-primary')}>
             <AxoDialog.Description>
               <I18n
                 i18n={i18n}
@@ -69,7 +69,7 @@ export function KeyTransparencyErrorDialog(
         <AxoDialog.Footer>
           <AxoDialog.Actions>
             <AxoDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={handleSubmit}
               pending={isSubmitting}
             >

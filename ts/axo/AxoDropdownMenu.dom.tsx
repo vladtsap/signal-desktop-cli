@@ -645,17 +645,19 @@ export namespace AxoDropdownMenu {
   export const SubContent: FC<SubContentProps> = memo(props => {
     const { context, labelId, descriptionId } = useCreateAriaLabellingContext();
     return (
-      <AriaLabellingProvider value={context}>
-        <DropdownMenu.SubContent
-          alignOffset={-6}
-          collisionPadding={6}
-          className={AxoBaseMenu.menuSubContentStyles}
-          aria-labelledby={labelId}
-          aria-describedby={descriptionId}
-        >
-          {props.children}
-        </DropdownMenu.SubContent>
-      </AriaLabellingProvider>
+      <DropdownMenu.Portal>
+        <AriaLabellingProvider value={context}>
+          <DropdownMenu.SubContent
+            alignOffset={-6}
+            collisionPadding={6}
+            className={AxoBaseMenu.menuSubContentStyles}
+            aria-labelledby={labelId}
+            aria-describedby={descriptionId}
+          >
+            {props.children}
+          </DropdownMenu.SubContent>
+        </AriaLabellingProvider>
+      </DropdownMenu.Portal>
     );
   });
 

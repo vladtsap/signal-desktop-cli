@@ -218,8 +218,9 @@ export namespace AxoDialog {
     return (
       <Dialog.Portal>
         <AxoTheme.Inherit>
-          <Dialog.Overlay className={AxoBaseDialog.overlayStyles}>
-            <AxoTooltip.CollisionBoundary boundary={boundary} padding={4}>
+          <AxoTooltip.CollisionBoundary boundary={boundary} padding={4}>
+            <AxoBaseDialog.Host>
+              <Dialog.Overlay className={AxoBaseDialog.overlayStyles} />
               <Dialog.Content
                 ref={setBoundary}
                 className={tw(
@@ -230,10 +231,10 @@ export namespace AxoDialog {
                 onInteractOutside={handleContentEscapeEvent}
                 {...descriptionProps}
               >
-                {props.children}
+                <div className={tw('relative z-10')}>{props.children}</div>
               </Dialog.Content>
-            </AxoTooltip.CollisionBoundary>
-          </Dialog.Overlay>
+            </AxoBaseDialog.Host>
+          </AxoTooltip.CollisionBoundary>
         </AxoTheme.Inherit>
       </Dialog.Portal>
     );
@@ -299,7 +300,7 @@ export namespace AxoDialog {
         className={tw(
           'col-[title-slot] px-3.5 py-0.5',
           'truncate text-center',
-          'type-body-medium font-semibold text-label-primary',
+          'type-body-medium font-semibold text-primary',
           props.screenReaderOnly && 'sr-only'
         )}
       >
@@ -331,7 +332,7 @@ export namespace AxoDialog {
       <div className={tw('col-[back-slot] text-start')}>
         <AxoIconButton.Root
           size="sm"
-          variant="borderless-secondary"
+          variant="implied-secondary"
           symbol="chevron-[start]"
           label={intl.get('AxoDialog.Back')}
           tooltip={false}
@@ -358,7 +359,7 @@ export namespace AxoDialog {
         <Dialog.Close asChild>
           <AxoIconButton.Root
             size="sm"
-            variant="borderless-secondary"
+            variant="implied-secondary"
             symbol="x"
             label={intl.get('AxoDialog.Close')}
             tooltip={false}
@@ -549,7 +550,7 @@ export namespace AxoDialog {
           'min-w-[calc-size(fit-content,min(20ch,size))]',
           // Allow it to fill its own row
           'grow',
-          'type-body-large text-label-primary'
+          'type-body-large text-primary'
         )}
       >
         {props.children}
@@ -605,7 +606,13 @@ export namespace AxoDialog {
    * - `secondary`: Low-emphasis cancel or alternative action.
    * - `destructive`: Irreversible or dangerous action.
    */
-  export type ActionVariant = 'primary' | 'destructive' | 'secondary';
+  export type ActionVariant =
+    | 'strong-primary'
+    | 'strong-destructive'
+    | 'strong-secondary'
+    | 'subtle-primary'
+    | 'subtle-destructive'
+    | 'subtle-secondary';
 
   export type ActionProps = Readonly<{
     /**
@@ -671,7 +678,10 @@ export namespace AxoDialog {
    * - `secondary`: Low-emphasis cancel or alternative action.
    * - `destructive`: Irreversible or dangerous action.
    */
-  export type IconActionVariant = 'primary' | 'destructive' | 'secondary';
+  export type IconActionVariant =
+    | 'strong-primary'
+    | 'strong-destructive'
+    | 'strong-secondary';
 
   export type IconActionProps = Readonly<{
     /**

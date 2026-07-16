@@ -87,12 +87,12 @@ export function DonationPrivacyInformationModal({
         <AxoDialog.Footer>
           <AxoDialog.Actions>
             <AxoDialog.Action
-              variant="secondary"
+              variant="strong-secondary"
               onClick={handleDonationFAQsClick}
             >
               {i18n('icu:PreferencesDonations__faqs')}
             </AxoDialog.Action>
-            <AxoDialog.Action variant="primary" onClick={onClose}>
+            <AxoDialog.Action variant="strong-primary" onClick={onClose}>
               {i18n('icu:PreferencesDonations__privacy-modal-ok')}
             </AxoDialog.Action>
           </AxoDialog.Actions>

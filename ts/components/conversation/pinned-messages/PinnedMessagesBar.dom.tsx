@@ -214,8 +214,8 @@ function Bar(props: {
             when: 'beforeChildren',
           }}
           className={tw(
-            'overflow-clip border-t-[0.5px] border-t-border-primary',
-            'bg-legacy-conversation-header-bg'
+            'overflow-clip border-t-[0.5px] border-t-primary',
+            'bg-(--axo-color-legacy-conversation-header-bg)'
           )}
         >
           <motion.div
@@ -237,9 +237,9 @@ function Row(props: { children: ReactNode }) {
     <AriaClickable.Root
       className={tw(
         'contain-strict',
-        'flex h-14 items-center pe-3 select-none',
+        'flex h-14 items-center pe-3',
         'rounded-xs',
-        'outline-none data-focused:outline-focus-ring'
+        'outline-none data-focused:axo-focus-ring'
       )}
     >
       {props.children}
@@ -334,9 +334,9 @@ function TabTrigger(props: {
       <span
         className={tw(
           'block h-full w-0.5 rounded-full',
-          'bg-label-disabled',
-          'group-data-[state=active]:bg-label-primary',
-          'keyboard-mode:group-focus:outline-focus-ring'
+          'bg-(--axo-color-label-disabled)',
+          'group-data-[state=active]:bg-(--axo-color-label-primary)',
+          'keyboard-mode:group-focus:axo-focus-ring'
         )}
       />
     </Tabs.Trigger>
@@ -386,10 +386,10 @@ const Content = forwardRef(function Content(
     >
       {thumbnailUrl != null && <ImageThumbnail url={thumbnailUrl} />}
       <div className={tw('min-w-0 flex-1')}>
-        <h1 className={tw('type-body-small font-semibold text-label-primary')}>
+        <h1 className={tw('type-body-small font-semibold text-primary')}>
           <UserText text={pin.sender.title} />
         </h1>
-        <p className={tw('me-2 truncate type-body-medium text-label-primary')}>
+        <p className={tw('me-2 truncate type-body-medium text-primary')}>
           <MessagePreview i18n={i18n} message={pin.message} />
         </p>
       </div>
@@ -425,7 +425,7 @@ function PinActionsMenu(props: {
       <AxoDropdownMenu.Root>
         <AxoDropdownMenu.Trigger>
           <AxoIconButton.Root
-            variant="borderless-secondary"
+            variant="implied-secondary"
             size="md"
             symbol="pin"
             label={i18n(

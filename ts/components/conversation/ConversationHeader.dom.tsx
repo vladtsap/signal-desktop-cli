@@ -356,7 +356,7 @@ export const ConversationHeader = memo(function ConversationHeader({
                   symbol={isMuted ? 'bell-slash' : 'bell'}
                   size="md"
                   iconWeight={300}
-                  variant="borderless-secondary"
+                  variant="implied-secondary"
                   onClick={() =>
                     onConversationMuteExpirationChange(
                       isMuted ? 0 : Number.MAX_SAFE_INTEGER
@@ -371,7 +371,7 @@ export const ConversationHeader = memo(function ConversationHeader({
                 iconWeight={300}
                 onClick={onSearchInConversation}
                 label={i18n('icu:search')}
-                variant="borderless-secondary"
+                variant="implied-secondary"
               />
 
               <AxoDropdownMenu.Root>
@@ -382,7 +382,7 @@ export const ConversationHeader = memo(function ConversationHeader({
                     onClick={onSearchInConversation}
                     symbol="more"
                     label={i18n('icu:moreInfo')}
-                    variant="borderless-secondary"
+                    variant="implied-secondary"
                   />
                 </AxoDropdownMenu.Trigger>
                 <HeaderDropdownMenuContent
@@ -979,7 +979,7 @@ function OutgoingCallButtons({
         label={i18n('icu:makeOutgoingVideoCall')}
         // A separate tooltip is shown if we are inAnotherCall
         tooltip={!inAnotherCall}
-        variant="borderless-secondary"
+        variant="implied-secondary"
       />
     </div>
   );
@@ -1016,7 +1016,7 @@ function OutgoingCallButtons({
             label={i18n('icu:makeOutgoingCall')}
             // A separate tooltip is shown if we are inAnotherCall
             tooltip={!inAnotherCall}
-            variant="borderless-secondary"
+            variant="implied-secondary"
           />
         </div>
       );
@@ -1043,7 +1043,7 @@ function OutgoingCallButtons({
               size="md"
               label={i18n('icu:joinOngoingCall')}
               onClick={onOutgoingVideoCall}
-              variant="affirmative"
+              variant="strong-affirmative"
             />
           </div>
           <div className={tw('hidden @min-[500px]:block')}>
@@ -1051,7 +1051,7 @@ function OutgoingCallButtons({
               size="md"
               symbol="videocamera-fill"
               onClick={onOutgoingVideoCall}
-              variant="affirmative"
+              variant="strong-affirmative"
             >
               {i18n('icu:joinOngoingCall')}
             </AxoButton.Root>
@@ -1090,7 +1090,7 @@ function LeaveGroupConfirmationDialog({
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="destructive"
+        variant="strong-destructive"
         onClick={onLeaveGroup}
         disabled={cannotLeaveBecauseYouAreLastAdmin}
       >

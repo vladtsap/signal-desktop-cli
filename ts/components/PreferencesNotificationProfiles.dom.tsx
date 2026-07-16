@@ -775,7 +775,7 @@ function NotificationProfilesNamePage({
       </Container>
       <ButtonContainer>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="lg"
           disabled={!isValid}
           onClick={onNext}
@@ -845,7 +845,7 @@ function NotificationProfilesAllowedPage({
         />
       </Container>
       <ButtonContainer>
-        <AxoButton.Root variant="primary" size="lg" onClick={onNext}>
+        <AxoButton.Root variant="strong-primary" size="lg" onClick={onNext}>
           {i18n('icu:next2')}
         </AxoButton.Root>
       </ButtonContainer>
@@ -1007,7 +1007,7 @@ function NotificationProfilesSchedulePage({
         </FullWidthRow>
       </Container>
       <ButtonContainer>
-        <AxoButton.Root variant="primary" size="lg" onClick={onNext}>
+        <AxoButton.Root variant="strong-primary" size="lg" onClick={onNext}>
           {isEditing ? i18n('icu:done') : i18n('icu:next2')}
         </AxoButton.Root>
       </ButtonContainer>
@@ -1037,7 +1037,7 @@ function NotificationProfilesDonePage({
         <p className={tw('mt-4 mb-6 max-w-[350px] text-center leading-5')}>
           {i18n('icu:NotificationProfiles--done-description')}
         </p>
-        <AxoButton.Root variant="primary" size="lg" onClick={onNext}>
+        <AxoButton.Root variant="strong-primary" size="lg" onClick={onNext}>
           {i18n('icu:done')}
         </AxoButton.Root>
       </MidFloatingContainer>
@@ -1113,10 +1113,10 @@ function NotificationProfilesListPage({
         <FullWidthDivider />
         <FullWidthRow className={tw('flex min-h-[40px] items-start pt-1')}>
           <div className={tw('grow')}>
-            <div className={tw('type-body-large text-label-primary')}>
+            <div className={tw('type-body-large text-primary')}>
               {i18n('icu:NotificationProfiles--list--sync')}
             </div>
-            <div className={tw('mt-1 type-body-small text-label-secondary')}>
+            <div className={tw('mt-1 type-body-small text-secondary')}>
               {i18n('icu:NotificationProfiles--list--sync--description')}
             </div>
           </div>
@@ -1187,7 +1187,7 @@ function NotificationProfilesEditPage({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={onDeleteProfile}
         >
           {i18n('icu:NotificationProfiles--delete-button')}
@@ -1197,7 +1197,7 @@ function NotificationProfilesEditPage({
       <Container contentsRef={contentsRef}>
         <AriaClickable.Root
           className={tw(
-            'group mb-3 flex min-h-[80px] w-full items-center rounded-md border-[2.5px] border-transparent px-[11.5px] outline-none data-focused:border-color-label-light'
+            'group mb-3 flex min-h-[80px] w-full items-center rounded-md border-[2.5px] border-transparent px-[11.5px] outline-none keyboard-mode:data-focused:axo-focus-ring'
           )}
         >
           <ProfileAvatar i18n={i18n} profile={profile} size="medium" />
@@ -1279,7 +1279,7 @@ function NotificationProfilesEditPage({
                 ),
               })}
             </div>
-            <div className={tw('mt-0.5 type-body-small text-label-secondary')}>
+            <div className={tw('mt-0.5 type-body-small text-secondary')}>
               <ScheduleSummary
                 i18n={i18n}
                 scheduleDays={profile.scheduleDaysEnabled ?? DEFAULT_SCHEDULE}
@@ -1307,16 +1307,16 @@ function NotificationProfilesEditPage({
           className={tw('mt-6 min-h-[52px]')}
           onClick={() => setIsConfirmingDelete(true)}
         >
-          <div className={tw('me-4 text-color-label-destructive')}>
+          <div className={tw('me-4 text-destructive')}>
             <AxoSymbol.Icon size={24} symbol="trash" label={null} />
           </div>
-          <span className={tw('grow text-start text-color-label-destructive')}>
+          <span className={tw('grow text-start text-destructive')}>
             {i18n('icu:NotificationProfiles--delete')}
           </span>
         </FullWidthButton>
       </Container>
       <ButtonContainer>
-        <AxoButton.Root variant="primary" size="lg" onClick={onBack}>
+        <AxoButton.Root variant="strong-primary" size="lg" onClick={onBack}>
           {i18n('icu:done')}
         </AxoButton.Root>
       </ButtonContainer>
@@ -1341,7 +1341,7 @@ export function FullWidthButton({
     <button
       className={classNames(
         tw(
-          'flex w-full items-center rounded-md border-[2.5px] border-transparent px-[11.5px] outline-none focus-visible:border-color-label-light'
+          'flex w-full items-center rounded-md border-[2.5px] border-transparent px-[11.5px] outline-none keyboard-mode:focus:axo-focus-ring'
         ),
         className
       )}
@@ -1373,7 +1373,7 @@ function FullWidthDivider() {
     <div className={tw('my-3 w-full px-[14px]')}>
       <hr
         aria-orientation="horizontal"
-        className={tw('border-t-[0.5px] border-label-secondary')}
+        className={tw('border-t-[0.5px] border-primary')}
       />
     </div>
   );
@@ -1521,7 +1521,7 @@ function EmojiOrMoon({
     return (
       <div
         className={tw(
-          'absolute inset-s-1/2 top-1/2 -translate-1/2 text-color-label-primary'
+          'absolute inset-s-1/2 top-1/2 -translate-1/2 text-accent'
         )}
         style={
           forceLightTheme
@@ -1558,7 +1558,7 @@ function PlusIconInCircle() {
   return (
     <div
       className={tw(
-        'me-3 flex size-[36px] items-center justify-center rounded-full bg-background-secondary'
+        'me-3 flex size-[36px] items-center justify-center rounded-full bg-surface-secondary'
       )}
     >
       <AxoSymbol.Icon size={20} symbol="plus" label={null} />
@@ -1631,7 +1631,7 @@ function AllowedMembersSection({
           >
             <div
               className={tw(
-                'me-3 flex size-[36px] items-center justify-center rounded-full bg-background-secondary'
+                'me-3 flex size-[36px] items-center justify-center rounded-full bg-surface-secondary'
               )}
             >
               <Avatar
@@ -1729,8 +1729,8 @@ export function ProfileAvatar({
       className={classNames(
         tw('relative rounded-full'),
         sizeClass,
-        isActive ? tw('border-2 border-border-selected') : undefined,
-        !backgroundColor ? tw('bg-color-label-light-disabled') : undefined
+        isActive ? tw('border-2 border-selected') : undefined,
+        !backgroundColor ? tw('bg-accent-tint') : undefined
       )}
       style={{ backgroundColor }}
     >
@@ -1900,7 +1900,7 @@ function TimePicker({
               className={classNames(
                 'TimePickerPopup',
                 tw(
-                  'flex h-[244px] rounded-[10px] bg-background-secondary p-1 shadow-elevation-1'
+                  'flex h-[244px] rounded-[10px] bg-surface-secondary p-1 shadow-elevation-1'
                 ),
                 use24HourTime ? tw('w-[102px]') : tw('w-[150px]'),
                 theme ? themeClassName2(theme) : undefined
@@ -1920,9 +1920,9 @@ function TimePicker({
                       ref={isSelected ? selectedHour : null}
                       className={classNames(
                         tw(
-                          'w-[46px] rounded-sm border-[2.5px] border-transparent py-[7px] type-body-medium outline-none focus:border-border-focused'
+                          'w-[46px] rounded-sm border-[2.5px] border-transparent py-[7px] type-body-medium outline-none keyboard-mode:focus:axo-focus-ring'
                         ),
-                        isSelected ? tw('bg-fill-secondary') : null
+                        isSelected ? tw('bg-primary') : null
                       )}
                       type="button"
                       onClick={() => {
@@ -1949,9 +1949,9 @@ function TimePicker({
                       ref={isSelected ? selectedMinute : null}
                       className={classNames(
                         tw(
-                          'w-[46px] rounded-sm border-[2.5px] border-transparent py-[7px] type-body-medium outline-none focus:border-border-focused'
+                          'w-[46px] rounded-sm border-[2.5px] border-transparent py-[7px] type-body-medium outline-none keyboard-mode:focus:axo-focus-ring'
                         ),
-                        isSelected ? tw('bg-fill-secondary') : null
+                        isSelected ? tw('bg-primary') : null
                       )}
                       type="button"
                       onClick={() => {
@@ -1978,9 +1978,9 @@ function TimePicker({
                         key={item}
                         className={classNames(
                           tw(
-                            'w-[46px] rounded-sm border-[2.5px] border-transparent py-[7px] type-body-medium outline-none focus:border-border-focused'
+                            'w-[46px] rounded-sm border-[2.5px] border-transparent py-[7px] type-body-medium outline-none keyboard-mode:focus:axo-focus-ring'
                           ),
-                          isSelected ? tw('bg-fill-secondary') : null
+                          isSelected ? tw('bg-primary') : null
                         )}
                         type="button"
                         onClick={() => {
@@ -2003,7 +2003,7 @@ function TimePicker({
           setTimeFieldElement(element ?? undefined);
         }}
         className={tw(
-          'flex items-center rounded-lg border-[2.5px] border-transparent bg-fill-secondary px-2 py-0.5 focus-within:border-border-focused'
+          'flex items-center rounded-lg border-[2.5px] border-transparent bg-primary px-2 py-0.5 keyboard-mode:focus-within:axo-focus-ring'
         )}
         aria-labelledby={labelId}
         hourCycle={use24HourTime ? 24 : 12}
@@ -2039,12 +2039,12 @@ function TimePicker({
               <DateSegment
                 className={classNames(
                   tw(
-                    'inline-block px-px type-body-medium outline-none focus:bg-fill-selected'
+                    'inline-block px-px type-body-medium outline-none focus:bg-secondary'
                   ),
                   segment.type === 'literal' ? tw('px-[3px]') : null,
                   segment.type === 'dayPeriod' ? tw('ps-[2px]') : null,
                   segment.type === 'hour' ? tw('grow text-end') : null,
-                  isDisabled ? tw('text-label-placeholder') : null
+                  isDisabled ? tw('text-placeholder') : null
                 )}
                 segment={segment}
               />
@@ -2053,8 +2053,8 @@ function TimePicker({
         </DateInput>
         <button
           className={classNames(
-            tw('ms-3 p-0.5 outline-none focus-visible:bg-fill-selected'),
-            isDisabled ? tw('text-label-placeholder') : null
+            tw('ms-3 p-0.5 outline-none focus-visible:bg-secondary'),
+            isDisabled ? tw('text-placeholder') : null
           )}
           type="button"
           onClick={() => {

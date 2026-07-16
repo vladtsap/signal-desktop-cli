@@ -9,6 +9,7 @@ import type {
 } from '../model-types.d.ts';
 import * as Edits from '../messageModifiers/Edits.preload.ts';
 import { createLogger } from '../logging/log.std.ts';
+import { getValidLinkPreviews } from './getValidLinkPreviews.node.ts';
 import { ReadStatus } from '../messages/MessageReadStatus.std.ts';
 import { DataWriter } from '../sql/Client.preload.ts';
 import { drop } from './drop.std.ts';
@@ -137,6 +138,21 @@ export async function handleEditMessage(
     editAttributes.message
   );
 
+  const incomingPreview = upgradedEditedMessageData.preview ?? [];
+  const validatedPreview = getValidLinkPreviews(
+    incomingPreview,
+    upgradedEditedMessageData.body,
+    { isStory: false }
+  );
+
+  if (validatedPreview.length < incomingPreview.length) {
+    log.warn(
+      `${idLog}: Eliminated ${
+        incomingPreview.length - validatedPreview.length
+      } previews with invalid urls`
+    );
+  }
+
   const previewSignatures = new Map<string, AttachmentType>();
   mainMessage.preview?.forEach(preview => {
     if (!preview.image) {
@@ -145,25 +161,25 @@ export async function handleEditMessage(
     cacheAttachmentBySignature(previewSignatures, preview.image);
   });
 
-  const nextEditedMessagePreview = upgradedEditedMessageData.preview?.map(
-    preview => {
-      if (!preview.image) {
+  const nextEditedMessagePreview = validatedPreview.length
+    ? validatedPreview.map(preview => {
+        if (!preview.image) {
+          return preview;
+        }
+
+        const existingPreviewImage = getCachedAttachmentBySignature(
+          previewSignatures,
+          preview.image
+        );
+
+        if (existingPreviewImage) {
+          return { ...preview, image: existingPreviewImage };
+        }
+
+        log.info(`${idLog}: replaced preview`);
         return preview;
-      }
-
-      const existingPreviewImage = getCachedAttachmentBySignature(
-        previewSignatures,
-        preview.image
-      );
-
-      if (existingPreviewImage) {
-        return { ...preview, image: existingPreviewImage };
-      }
-
-      log.info(`${idLog}: replaced preview`);
-      return preview;
-    }
-  );
+      })
+    : undefined;
 
   const editMessageHasQuote = Boolean(upgradedEditedMessageData.quote);
 

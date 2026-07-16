@@ -120,7 +120,7 @@ export function StoriesAddStoryButton({
         description={error}
       >
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => setError(undefined)}
         >
           {i18n('icu:Confirmation--confirm')}

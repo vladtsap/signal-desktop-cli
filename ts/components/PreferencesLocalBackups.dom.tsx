@@ -211,7 +211,7 @@ export function PreferencesLocalBackups({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               onClick={async () => {
                 if (
@@ -245,7 +245,7 @@ export function PreferencesLocalBackups({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               onClick={() =>
                 localBackupFolder
@@ -274,7 +274,7 @@ export function PreferencesLocalBackups({
             )}
           >
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="lg"
               pending={isAuthPending}
               onClick={async () => {
@@ -404,7 +404,7 @@ export function PreferencesLocalBackups({
               <AxoAlertDialog.Footer>
                 <AxoAlertDialog.Cancel />
                 <AxoAlertDialog.Action
-                  variant="primary"
+                  variant="strong-primary"
                   onClick={showKeyReferenceWithAuth}
                 >
                   {i18n('icu:Preferences__recovery-key-updated__view-key')}
@@ -492,7 +492,7 @@ function DisableLocalBackupsDialog({
           </AxoDialog.Header>
           <AxoDialog.Body padding="normal">
             <AxoDialog.Description>
-              <div className={tw('mb-2 text-label-secondary')}>
+              <div className={tw('mb-2 text-secondary')}>
                 {i18n('icu:Preferences__local-backups-turn-off-confirmation')}
               </div>
             </AxoDialog.Description>
@@ -514,14 +514,14 @@ function DisableLocalBackupsDialog({
           <AxoDialog.Footer>
             <AxoDialog.Actions>
               <AxoDialog.Action
-                variant="secondary"
+                variant="strong-secondary"
                 onClick={onCancel}
                 disabled={isPending}
               >
                 {i18n('icu:cancel')}
               </AxoDialog.Action>
               <AxoDialog.Action
-                variant="destructive"
+                variant="strong-destructive"
                 pending={isPending}
                 onClick={handleDisableLocalBackups}
               >
@@ -553,7 +553,7 @@ function LocalBackupsSetupFolderPicker({
           {i18n('icu:Preferences--local-backups-setup-folder-description')}
         </div>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="lg"
           onClick={pickLocalBackupFolder}
         >
@@ -606,7 +606,7 @@ function LocalBackupsBackupKeyViewer({
 
   const learnMorePhishingLink = (parts: Array<string | JSX.Element>) => (
     <a
-      className={tw('whitespace-nowrap text-color-label-primary')}
+      className={tw('whitespace-nowrap text-accent')}
       href={SIGNAL_USER_SAFETY_LINK}
       rel="noreferrer"
       target="_blank"
@@ -633,7 +633,7 @@ function LocalBackupsBackupKeyViewer({
     if (step === 'view') {
       footerRight = (
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="lg"
           onClick={() => setStep('confirm')}
         >
@@ -642,7 +642,11 @@ function LocalBackupsBackupKeyViewer({
       );
     } else {
       footerRight = (
-        <AxoButton.Root variant="primary" size="lg" onClick={onBackupKeyViewed}>
+        <AxoButton.Root
+          variant="strong-primary"
+          size="lg"
+          onClick={onBackupKeyViewed}
+        >
           {i18n('icu:Preferences--local-backups-view-backup-key-done')}
         </AxoButton.Root>
       );
@@ -654,7 +658,7 @@ function LocalBackupsBackupKeyViewer({
     );
     footerLeft = (
       <AxoButton.Root
-        variant="borderless-primary"
+        variant="implied-primary"
         size="lg"
         onClick={() => setStep('view')}
       >
@@ -663,7 +667,7 @@ function LocalBackupsBackupKeyViewer({
     );
     footerRight = (
       <AxoButton.Root
-        variant="primary"
+        variant="strong-primary"
         size="lg"
         disabled={!isBackupKeyConfirmed}
         onClick={() => setStep('caution')}
@@ -708,7 +712,7 @@ function LocalBackupsBackupKeyViewer({
             </AxoAlertDialog.Body>
             <AxoAlertDialog.Footer>
               <AxoAlertDialog.Action
-                variant="primary"
+                variant="strong-primary"
                 onClick={() => {
                   onCopyBackupKey();
                   setIsShowingDoNotShareModal(false);
@@ -729,7 +733,7 @@ function LocalBackupsBackupKeyViewer({
           noEscapeClose
           modalFooter={
             <AxoButton.Root
-              variant="primary"
+              variant="strong-primary"
               size="lg"
               onClick={onBackupKeyViewed}
             >
@@ -774,7 +778,7 @@ function LocalBackupsBackupKeyViewer({
         {isStepViewOrReference && (
           <div className="Preferences--LocalBackupsSetupScreenPaneContent">
             <AxoButton.Root
-              variant="secondary"
+              variant="strong-secondary"
               size="sm"
               symbol="copy"
               onClick={() => setIsShowingDoNotShareModal(true)}

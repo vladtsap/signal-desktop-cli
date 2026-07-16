@@ -116,10 +116,6 @@ const KnownDesktopLibsignalNetKeys = [
   'desktop.libsignalNet.grpc.MessagesAnonymousSendSingleRecipientMessage.beta',
   'desktop.libsignalNet.grpc.MessagesSendMessage',
   'desktop.libsignalNet.grpc.MessagesSendMessage.beta',
-  'desktop.libsignalNet.useH2ForAuthChat',
-  'desktop.libsignalNet.useH2ForAuthChat.beta',
-  'desktop.libsignalNet.useH2ForUnauthChat',
-  'desktop.libsignalNet.useH2ForUnauthChat.beta',
 ] as const;
 
 type KnownLibsignalKeysType = StripPrefix<

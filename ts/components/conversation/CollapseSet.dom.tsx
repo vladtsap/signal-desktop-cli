@@ -402,7 +402,7 @@ function CollapseSetButton(
     >
       <AxoButton.Root
         size="md"
-        variant="secondary"
+        variant="subtle-secondary"
         arrow={arrow}
         symbol={symbol}
         expanded={ariaExpanded}

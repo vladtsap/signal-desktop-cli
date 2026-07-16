@@ -89,7 +89,7 @@ export function AudioListItem({
     <div
       className={tw(
         'flex items-center justify-center gap-0.5',
-        'bg-elevated-background-tertiary',
+        'bg-material-tertiary',
         'size-9 rounded-sm'
       )}
     >
@@ -106,7 +106,7 @@ export function AudioListItem({
           <div
             key={peak.index}
             className={tw(
-              'rounded-sm bg-label-placeholder p-px',
+              'rounded-sm bg-(--axo-color-label-placeholder) p-px',
               'transition-[height] duration-250'
             )}
             style={{ height: `${height}px` }}
@@ -118,7 +118,9 @@ export function AudioListItem({
 
   const dot = (
     <motion.div
-      className={tw('size-1.5 shrink-0 rounded-sm bg-label-secondary')}
+      className={tw(
+        'size-1.5 shrink-0 rounded-sm bg-(--axo-color-label-secondary)'
+      )}
       initial={false}
       animate={{ scale: isPlayed ? 0 : 1 }}
       transition={DOT_TRANSITION}

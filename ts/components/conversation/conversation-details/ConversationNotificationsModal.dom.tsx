@@ -71,11 +71,11 @@ export function ConversationNotificationsModal({
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={onClose}>
+            <AxoDialog.Action variant="strong-secondary" onClick={onClose}>
               {i18n('icu:cancel')}
             </AxoDialog.Action>
             <AxoDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={onConfirm}
               disabled={value == null}
             >

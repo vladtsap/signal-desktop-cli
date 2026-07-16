@@ -102,7 +102,7 @@ export namespace AxoAvatar {
     return RootSizes.keys().map(size => Number(size) as Size);
   }
 
-  const DefaultColor = tw('bg-fill-secondary text-label-primary');
+  const DefaultColor = tw('bg-primary text-primary');
 
   /**
    * <AxoAvatar.Root>
@@ -147,11 +147,11 @@ export namespace AxoAvatar {
       <SizeContext.Provider value={props.size}>
         <div
           className={tw(
-            'relative shrink-0 rounded-full contain-layout select-none',
+            'relative shrink-0 rounded-full contain-layout',
             RootSizes.get(props.size),
             props.ring != null && RingSizes.get(props.size),
-            props.ring === 'unread' && 'border-border-selected',
-            props.ring === 'read' && 'border-label-secondary'
+            props.ring === 'unread' && 'border-selected',
+            props.ring === 'read' && 'border-(--axo-color-label-secondary)'
           )}
         >
           {props.children}
@@ -255,7 +255,7 @@ export namespace AxoAvatar {
         aria-label={props.label ?? undefined}
         className={tw(
           baseContentStyles,
-          'outline-none keyboard-mode:focus:outline-focus-ring'
+          'outline-none keyboard-mode:focus:axo-focus-ring'
         )}
         onClick={handleClick}
       >
@@ -465,7 +465,7 @@ export namespace AxoAvatar {
           'flex flex-col items-center-safe justify-center-safe gap-2',
           // oxlint-disable-next-line better-tailwindcss/no-restricted-classes
           'bg-[#000]/20 text-[#fff] hover:bg-[#000]/40',
-          'outline-none keyboard-mode:focus:outline-focus-ring'
+          'outline-none keyboard-mode:focus:axo-focus-ring'
         )}
       >
         <AxoSymbol.Icon size={24} symbol="press" label={null} />
@@ -721,7 +721,7 @@ export namespace AxoAvatar {
         onClick={handleClick}
         className={tw(
           baseBadgeStyles,
-          'outline-focus-ring-inset outline-none keyboard-mode:focus:outline-focus-ring'
+          'outline-none keyboard-mode:focus:axo-focus-ring'
         )}
       >
         {props.children}

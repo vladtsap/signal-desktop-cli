@@ -103,7 +103,7 @@ export function CustomizingPreferredReactionsModal({
             <AxoDialog.Description>
               <p
                 className={tw(
-                  'mt-8 text-center type-body-medium text-pretty text-label-secondary'
+                  'mt-8 text-center type-body-medium text-pretty text-secondary'
                 )}
               >
                 {hadSaveError
@@ -116,14 +116,14 @@ export function CustomizingPreferredReactionsModal({
         <AxoDialog.Footer>
           <AxoDialog.Actions>
             <AxoDialog.Action
-              variant="secondary"
+              variant="strong-secondary"
               disabled={!isDefaults || isSaving}
               onClick={resetDraftEmoji}
             >
               {i18n('icu:reset')}
             </AxoDialog.Action>
             <AxoDialog.Action
-              variant="primary"
+              variant="strong-primary"
               disabled={!hasChanged}
               pending={isSaving}
               onClick={savePreferredReactions}

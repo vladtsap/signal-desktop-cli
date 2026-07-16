@@ -18,7 +18,10 @@ export function Primary(): ReactNode {
       description="Do you want to save the changes you’ve made to this chat folder?"
     >
       <AxoConfirmDialog.Cancel />
-      <AxoConfirmDialog.Action variant="primary" onClick={action('onSave')}>
+      <AxoConfirmDialog.Action
+        variant="strong-primary"
+        onClick={action('onSave')}
+      >
         Save
       </AxoConfirmDialog.Action>
     </AxoConfirmDialog.Root>
@@ -35,7 +38,7 @@ export function Destructive(): ReactNode {
     >
       <AxoConfirmDialog.Cancel />
       <AxoConfirmDialog.Action
-        variant="destructive"
+        variant="strong-destructive"
         onClick={action('onDiscard')}
       >
         Discard

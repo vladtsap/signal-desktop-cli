@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "გასუფთავება"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "ჯგუფში დამატება"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "ყველას წაკითხულად მონიშვნა"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "ჩატისთვის პინის გაუქმება"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "მაქსიმუმ 4 ჩატის აპინვა შეგიძლია"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, one {მაქსიმუმ {maxPinnedConversations,number} ჩატის აპინვა შეგიძლია} other {მაქსიმუმ {maxPinnedConversations,number} ჩატის აპინვა შეგიძლია}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "სტიკერების ნაკრების გადმოწერა ვერ მოხერხდა"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "ხელმისაწვდომი"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "დაყენებული"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "გადმოწერილი სტიკერები ვერ მოიძებნა"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "სტიკერების ნაკრები ვერ მოიძებნა, დაამატე სტიკერები, რომ მეგობრებს გაუგზავნო."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "Signal-ის მხატვრების სტიკერები არაა ხელმისაწვდომი"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "მიღებული სტიკერები"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "შენთან გაზიარებული"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "როცა ვინმესგან სტიკერს მიიღებ, სტიკერების ნაკრები აქ გამოჩნდება."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "სტიკერები შემომავალი შეტყობინებებიდან აქ გამოჩნდება"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "გადმოწერა"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "გათიშვა"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "სტიკერების ნაკრები"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "სტიკერის დამატება"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "გაუქმება"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "შეიყვანე გასაღები"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "ჩაიწერე შენი აღდგენის გასაღები"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "შენი აღდგენის გასაღები"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "ეს გასაღები საჭიროა შენი ანგარიშისა და მონაცემების აღსადგენად. შეინახე გასაღები უსაფრთხო ადგილას. თუ მას დაკარგავ, შენი ანგარიშის აღდგენას ვეღარ შეძლებ. <learnMoreLink>გაიგე მეტი.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "ეს გასაღები საჭიროა შენი ანგარიშისა და მონაცემების აღსადგენად. სადმე უსაფრთხო ადგილას შეინახე და არავის გაუზიარო. Signal-ი არასდროს მოგწერს შენი აღდგენის გასაღების მოთხოვნით. <learnMoreLink>გაიგე მეტი.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "არ გააზიარო აღდგენის გასაღები"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>Signal-ი არასდროს მოგწერს</strong> შენი აღდგენის გასაღების მოთხოვნით. არასდროს უპასუხო ჩატს, რომელიც თავს Signal-ად ასაღებს. შენი აღდგენის გასაღები სადმე უსაფრთხო ადგილას შეინახე და არავის გაუზიარო. <learnMoreLink>გაიგე მეტი.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "გასაგებია"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "არ გააზიარო გასაღები"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "არავის გაუზიარო აღდგენის გასაღები. ეს მათ საშუალებას მისცემს შენი ანგარიში დაისაკუთრონ. <strong>Signal-ი არასდროს მოგწერს</strong> შენი აღდგენის გასაღების მოთხოვნით. არასდროს უპასუხო ჩატს, რომელიც თავს Signal-ად ასაღებს."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "არავის გაუზიარო აღდგენის გასაღები. ეს მათ საშუალებას მისცემს შენი ანგარიში დაისაკუთრონ. <strong>Signal-ი არასდროს მოგწერს</strong> შენი აღდგენის გასაღების მოთხოვნით. არასდროს უპასუხო ჩატს, რომელიც თავს Signal-ად ასაღებს. <learnMoreLink>გაიგე მეტი.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "არ გააზიარო"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "გასაღების ჩასმა"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "დაადასტურე შენი აღდგენის გასაღები"
@@ -6749,403 +6743,403 @@
     "messageformat": "Signal Desktop-ის განახლება ვერ მოხერხდა, მაგრამ ახალი ვერსია ხელმისაწვდომია. გადადი {downloadUrl}-ზე და ახალი ვერსია ხელით გადმოწერე, შემდეგ ან მხარდაჭერის გუნდს დაუკავშირდი, ან ამ პრობლემის შესახებ განაცხადე."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "Signal-ის ლოგო"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "უკან"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "ტელეფონის ნომერი"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "შენი ანგარიშის ვერიფიკაციისთვის შენი მობილურის ნომერი შეიყვანე."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "შეიძლება საფასური დაგეკისროს."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "გთხოვთ, {duration}-ში თავიდან სცადო"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "ტელეფონის ნომერი"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "გაგრძელება"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "სწორია თუ არა თქვენი ზემოთ მოცემული ტელეფონის ნომერი?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "ნომრის რედაქტირება"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "დიახ"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "გასაგრძელებლად დაადასტურე, რომ ადამიანი ხარ"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "Signal-ზე სპამის თავიდან ასაცილებლად, გთხოვთ, დაასრულო ვერიფიკაცია. ვერიფიკაციის შემდეგ რეგისტრაციის გაგრძელებას შეძლებ."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "ვერიფიკაციის თავიდან ცდა"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "ბრაუზერში ვერიფიკაცია"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "გაიარე ვერიფიკაცია {duration}-ში"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "საჭიროა დამატებითი ვერიფიკაცია"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "გთხოვთ, კიდევ ერთხელ გაიარო captcha, რათა რეგისტრაცია განაგრძო."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "სცადე ვერიფიკაცია თავიდან"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "მოგვიანებით სცადე"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "რეგისტრაციის დასრულება ახლა შეუძლებელია."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "დაელოდე {duration} და თავიდან სცადე"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "ვერიფიკაციის ხარვეზი"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "რეგისტრაციის გასაგრძელებლად ვერიფიკაცია თავიდან სცადე."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "სცადეთ ახლიდან"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "ვერიფიკაციის კოდი"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "შეიყვანეთ კოდი, რომელიც გამოვგზავნეთ {phoneNumber}"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "გაგრძელება"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "კოდის თავიდან გაგზავნა"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "კოდის თავიდან გაგზავნა {duration}-ში"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "დამირეკეთ"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "დამირეკეთ {duration}-ში"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "ნომერი არასწორია?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "ვერ რეგისტრირდები?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "არასწორი კოდი"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "შეყვანილი კოდი არასწორია. გთხოვთ, 6-ნიშნა კოდი გადაამოწმო და ისევ სცადო."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "კოდი არასწორია"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "შენ მიერ შეყვანილი კოდი მოქმედი არაა. გთხოვთ, კოდი თავიდან გაიგზავნო და ისევ სცადო."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "კოდის თავიდან გაგზავნა"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "ნომრის რედაქტირება"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "SMS-ის გაგზავნა ვერ მოხერხდა"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "SMS-ით ვერიფიკაციის კოდი ვერ გამოგიგზავნეთ. სცადე კოდი ხმოვანი ზარით მიიღო."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "ხმოვანი ზარი"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "მოგვიანებით სცადე"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "კოდის შეყვანა ზედმეტად ბევრჯერ სცადე. დაელოდე {duration} და თავიდან სცადე."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "ძალიან ბევრი მცდელობა"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "კოდის შეყვანა ზედმეტად ბევრჯერ სცადე. გთხოვთ, კოდი თავიდან გაიგზავნო და ისევ სცადო."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "კოდის თავიდან გაგზავნა"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "ნომრის რედაქტირება"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "ზარის განხორციელება ვერ მოხერხდა"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "შეყვანილ მობილურის ნომერზე ვერ დავრეკეთ. დარწმუნდი, რომ მობილურის ნომერი სწორია და ისევ სცადე."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "კოდის გაგზავნა ვერ მოხერხდა"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "შეყვანილ მობილურის ნომერზე ვერიფიკაციის კოდის გაგზავნა ვერ მოვახერხეთ. დარწმუნდი, რომ მობილურის ნომერი სწორია ან სხვა ნომერი სცადე."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "მოგვიანებით სცადე"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "ხარვეზი დაფიქსირდა და ვერიფიკაციის კოდის გამოგზავნა ვერ მოხერხდა. დაელოდე {duration} და თავიდან სცადე."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "შექმენი შენი პროფილი"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "შენს პროფილს ხედავენ შენი კონტაქტები, ჯგუფები და ის ადამიანები, ვისთანაც მიმოწერა გაქვს."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "გაიგე მეტი"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "ფოტოს დამატება"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "სახელი (სავალდებულო)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "გვარი (არასავალდებულო)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "ვის შეუძლია მობილურის ნომრით მიპოვოს"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "შეცვლა"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "შესრულებულია"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "გაგრძელება"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "შენი ავატარი"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "შეიყვანე შენი პინ-კოდი"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "შეიყვანე შენი ანგარიშისთვის შექმნილი პინ-კოდი. ის განსხვავდება შენი SMS ვერიფიკაციის კოდისგან. <needHelp>დახმარება გჭირდება?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "შეიყვანე შენი პინ-კოდი"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "არასწორი პინ-კოდი"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, one {არასწორი პინ-კოდი. დაგრჩა {triesRemaining,number} მცდელობა.} other {არასწორი პინ-კოდი. დაგრჩა {triesRemaining,number} მცდელობა.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "დახმარება გჭირდება?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "შენი პინ-კოდი 4+ ციფრიანი კოდია, რომელიც შეიძლება იყოს ციფრული ან ანბანურ-ციფრული. თუ შენს პინ-კოდს ვერ იხსენებ, შეგიძლია ახალი შექმნა. შეგიძლია დარეგისტრირდე და გამოიყენო შენი ანგარიში, მაგრამ დაკარგავ ზოგიერთ შენახულ პარამეტრს, მაგალითად, შენი პროფილის ინფორმაციას. <learnMore>გაიგე მეტი</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "შენი პინ-კოდი 4+ ციფრიანი კოდია, რომელიც შეიძლება იყოს ციფრული ან ანბანურ-ციფრული. თუ შენს პინ-კოდს ვერ იხსენებ, შენი ანგარიშის თავიდან დასარეგისტრირებლად 7 დღით მოცდა მოგიწევს. <learnMore>გაიგე მეტი</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "გამოტოვება და ახალი პინ-კოდის შექმნა"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "მხარდაჭერის გუნდთან დაკავშირება"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "არასწორი პინ-კოდი"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {დაგრჩა {triesRemaining,number} მცდელობა. თუ მცდელობები ამოგეწურება, შეგიძლია ახალი პინ-კოდი შექმნა. შეგიძლია დარეგისტრირდე და გამოიყენო შენი ანგარიში, მაგრამ დაკარგავ ზოგიერთ შენახულ პარამეტრს, მაგალითად, შენი პროფილის ინფორმაციას. <learnMore>გაიგე მეტი</learnMore>.} other {დაგრჩა {triesRemaining,number} მცდელობა. თუ მცდელობები ამოგეწურება, შეგიძლია ახალი პინ-კოდი შექმნა. შეგიძლია დარეგისტრირდე და გამოიყენო შენი ანგარიში, მაგრამ დაკარგავ ზოგიერთ შენახულ პარამეტრს, მაგალითად, შენი პროფილის ინფორმაციას. <learnMore>გაიგე მეტი</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {{triesRemaining,number} ცდა დაგრჩა. თუ ცდები გამოგელევა, შენს ანგარიშს 7 დღით დავბლოკავთ. 7 დღის უმოქმედობის შემდეგ, პინ-კოდის გარეშე, თავიდან დარეგისტრირებას შეძლებ. კონტენტი სრულად წაიშლება. <learnMore>გაიგე მეტი</learnMore>.} other {{triesRemaining,number}ცდა დაგრჩა. თუ ცდები გამოგელევა, შენს ანგარიშს 7 დღით დავბლოკავთ. 7 დღის უმოქმედობის შემდეგ, პინ-კოდის გარეშე, თავიდან დარეგისტრირებას შეძლებ. კონტენტი სრულად წაიშლება. <learnMore>გაიგე მეტი</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "არასწორი პინ-კოდი"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "პინ-კოდის გამოცნობის ცდები ამოგეწურა, მაგრამ შენი Signal-ის მონაცემებზე წვდომა მაინც გექნება ახალი პინ-კოდის შექმნით. კონფიდენციალურობისა და უსაფრთხოებისთვის, შენი მონაცემები აღდგება შენახული პროფილის ინფორმაციის ან პარამეტრების გარეშე."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "შექმენი ახალი პინ-კოდი"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "გაიგე მეტი პინ-კოდებზე"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "პინ-კოდის გამოტოვება"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "გამოტოვოთ პინ-კოდის შეყვანა?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "თუ შენს პინ-კოდს ვერ იხსენებ, შეგიძლია ახალი შექმნა. შეგიძლია დარეგისტრირდე და გამოიყენო შენი ანგარიში, მაგრამ დაკარგავ ზოგიერთ შენახულ პარამეტრს, მაგალითად, შენი პროფილის ინფორმაციას. გაიგე მეტი."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "გამოტოვება და ახალი პინ-კოდის შექმნა"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "შექმენი შენი პინ-კოდი"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "პინ-კოდები დაგეხმარება აღადგინო შენი ანგარიში და Signal-მა შენი ინფორმაცია დაშიფრულად შეინახოს. <learnMore>გაიგე მეტი</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "შექმენი შენი პინ-კოდი"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "პინ-კოდი მინიმუმ 4 სიმბოლოსგან უნდა შედგებოდეს"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "გაგრძელება"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "მენიუს გახსნა"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "მეტი ინფორმაცია პინ-კოდების შესახებ"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "პინ-კოდის გამორთვა"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "გაფრთხილება"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "თუ პინ-კოდს გამორთავ, Signal-ზე ხელახლა დარეგისტრირებისას ყველა მონაცემს დაკარგავ, თუ მას სხვა iOS მოწყობილობიდან არ გადმოიტან. რეგისტრაციის დაბლოკვას ვერ ჩართავ, სანამ პინ-კოდი გამორთულია."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "პინ-კოდის გამორთვა"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "Signal-ის პინ-კოდების შესახებ"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "პინ-კოდები Signal-ით შენახულ ინფორმაციას დაშიფრულად ინახავენ, რათა მხოლოდ შენ გქონდეს მასზე წვდომა. შენი პროფილი, პარამეტრები და კონტაქტები Signal-ის ხელახლა ინსტალაციისას აღდგება."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "გაიგე მეტი"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "დაადასტურე შენი პინ-კოდი"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "თავიდან ჩაწერე პინ-კოდი, რომელიც ახლახანს შექმენი."
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "შეიყვანე შენი პინ-კოდი"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "მონაცემები დაბლოკილია"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "შენი მონაცემები დაიბლოკა მათი კონფიდენციალურობისა და უსაფრთხოების დასაცავად. შენს პროფილზე 7-დღიანი უმოქმედობის შემდეგ, პინ-კოდის გარეშე შეძლებ ხელახლა დარეგისტრირებას, ამ ტელეფონის ნომრით. კონტენტი მთლიანად წაიშლება."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "სხვა ნომერი გამოიყენე"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "გაიგე მეტი დალუქული ანგარიშების შესახებ"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "საჭიროა განახლება"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "გთხოვთ, რეგისტრაციის გასაგრძელებლად Signal-ი უახლეს ვერსიამდე განაახლო."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "განახლება"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "გაუქმება"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "შეამოწმე ინტერნეტ კავშირი"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "გასაგრძელებლად, შეამოწმე შენი კომპიუტერის ინტერნეტ კავშირი და თავიდან სცადე."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
     "messageformat": "OK"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "რეგისტრაცია ვერ დასრულდა"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "ხარვეზი დაფიქსირდა და რეგისტრაცია ვერ დასრულდა. თუ პრობლემა არ მოგვარდა, გთხოვთ, მხარდაჭერის გუნდს დაუკავშირდე."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "სცადეთ ახლიდან"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "მხარდაჭერის გუნდთან დაკავშირება"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "Signal-ის დახურვა შეუძლებელია.",
@@ -8671,6 +8665,12 @@
     "messageformat": "ახლა გამოკითხვების შექმნა ინდივიდუალურ ჩატებშიც შეიძლება. გაუგზავნე ვარიანტების ჩამონათვალი მეგობარს, რომელიც ორჭოფობს ან ჰკითხე ქრაშს, მოსწონხარ თუ არა."
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "ჯგუფის ადმინისტრატორებს ახლა უკვე შეუძლიათ ჯგუფის პარამეტრებიდან ახალი \"ჯგუფის გაუქმების\" ოფციით ჩატი დაასრულონ. ჯგუფის გაუქმების შემდეგ წევრები წერილებს ვეღარ გაგზავნიან, ზარებს ვეღარ წამოიწყებენ და ვერც ახალი წევრების მოწვევას შეძლებენ. ახლა შეგიძლია დარწმუნებული იყო, რომ წინა წლის ჩატები გაუქმებული იქნება, სანამ ამ წლისთვის ახალს შექმნი."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

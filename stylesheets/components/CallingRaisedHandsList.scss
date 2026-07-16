@@ -64,8 +64,9 @@
   }
 
   @include mixins.keyboard-mode {
+    outline: none;
     &:focus {
-      outline: 2px solid variables.$color-ultramarine;
+      @include mixins.axo-focus-ring;
     }
   }
 }
@@ -95,8 +96,9 @@
   }
 
   @include mixins.keyboard-mode {
+    outline: none;
     &:focus {
-      outline: 2px solid variables.$color-ultramarine;
+      @include mixins.axo-focus-ring;
     }
   }
 }

@@ -7,9 +7,12 @@ import { strictAssert } from '../../util/assert.std.ts';
 import { drop } from '../../util/drop.std.ts';
 import { parseEnvironment, setEnvironment } from '../../environment.std.ts';
 import { AppProvider } from '../AppProvider.dom.tsx';
+import { setDocumentLocale } from '../../util/setDocumentLocale.dom.ts';
 
 const { ScreenShareWindowProps } = window.Signal;
 const { i18n } = window.SignalContext;
+
+setDocumentLocale(document);
 
 strictAssert(ScreenShareWindowProps, 'window values not provided');
 

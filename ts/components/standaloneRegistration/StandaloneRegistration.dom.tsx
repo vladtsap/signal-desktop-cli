@@ -256,7 +256,7 @@ export function StandaloneRegistration({
       <div className={tw('relative grow')}>
         <div
           className={tw(
-            'absolute inset-s-1/2 top-1/2 flex max-h-[calc(100%-32px)] w-143 max-w-[calc(100%-32px)] -translate-1/2 transform flex-col overflow-hidden rounded-[26px] bg-background-primary'
+            'absolute inset-s-1/2 top-1/2 flex max-h-[calc(100%-32px)] w-143 max-w-[calc(100%-32px)] -translate-1/2 transform flex-col overflow-hidden rounded-[26px] bg-surface-primary'
           )}
         >
           <AnimatePresence>
@@ -290,13 +290,13 @@ export function StandaloneRegistration({
         )}
       >
         <AxoConfirmDialog.Action
-          variant="secondary"
+          variant="strong-secondary"
           onClick={() => cancelRegistration()}
         >
           {i18n('icu:StandaloneRegistration--UpdateRequired--cancel')}
         </AxoConfirmDialog.Action>
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => {
             // TODO: kick off update process - how to represent this during updates?
           }}
@@ -317,7 +317,7 @@ export function StandaloneRegistration({
         )}
       >
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => {
             // Just dismiss dialog; the user can try again on whatever screen they were on
             setConnectivityErrorDialogOpen(false);
@@ -339,7 +339,7 @@ export function StandaloneRegistration({
         )}
       >
         <AxoConfirmDialog.Action
-          variant="secondary"
+          variant="strong-secondary"
           onClick={() => {
             openLinkInWebBrowser(CONTACT_SUPPORT_URL);
           }}
@@ -349,7 +349,7 @@ export function StandaloneRegistration({
           )}
         </AxoConfirmDialog.Action>
         <AxoConfirmDialog.Action
-          variant="primary"
+          variant="strong-primary"
           onClick={() => startRegistration()}
         >
           {i18n(

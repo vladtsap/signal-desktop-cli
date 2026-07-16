@@ -106,7 +106,7 @@ export function EditNicknameAndNoteModal({
           <AxoDialog.Description>
             <p
               className={tw(
-                'mb-3 text-center type-body-small text-pretty text-label-secondary'
+                'mb-3 text-center type-body-small text-pretty text-secondary'
               )}
             >
               {i18n('icu:EditNicknameAndNoteModal__Description')}
@@ -183,11 +183,11 @@ export function EditNicknameAndNoteModal({
         </AxoDialog.Body>
         <AxoDialog.Footer>
           <AxoDialog.Actions>
-            <AxoDialog.Action variant="secondary" onClick={onClose}>
+            <AxoDialog.Action variant="strong-secondary" onClick={onClose}>
               {i18n('icu:cancel')}
             </AxoDialog.Action>
             <AxoDialog.Action
-              variant="primary"
+              variant="strong-primary"
               onClick={requestSubmit}
               disabled={!formResult.success}
             >

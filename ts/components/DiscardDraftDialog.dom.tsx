@@ -37,7 +37,7 @@ export function DiscardDraftDialog(
         <AxoAlertDialog.Footer>
           <AxoAlertDialog.Cancel />
           <AxoAlertDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={props.onDiscard}
           >
             {i18n('icu:discard')}

@@ -85,12 +85,12 @@ export function Basic(): JSX.Element {
         <Template triggerVariant="default" disabled />
       </div>
       <div className={tw('flex w-full gap-2')}>
-        <Template triggerVariant="floating" />
-        <Template triggerVariant="floating" disabled />
+        <Template triggerVariant="elevated" />
+        <Template triggerVariant="elevated" disabled />
       </div>
       <div className={tw('flex w-full gap-2')}>
-        <Template triggerVariant="borderless" />
-        <Template triggerVariant="borderless" disabled />
+        <Template triggerVariant="implied" />
+        <Template triggerVariant="implied" disabled />
       </div>
 
       <div className={tw('flex w-full gap-2')}>
@@ -98,12 +98,12 @@ export function Basic(): JSX.Element {
         <Template triggerWidth="full" triggerVariant="default" disabled />
       </div>
       <div className={tw('flex w-full gap-2')}>
-        <Template triggerWidth="full" triggerVariant="floating" />
-        <Template triggerWidth="full" triggerVariant="floating" disabled />
+        <Template triggerWidth="full" triggerVariant="elevated" />
+        <Template triggerWidth="full" triggerVariant="elevated" disabled />
       </div>
       <div className={tw('flex w-full gap-2')}>
-        <Template triggerWidth="full" triggerVariant="borderless" />
-        <Template triggerWidth="full" triggerVariant="borderless" disabled />
+        <Template triggerWidth="full" triggerVariant="implied" />
+        <Template triggerWidth="full" triggerVariant="implied" disabled />
       </div>
 
       <div className={tw('flex w-full gap-2')}>
@@ -111,20 +111,16 @@ export function Basic(): JSX.Element {
         <Template triggerChevron="on-hover" triggerVariant="default" disabled />
       </div>
       <div className={tw('flex w-full gap-2')}>
-        <Template triggerChevron="on-hover" triggerVariant="floating" />
+        <Template triggerChevron="on-hover" triggerVariant="elevated" />
         <Template
           triggerChevron="on-hover"
-          triggerVariant="floating"
+          triggerVariant="elevated"
           disabled
         />
       </div>
       <div className={tw('flex w-full gap-2')}>
-        <Template triggerChevron="on-hover" triggerVariant="borderless" />
-        <Template
-          triggerChevron="on-hover"
-          triggerVariant="borderless"
-          disabled
-        />
+        <Template triggerChevron="on-hover" triggerVariant="implied" />
+        <Template triggerChevron="on-hover" triggerVariant="implied" disabled />
       </div>
 
       <div className={tw('flex w-full gap-2')}>
@@ -144,12 +140,12 @@ export function Basic(): JSX.Element {
         <Template
           triggerWidth="full"
           triggerChevron="on-hover"
-          triggerVariant="floating"
+          triggerVariant="elevated"
         />
         <Template
           triggerWidth="full"
           triggerChevron="on-hover"
-          triggerVariant="floating"
+          triggerVariant="elevated"
           disabled
         />
       </div>
@@ -157,12 +153,12 @@ export function Basic(): JSX.Element {
         <Template
           triggerWidth="full"
           triggerChevron="on-hover"
-          triggerVariant="borderless"
+          triggerVariant="implied"
         />
         <Template
           triggerWidth="full"
           triggerChevron="on-hover"
-          triggerVariant="borderless"
+          triggerVariant="implied"
           disabled
         />
       </div>

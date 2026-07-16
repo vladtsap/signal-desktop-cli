@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "សម្អាត"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "ដាក់បញ្ចូលទៅក្រុមមួយ"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "សម្គាល់ថាបានអានទាំងអស់"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "ដោះខ្ទាស់ការជជែក"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "អ្នកអាចខ្ទាស់ការជជែកបានរហូតដល់ 4 ប៉ុណ្ណោះ"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, other {អ្នកអាចខ្ទាស់ការជជែកបានរហូតដល់ {maxPinnedConversations,number} ប៉ុណ្ណោះ}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "កញ្ចប់ស្ទីកគ័រមិនអាចដំឡើងបាន"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "មាន"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "បានដំឡើង"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "ពុំមានស្ទីកគ័រដំឡើងទេ"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "មិនមានកញ្ចប់ស្ទីកគ័រទេ សូមបញ្ចូលស្ទីកគ័រដើម្បីផ្ញើទៅមិត្តភក្តិរបស់អ្នក។"
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "ពុំមានស្ទីកគ័រសិល្បករ Signal ទេ"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "ស្ទីកគ័រដែលអ្នកបានទទួល"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "បានចែករំលែកជាមួយអ្នក"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "នៅពេលអ្នកទទួលបានស្ទីកគ័រពីនរណាម្នាក់ កញ្ចប់ស្ទីកគ័រនឹងបង្ហាញនៅទីនេះ។"
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "ស្ទីកគ័រពីសារដែលចូលមកនឹងបង្ហាញទីនេះ"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "ដំឡើង"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "ដកចេញ"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "កញ្ចប់ស្ទីកគ័រ"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "ដាក់ស្ទីកគ័រមួយ"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "បោះបង់"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "បញ្ចូលសោ"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "កត់ត្រាសោស្តាររបស់អ្នក"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "សោស្តាររបស់អ្នក"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "តម្រូវឱ្យមានសោនេះដើម្បីស្តារគណនី និងទិន្នន័យរបស់អ្នក។ ទុកសោនេះនៅកន្លែងដែលមានសុវត្ថិភាព។ ប្រសិនបើអ្នកបាត់វា អ្នកនឹងមិនអាចស្តារគណនីរបស់អ្នកមកវិញបានទេ។ <learnMoreLink>ស្វែងយល់បន្ថែម។</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "តម្រូវឱ្យមានសោនេះដើម្បីស្តារគណនី និងទិន្នន័យរបស់អ្នក។ រក្សាទុកវានៅកន្លែងដែលមានសុវត្ថិភាព ហើយកុំចែករំលែកវាជាមួយនរណាឡើយ។ Signal នឹងមិនផ្ញើសារមកអ្នកដើម្បីសួររកសោស្តាររបស់អ្នកជាដាច់ខាត។ <learnMoreLink>ស្វែងយល់បន្ថែម។</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "កុំចែករំលែកសោស្តារ"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "<strong>Signal នឹងមិនផ្ញើសារមកអ្នក</strong>ដើម្បីសួររកសោស្តាររបស់អ្នកជាដាច់ខាត។ កុំឆ្លើយតបទៅនឹងការជជែកដែលតាំងខ្លួនជា Signal។ រក្សាទុកសោស្តាររបស់អ្នកនៅកន្លែងដែលមានសុវត្ថិភាព ហើយកុំចែករំលែកវាជាមួយនរណាឡើយ។ <learnMoreLink>ស្វែងយល់បន្ថែម។</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "យល់ហើយ"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "កុំចែករំលែកសោស្តារ"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "កុំចែករំលែកសោស្តាររបស់អ្នកជាមួយនរណាម្នាក់។ ព្រោះវានឹងអាចឱ្យពួកគេគ្រប់គ្រងគណនីរបស់អ្នកបាន។ <strong>Signal នឹងមិនផ្ញើសារមកអ្នក</strong>ដើម្បីសួររកសោស្តាររបស់អ្នកជាដាច់ខាត។ កុំឆ្លើយតបទៅនឹងការជជែកដែលតាំងខ្លួនជា Signal។"
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "កុំចែករំលែកសោស្តាររបស់អ្នកជាមួយនរណាម្នាក់។ ព្រោះវានឹងអាចឱ្យពួកគេគ្រប់គ្រងគណនីរបស់អ្នកបាន។ <strong>Signal នឹងមិនផ្ញើសារមកអ្នក</strong>ដើម្បីសួររកសោស្តាររបស់អ្នកជាដាច់ខាត។ កុំឆ្លើយតបទៅនឹងការជជែកដែលតាំងខ្លួនជា Signal។ <learnMoreLink>ស្វែងយល់បន្ថែម។</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "កុំចែករំលែក"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "បិទភ្ជាប់សោស្តារ"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "បញ្ជាក់សោស្តាររបស់អ្នក"
@@ -6749,403 +6743,403 @@
     "messageformat": "Signal Desktop មិនអាចដំឡើងកំណែបានទេ ប៉ុន្តែមានកំណែថ្មីមួយដែលអាចប្រើបាន។ សូមចូលទៅកាន់ {downloadUrl} ហើយដំឡើងកំណែថ្មីនោះដោយផ្ទាល់ បន្ទាប់មកទាក់ទងផ្នែកជំនួយ ឬរាយការណ៍អំពីបញ្ហានេះ។"
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "និមិត្តសញ្ញា Signal"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "ត្រឡប់ក្រោយ"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "លេខទូរសព្ទ"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "បញ្ចូលលេខទូរសព្ទរបស់អ្នកដើម្បីផ្ទៀងផ្ទាត់គណនីអ្នក។"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "អាចនឹងមានការគិតថ្លៃពីក្រុមហ៊ុនសេវាទូរសព្ទ។"
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "សូមព្យាយាមម្តងទៀតក្នុងពេល {duration} ទៀត។"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "លេខទូរសព្ទ"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "បន្ត"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "តើលេខទូរសព្ទរបស់អ្នកខាងលើត្រឹមត្រូវទេ?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "កែលេខ"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "បាទ/ចាស"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "សូមផ្ទៀងផ្ទាត់ថាអ្នកជាមនុស្ស ដើម្បីបន្ត"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "ដើម្បីជួយបង្ការកុំឱ្យមានសារឥតបានការនៅលើ Signal សូមបញ្ចប់ការផ្ទៀងផ្ទាត់។ បន្ទាប់ពីផ្ទៀងផ្ទាត់រួច អ្នកអាចបន្តការចុះឈ្មោះបាន។"
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "ព្យាយាមផ្ទៀងផ្ទាត់ម្តងទៀត"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "ផ្ទៀងផ្ទាត់នៅក្នុងកម្មវិធីរុករក"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "ផ្ទៀងផ្ទាត់ក្នុងពេល {duration}"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "ទាមទារការផ្ទៀងផ្ទាត់បន្ថែម"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "សូមបំពេញ captcha មួយទៀតដើម្បីបន្តការចុះឈ្មោះ។"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "ព្យាយាមផ្ទៀងផ្ទាត់ម្តងទៀត"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "ព្យាយាមម្តងទៀតនៅពេលក្រោយ"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "មិនអាចបញ្ចប់ការផ្ទៀងផ្ទាត់នៅពេលនេះបានទេ។"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "ព្យាយាមម្តងទៀតក្នុងពេល {duration} ទៀត។"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "បញ្ហាក្នុងការផ្ទៀងផ្ទាត់"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "សាកល្បងផ្ទៀងផ្ទាត់ម្តងទៀតដើម្បីបន្តការចុះឈ្មោះ។"
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "ព្យាយាមម្តងទៀត"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "លេខកូដផ្ទៀងផ្ទាត់"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "បញ្ចូលលេខកូដដែលយើងបានផ្ញើទៅ {phoneNumber}"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "បន្ត"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "ផ្ញើលេខកូដឡើងវិញ"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "ផ្ញើលេខកូដឡើងវិញក្នុងពេល {duration} ទៀត"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "ហៅទូរសព្ទមកខ្ញុំ"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "ហៅទូរសព្ទមកខ្ញុំក្នុងរយៈពេល {duration}"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "ខុសលេខ?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "មានបញ្ហាក្នុងការចុះឈ្មោះឬ?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "លេខកូដមិនត្រឹមត្រូវ"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "លេខកូដដែលអ្នកបានបញ្ចូលមិនត្រឹមត្រូវទេ។ សូមពិនិត្យមើលលេខកូដ 6 ខ្ទង់ ហើយព្យាយាមម្តងទៀត។"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "លេខកូដមិនត្រឹមត្រូវ"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "លេខកូដដែលអ្នកបានបញ្ចូលមិនត្រឹមត្រូវទេ។ សូមផ្ញើលេខកូដឡើងវិញ ហើយព្យាយាមម្តងទៀត។"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "ផ្ញើលេខកូដឡើងវិញ"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "កែលេខ"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "មិនអាចផ្ញើសារជាអក្សរបានទេ"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "យើងមិនអាចផ្ញើលេខកូដផ្ទៀងផ្ទាត់តាមរយៈសារជាអក្សរទេ។ សាកល្បងទទួលលេខកូដរបស់អ្នកតាមរយៈការហៅជាសំឡេងជំនួសវិញ។"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "ការហៅជាសំឡេង"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "ព្យាយាមម្តងទៀតនៅពេលក្រោយ"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "អ្នកបានព្យាយាមបញ្ចូលលេខកូដច្រើនដងពេកហើយ។ ព្យាយាមម្តងទៀតក្នុងពេល {duration} ទៀត។"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "ព្យាយាមច្រើនដងពេក"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "អ្នកបានព្យាយាមបញ្ចូលលេខកូដច្រើនដងពេកហើយ។ សូមផ្ញើលេខកូដឡើងវិញ ហើយព្យាយាមម្តងទៀត។"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "ផ្ញើលេខកូដឡើងវិញ"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "កែលេខ"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "មិនអាចហៅទូរសព្ទបានទេ"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "យើងមិនអាចហៅទូរសព្ទទៅលេខដែលអ្នកបានបញ្ចូលទេ។ ត្រូវប្រាកដថាលេខទូរសព្ទនោះត្រឹមត្រូវ រួចព្យាយាមម្តងទៀត។"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "មិនអាចផ្ញើលេខកូដបានទេ"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "លេខកូដផ្ទៀងផ្ទាត់មិនអាចផ្ញើទៅកាន់លេខទូរសព្ទដែលអ្នកបានបញ្ចូលទេ។ ត្រូវប្រាកដថាលេខដែលអ្នកបានបញ្ចូលគឺត្រឹមត្រូវ ឬសាកល្បងលេខផ្សេង។"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "ព្យាយាមម្តងទៀតនៅពេលក្រោយ"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "បញ្ហាមួយបានកើតឡើង ហើយមិនអាចផ្ញើលេខកូដផ្ទៀងផ្ទាត់បានទេ។ ព្យាយាមម្តងទៀតក្នុងពេល {duration} ទៀត។"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "រៀបចំប្រូហ្វាល់របស់អ្នក"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "ប្រូហ្វាល់នឹងត្រូវបានមើលឃើញដោយមនុស្សដែលអ្នកផ្ញើសារ បញ្ជីទំនាក់ទំនង និងក្រុម។"
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "ស្វែងយល់បន្ថែម"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "ដាក់រូបថត"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "នាមខ្លួន (ចាំបាច់)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "ត្រកូល (មិនតម្រូវ)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "នរណាខ្លះអាចរកខ្ញុំឃើញតាមលេខទូរសព្ទ"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "ផ្លាស់ប្តូរ"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "រួចរាល់"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "បន្ត"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "រូបតំណាងរបស់អ្នក"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "បញ្ចូលលេខកូដសម្ងាត់របស់អ្នក"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "បញ្ចូលលេខកូដសម្ងាត់ដែលអ្នកបានបង្កើតសម្រាប់គណនីរបស់អ្នក។ វាខុសពីលេខកូដផ្ទៀងផ្ទាត់ពីសារជាអក្សររបស់អ្នក។ <needHelp>ត្រូវការជំនួយ?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "បញ្ចូលលេខកូដសម្ងាត់របស់អ្នក"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "លេខកូដសម្ងាត់មិនត្រឹមត្រូវ"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, other {លេខកូដសម្ងាត់មិនត្រឹមត្រូវ។ អាចព្យាយាមបាន {triesRemaining,number} ដងទៀត។}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "ត្រូវការជំនួយ?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "លេខកូដសម្ងាត់របស់អ្នកគឺជាលេខកូដ 4+ ខ្ទង់ដែលអ្នកបានបង្កើតឡើង ហើយវាអាចជាលេខ ឬជាអក្សរនិងលេខ។ ប្រសិនបើអ្នកចាំលេខកូដសម្ងាត់របស់អ្នកមិនបានទេ អ្នកអាចបង្កើតលេខកូដសម្ងាត់ថ្មី។ អ្នកអាចចុះឈ្មោះ និងប្រើប្រាស់គណនីរបស់អ្នកបាន ប៉ុន្តែអ្នកនឹងបាត់បង់ការកំណត់ដែលបានរក្សាទុកមួយចំនួនដូចជាព័ត៌មានប្រូហ្វាល់របស់អ្នក។ <learnMore>ស្វែងយល់បន្ថែម</learnMore>។"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "លេខកូដសម្ងាត់របស់អ្នកគឺជាលេខកូដ 4+ ខ្ទង់ដែលអ្នកបានបង្កើតឡើង ហើយវាអាចជាលេខ ឬជាអក្សរនិងលេខ។ បើអ្នកចាំលេខកូដសម្ងាត់របស់អ្នកមិនបានទេ អ្នកនឹងត្រូវរង់ចាំ 7 ថ្ងៃដើម្បីចុះឈ្មោះគណនីរបស់អ្នកឡើងវិញ។ <learnMore>ស្វែងយល់បន្ថែម</learnMore>។"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "រំលង ហើយបង្កើតលេខកូដសម្ងាត់ថ្មី"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "ទាក់ទងផ្នែកជំនួយ"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "លេខកូដសម្ងាត់មិនត្រឹមត្រូវ"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, other {អ្នកនៅសល់ការព្យាយាមចំនួន {triesRemaining,number} ដងទៀត។ ប្រសិនបើអ្នកអស់ការព្យាយាមទាំងនោះ អ្នកអាចបង្កើតលេខកូដសម្ងាត់ថ្មី។ អ្នកអាចចុះឈ្មោះ និងប្រើប្រាស់គណនីរបស់អ្នកបាន ប៉ុន្តែអ្នកនឹងបាត់បង់ការកំណត់ដែលបានរក្សាទុកមួយចំនួនដូចជាព័ត៌មានប្រូហ្វាល់របស់អ្នក។ <learnMore>ស្វែងយល់បន្ថែម</learnMore>។}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, other {អ្នកនៅសល់ការព្យាយាមចំនួន {triesRemaining,number} ដងទៀត។ ប្រសិនបើអ្នកអស់ការព្យាយាមទាំងនោះ គណនីរបស់អ្នកនឹងត្រូវបានចាក់សោរយៈពេល 7 ថ្ងៃ។ បន្ទាប់ពីគ្មានសកម្មភាពរយៈពេល 7 ថ្ងៃ អ្នកអាចចុះឈ្មោះឡើងវិញដោយមិនចាំបាច់ប្រើលេខកូដសម្ងាត់របស់អ្នក។ ខ្លឹមសារទាំងអស់នឹងត្រូវបានលុបចោល។ <learnMore>ស្វែងយល់បន្ថែម</learnMore>។}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "លេខកូដសម្ងាត់មិនត្រឹមត្រូវ"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "ការសាកល្បងទាយស្មានលេខកូដសម្ងាត់របស់អ្នកបានអស់ហើយ ប៉ុន្តែអ្នកនៅតែអាចចូលប្រើគណនី Signal របស់អ្នកបាន ដោយបង្កើតលេខកូដសម្ងាត់ថ្មី។ ដើម្បីឯកជនភាព និងសុវត្ថិភាពរបស់អ្នក គណនីរបស់អ្នកនឹងត្រូវបានស្ដារមកវិញដោយមិនចាំបាច់មានព័ត៌មានប្រូហ្វាល់ ឬការកំណត់ដែលបានរក្សាទុកណាមួយឡើយ។"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "បង្កើតលេខកូដសម្ងាត់ថ្មី"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "ស្វែងយល់បន្ថែមអំពីលេខកូដសម្ងាត់"
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "រំលងលេខកូដសម្ងាត់"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "រំលងការបញ្ចូលលេខកូដសម្ងាត់?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "ប្រសិនបើអ្នកចាំលេខកូដសម្ងាត់របស់អ្នកមិនបានទេ អ្នកអាចបង្កើតលេខកូដសម្ងាត់ថ្មី។ អ្នកអាចចុះឈ្មោះ និងប្រើប្រាស់គណនីរបស់អ្នកបាន ប៉ុន្តែអ្នកនឹងបាត់បង់ការកំណត់ដែលបានរក្សាទុកមួយចំនួនដូចជាព័ត៌មានប្រូហ្វាល់របស់អ្នក។ ស្វែងយល់បន្ថែម។"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "រំលង ហើយបង្កើតលេខកូដសម្ងាត់ថ្មី"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "បង្កើតលេខកូដសម្ងាត់របស់អ្នក"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "PIN អាចជួយអ្នកក្នុងការស្តារគណនីរបស់អ្នកឡើងវិញ និងរក្សាឲ្យព័ត៌មានរបស់អ្នកអ៊ីនគ្រីបជាមួយ Signal។ <learnMore>ស្វែងយល់បន្ថែម</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "បង្កើតលេខកូដសម្ងាត់របស់អ្នក"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "លេខកូដសម្ងាត់ត្រូវតែមានយ៉ាងហោចណាស់ 4 តួអក្សរ"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "បន្ត"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "បើកម៉ឺនុយ"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "ព័ត៌មានបន្ថែមអំពីលេខកូដសម្ងាត់"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "បិទលេខកូដសម្ងាត់"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "ព្រមាន"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "ប្រសិនបើអ្នកបិទលេខកូដសម្ងាត់ អ្នកនឹងបាត់បង់ទិន្នន័យទាំងអស់នៅពេលអ្នកចុះឈ្មោះ Signal ឡើងវិញ លើកលែងតែអ្នកផ្ទេរវាពីឧបករណ៍ iOS ផ្សេងទៀត។ អ្នកមិនអាចបើកការចាក់សោការចុះឈ្មោះបានទេ ខណៈពេលដែលលេខកូដសម្ងាត់ត្រូវបានបិទ។"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "បិទលេខកូដសម្ងាត់"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "អំពីលេខកូដសម្ងាត់ Signal"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "លេខកូដសម្ងាត់ធ្វើឱ្យព័ត៌មានរបស់អ្នកដែលរក្សាទុកជាមួយ Signal បន្តអ៊ីនគ្រីប ដូច្នេះមានតែអ្នកទេដែលអាចចូលប្រើវាបាន។ ប្រូហ្វាល់ ការកំណត់ និងទំនាក់ទំនងរបស់អ្នកនឹងស្ដារមកវិញ នៅពេលអ្នកដំឡើងវាឡើងវិញ។"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "ស្វែងយល់បន្ថែម"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "បញ្ជាក់លេខកូដសម្ងាត់របស់អ្នក"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "បញ្ចូលឡើងវិញនូវ PIN ដែលអ្នកទើបតែបង្កើត។"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "បញ្ចូលលេខកូដសម្ងាត់របស់អ្នក"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "គណនីត្រូវបានចាក់សោ"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "គណនីរបស់អ្នកត្រូវបានចាក់សោដើម្បីការពារឯកជនភាព និងសុវត្ថិភាពរបស់អ្នក។ បន្ទាប់ពីគ្មានសកម្មភាពរយៈពេល 7 ថ្ងៃនៅក្នុងគណនីរបស់អ្នក អ្នកនឹងអាចចុះឈ្មោះលេខទូរសព្ទនេះឡើងវិញដោយមិនចាំបាច់ប្រើលេខកូដសម្ងាត់របស់អ្នកទេ។ ខ្លឹមសារទាំងអស់នឹងត្រូវបានលុបចោល។"
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "ប្រើលេខផ្សេង"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "ស្វែងយល់អំពីគណនីដែលបានចាក់សោ"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "តម្រូវឲ្យដំឡើងកំណែ"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "ដើម្បីបន្តការចុះឈ្មោះ សូមដំឡើងកំណែទៅកំណែចុងក្រោយបំផុតរបស់ Signal។"
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "ដំឡើងកំណែ"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "បោះបង់"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "សូមពិនិត្យមើលសេវាអ៊ីនធឺណិតរបស់អ្នក"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "ដើម្បីបន្ត សូមពិនិត្យមើលសេវាអ៊ីនធឺណិតរបស់កុំព្យូទ័រអ្នក ហើយព្យាយាមម្តងទៀត។"
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "យល់ព្រម"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "មិនអាចបញ្ចប់ការចុះឈ្មោះបានទេ"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "បញ្ហាមួយបានកើតឡើង ហើយការចុះឈ្មោះមិនអាចបញ្ចប់បានទេ។ ប្រសិនបើបញ្ហានេះនៅតែបន្ត សូមទាក់ទងផ្នែកជំនួយ។"
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "ព្យាយាមម្តងទៀត"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "ទាក់ទងផ្នែកជំនួយ"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "មិនអាចបិទ Signal បានទេ។",
@@ -8671,6 +8665,12 @@
     "messageformat": "ឥឡូវនេះ ការស្ទង់មតិក៏អាចបង្កើតឡើងនៅក្នុងការជជែកជាលក្ខណៈបុគ្គលផងដែរ។ បង្ហាញបញ្ជីជម្រើសដែលបានរៀបចំទៅកាន់មិត្តភក្តិរបស់អ្នកដែលមិនទាន់សម្រេចចិត្ត ឬចាប់យកឱកាសដ៏អស្ចារ្យក្នុងការផ្ញើកំណត់ចំណាំទៅកាន់មនុស្សជាទីចាប់ចិត្តរបស់អ្នក ដោយបង្កើតការស្ទង់មតិ “តើអ្នកចូលចិត្តខ្ញុំទេ? បាទឬចាស/ទេ/ប្រហែល“។"
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "ឥឡូវនេះ អ្នកគ្រប់គ្រងក្រុមអាចបញ្ចប់ការជជែកតាមធម្មតាបាន ដោយមានជម្រើស \"បញ្ចប់ក្រុម\" ថ្មីនៅក្នុងការកំណត់ក្រុម។ ការបញ្ចប់ក្រុមធ្វើឱ្យសមាជិកក្រុមមិនអាចផ្ញើសារ ឬចាប់ផ្តើមការហៅទូរសព្ទបានទេ ហើយក៏បិទការអញ្ជើញដែរ។ ឥឡូវនេះ អ្នកអាចធានាបានដែរថាអ្នករាល់គ្នាស្ថិតក្នុងកម្រងសារជជែកដែលត្រឹមត្រូវ ដោយបញ្ចប់ក្រុមជួបជុំចាស់កាលពីឆ្នាំមុន មុនពេលចាប់ផ្តើមក្រុមថ្មីជាមួយគ្នា។"
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

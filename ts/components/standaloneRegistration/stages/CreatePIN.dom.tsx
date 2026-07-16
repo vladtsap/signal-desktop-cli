@@ -67,7 +67,7 @@ export function CreatePINScreen({
         rightContent={
           <AxoDropdownMenu.Root>
             <AxoDropdownMenu.Trigger>
-              <AxoButton.Root variant="borderless-secondary" size="md">
+              <AxoButton.Root variant="implied-secondary" size="md">
                 <AxoSymbol.Icon
                   symbol="more"
                   size={20}
@@ -110,7 +110,7 @@ export function CreatePINScreen({
             learnMore: parts => {
               return (
                 <a
-                  className={tw('text-label-primary')}
+                  className={tw('text-primary')}
                   href="https://support.signal.org/hc/articles/360007059792-Signal-PIN"
                 >
                   {parts}
@@ -135,13 +135,13 @@ export function CreatePINScreen({
           />
         </AxoTextField.Root>
       </InputContainer>
-      <div className={tw('mt-2 type-body-small text-label-secondary')}>
+      <div className={tw('mt-2 type-body-small text-secondary')}>
         {i18n('icu:StandaloneRegistration--CreatePIN--helper-text')}
       </div>
       <Spacer className={tw('grow')} />
       <Buttons>
         <AxoButton.Root
-          variant="primary"
+          variant="strong-primary"
           size="md"
           disabled={!isValidPIN}
           onClick={() => {
@@ -205,7 +205,7 @@ function AboutPINsDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="secondary"
+            variant="strong-secondary"
             onClick={() => {
               // TODO: double-check location
               window.location.href =
@@ -218,7 +218,7 @@ function AboutPINsDialog({
             )}
           </AxoConfirmDialog.Action>
           <AxoConfirmDialog.Action
-            variant="primary"
+            variant="strong-primary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -272,7 +272,7 @@ function DisablePinDialog({
         </AxoAlertDialog.Body>
         <AxoAlertDialog.Footer>
           <AxoConfirmDialog.Action
-            variant="secondary"
+            variant="strong-secondary"
             onClick={() => setOpen(false)}
           >
             {i18n(
@@ -280,7 +280,7 @@ function DisablePinDialog({
             )}
           </AxoConfirmDialog.Action>
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => {
               completeRegistration({ workflow });
               setOpen(false);

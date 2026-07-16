@@ -1,8 +1,8 @@
 {
   "NSCameraUsageDescription": {
-    "messageformat": "Signal uses your camera for video calling."
+    "messageformat": "Signal သည် ဗီဒီယိုခေါ်ဆိုမှုအတွက် သင့်ကင်မရာကို အသုံးပြုပါသည်။"
   },
   "NSMicrophoneUsageDescription": {
-    "messageformat": "Signal needs access to your microphone to make and receive phone calls and record voice messages."
+    "messageformat": "ဖုန်းခေါ်ဆိုမှုများ ပြုလုပ်ခြင်းနှင့် လက်ခံခြင်းအပြင် အသံမက်ဆေ့ချ်များ မှတ်တမ်းတင်ရန် Signal သည် သင့်မိုက်ခရိုဖုန်းကို အသုံးပြုခွင့် လိုအပ်ပါသည်။"
   }
 }

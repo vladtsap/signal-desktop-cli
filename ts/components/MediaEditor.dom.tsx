@@ -1524,7 +1524,7 @@ export function MediaEditor({
                   />
                 </div>
                 <AxoButton.Root
-                  variant="primary"
+                  variant="strong-primary"
                   size="md"
                   disabled={!image}
                   pending={isSaving || isSending}

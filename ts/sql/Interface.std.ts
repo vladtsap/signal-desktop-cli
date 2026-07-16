@@ -543,6 +543,15 @@ export type GetUnreadByConversationAndMarkReadResultType = Array<
   >
 >;
 
+export type GetUnreadCallMessagesAndMarkReadResult = Pick<
+  MessageType,
+  | 'id'
+  | 'conversationId'
+  | 'readStatus'
+  | 'seenStatus'
+  | 'expirationStartTimestamp'
+>;
+
 export type GetConversationRangeCenteredOnMessageResultType<Message> =
   Readonly<{
     older: Array<Message>;
@@ -1288,17 +1297,20 @@ type WritableInterface = {
   _removeAllCallHistory: () => void;
   markCallHistoryDeleted: (callId: string) => void;
   cleanupCallHistoryMessages: () => void;
-  markCallHistoryRead: (callId: string) => void;
-  markAllCallHistoryRead: (
+  getUnreadCallMessagesAndMarkRead: (
     target: CallLogEventTarget,
     readAt: number,
     activeCallIds: Set<string>
-  ) => number;
-  markAllCallHistoryReadInConversation: (
+  ) => ReadonlyArray<GetUnreadCallMessagesAndMarkReadResult>;
+  getUnreadCallMessageAndMarkRead: (
+    callId: string,
+    readAt: number
+  ) => GetUnreadCallMessagesAndMarkReadResult | null;
+  getUnreadCallMessagesInConversationAndMarkRead: (
     target: CallLogEventTarget,
     readAt: number,
     activeCallIds: Set<string>
-  ) => number;
+  ) => ReadonlyArray<GetUnreadCallMessagesAndMarkReadResult>;
   saveCallHistory: (callHistory: CallHistoryDetails) => void;
   markCallHistoryMissed: (callIds: ReadonlyArray<string>) => void;
   getRecentStaleRingsAndMarkOlderMissed: () => ReadonlyArray<MaybeStaleCallHistory>;
@@ -1393,6 +1405,9 @@ type WritableInterface = {
     options?: { timestamp?: number; position?: number }
   ) => StickerPackStatusType | null;
   updateStickerPackInfo: (info: StickerPackInfoType) => void;
+  updateStickerPacksPositions: (
+    packIdsAndPositions: ReadonlyArray<{ id: string; position: number }>
+  ) => void;
   createOrUpdateSticker: (sticker: StickerType) => void;
   createOrUpdateStickers: (sticker: ReadonlyArray<StickerType>) => void;
   updateStickerLastUsed: (

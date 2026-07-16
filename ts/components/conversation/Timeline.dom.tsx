@@ -1345,9 +1345,9 @@ export class Timeline extends Component<PropsType, StateType, SnapshotType> {
           >
             <div
               className={tw(
-                'rounded-3xl bg-legacy-signal-conversation-bg px-4 py-3',
-                'type-body-medium text-label-primary',
-                'border border-border-secondary'
+                'rounded-3xl bg-(--axo-color-legacy-signal-conversation-bg) px-4 py-3',
+                'type-body-medium text-primary',
+                'border border-secondary'
               )}
             >
               {i18n('icu:Timeline--signal-official-chat--chip')}

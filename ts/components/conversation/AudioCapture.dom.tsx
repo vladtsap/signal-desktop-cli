@@ -53,7 +53,7 @@ export function AudioCapture({
     <div className="AudioCapture">
       <AxoIconButton.Root
         symbol="mic"
-        variant="borderless-secondary"
+        variant="implied-secondary"
         size="md"
         label={i18n('icu:voiceRecording--start')}
         onClick={handleClick}

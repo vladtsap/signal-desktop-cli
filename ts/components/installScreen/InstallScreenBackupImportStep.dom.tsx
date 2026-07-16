@@ -116,7 +116,10 @@ export function InstallScreenBackupImportStep(props: PropsType): JSX.Element {
           <AxoConfirmDialog.Cancel>
             {i18n('icu:BackupImportScreen__cancel-confirmation__confirm')}
           </AxoConfirmDialog.Cancel>
-          <AxoConfirmDialog.Action variant="primary" onClick={onRetryWrap}>
+          <AxoConfirmDialog.Action
+            variant="strong-primary"
+            onClick={onRetryWrap}
+          >
             {i18n('icu:BackupImportScreen__error__confirm')}
           </AxoConfirmDialog.Action>
           .
@@ -131,7 +134,7 @@ export function InstallScreenBackupImportStep(props: PropsType): JSX.Element {
         title={i18n('icu:BackupImportScreen__error__title')}
         description={i18n('icu:BackupImportScreen__error-fatal__body')}
       >
-        <AxoConfirmDialog.Action variant="primary" onClick={onCancel}>
+        <AxoConfirmDialog.Action variant="strong-primary" onClick={onCancel}>
           {i18n('icu:BackupImportScreen__error__confirm')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>
@@ -197,7 +200,10 @@ export function InstallScreenBackupImportStep(props: PropsType): JSX.Element {
         <AxoConfirmDialog.Cancel>
           {i18n('icu:BackupImportScreen__cancel-confirmation__cancel')}
         </AxoConfirmDialog.Cancel>
-        <AxoConfirmDialog.Action variant="destructive" onClick={onCancelWrap}>
+        <AxoConfirmDialog.Action
+          variant="strong-destructive"
+          onClick={onCancelWrap}
+        >
           {i18n('icu:BackupImportScreen__cancel-confirmation__confirm')}
         </AxoConfirmDialog.Action>
       </AxoConfirmDialog.Root>

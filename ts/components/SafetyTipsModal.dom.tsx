@@ -95,12 +95,10 @@ function SafetyTipsSummary({
                   src={tip.iconUrl}
                 />
                 <div>
-                  <h3 className={tw('type-title-small text-label-primary')}>
+                  <h3 className={tw('type-title-small text-primary')}>
                     {tip.titleId}
                   </h3>
-                  <p
-                    className={tw('mt-1 type-body-medium text-label-secondary')}
-                  >
+                  <p className={tw('mt-1 type-body-medium text-secondary')}>
                     {tip.descriptionId}
                   </p>
                 </div>
@@ -109,7 +107,7 @@ function SafetyTipsSummary({
           </ul>
           <AxoButton.Root
             size="lg"
-            variant="secondary"
+            variant="strong-secondary"
             width="full"
             onClick={onViewMore}
           >
@@ -236,12 +234,12 @@ function SafetyTipsDetails({ i18n }: { i18n: LocalizerType }): JSX.Element {
                 </div>
                 <h2
                   className={tw(
-                    'mt-2 type-title-small font-semibold text-label-primary'
+                    'mt-2 type-title-small font-semibold text-primary'
                   )}
                 >
                   {page.title}
                 </h2>
-                <p className={tw('mt-1 type-body-medium text-label-secondary')}>
+                <p className={tw('mt-1 type-body-medium text-secondary')}>
                   {page.description}
                 </p>
               </Tabs.Content>
@@ -252,7 +250,7 @@ function SafetyTipsDetails({ i18n }: { i18n: LocalizerType }): JSX.Element {
           <div className={tw('flex w-full items-center justify-between p-1')}>
             <div className={pageIndex === 0 ? tw('invisible') : ''}>
               <AxoIconButton.Root
-                variant="secondary"
+                variant="strong-secondary"
                 iconWeight={300}
                 label={i18n('icu:previous')}
                 tooltip={false}
@@ -284,7 +282,7 @@ function SafetyTipsDetails({ i18n }: { i18n: LocalizerType }): JSX.Element {
             <div className={pageIndex === maxPageIndex ? tw('invisible') : ''}>
               <AxoIconButton.Root
                 symbol="chevron-[end]"
-                variant="secondary"
+                variant="strong-secondary"
                 tooltip={false}
                 iconWeight={300}
                 label={i18n('icu:next')}

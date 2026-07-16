@@ -38,6 +38,7 @@ function Template(props: TemplateProps): JSX.Element {
       onOpenCustomizePreferredReactionsModal={() => null}
       onSelectEmoji={() => null}
       // Stickers
+      isStickerReplySendEnabled
       installedStickerPacks={packs}
       showStickerPickerHint={false}
       onClearStickerPickerHint={() => null}

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import { useEffect, type JSX } from 'react';
-import classNames from 'classnames';
 
 import { AppViewType } from '../types/app.std.ts';
 import { missingCaseError } from '../util/missingCaseError.std.ts';
@@ -104,13 +103,7 @@ export function App({
   }, [isPageVisible]);
 
   return (
-    <div
-      className={classNames({
-        App: true,
-        'light-theme': theme === ThemeType.light,
-        'dark-theme': theme === ThemeType.dark,
-      })}
-    >
+    <div className="App">
       {contents}
       {renderGlobalModalContainer()}
       {renderCallManager()}

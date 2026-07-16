@@ -52,7 +52,11 @@ function SimpleExample(props: ExampleProps) {
       experimentalTimestamp={props.experimentalTimestamp}
       disabled={props.disabled}
     >
-      <AxoButton.Root variant="primary" size="md" onClick={action('onClick')}>
+      <AxoButton.Root
+        variant="strong-primary"
+        size="md"
+        onClick={action('onClick')}
+      >
         {props.trigger ?? 'Hover Me'}
       </AxoButton.Root>
     </AxoTooltip.Root>
@@ -178,7 +182,7 @@ export function InDialog(): JSX.Element {
         <AxoDialog.Footer>
           <AxoDialog.Actions>
             <AxoDialog.IconAction
-              variant="primary"
+              variant="strong-primary"
               symbol="send-fill"
               label="Send message"
               onClick={action('onSave')}

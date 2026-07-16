@@ -87,10 +87,7 @@ export function DisappearingTimerSelect(props: Props): JSX.Element {
   if (isCustomTimeSelected) {
     info = (
       <div
-        className={tw(
-          'absolute mt-1 ps-3.5',
-          'type-body-small text-label-secondary'
-        )}
+        className={tw('absolute mt-1 ps-3.5', 'type-body-small text-secondary')}
       >
         {expirationTimer.format(i18n, value)}
       </div>

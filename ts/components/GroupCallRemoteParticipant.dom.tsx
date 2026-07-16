@@ -625,7 +625,7 @@ export const GroupCallRemoteParticipant: FC<PropsType> = memo(
                     {maybeWrapWithParticipantMenu(
                       'AxoDropdownMenu',
                       <AxoIconButton.Root
-                        variant="floating-secondary"
+                        variant="elevated-secondary"
                         size="sm"
                         symbol="chevron-down"
                         label={i18n(

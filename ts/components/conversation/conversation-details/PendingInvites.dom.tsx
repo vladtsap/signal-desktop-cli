@@ -234,7 +234,7 @@ function MembershipActionConfirmation({
       })}
     >
       <AxoConfirmDialog.Cancel />
-      <AxoConfirmDialog.Action variant="primary" onClick={modalAction}>
+      <AxoConfirmDialog.Action variant="strong-primary" onClick={modalAction}>
         {modalActionText}
       </AxoConfirmDialog.Action>
     </AxoConfirmDialog.Root>

@@ -20,6 +20,7 @@ export const AppProvider: FC<AppProviderProps> = memo(
       'AxoDialog.Back': i18n('icu:AxoDialog.Back'),
       'AxoDialog.Close': i18n('icu:AxoDialog.Close'),
       'AxoTextField.Clear': i18n('icu:AxoTextField.Clear'),
+      'AxoBadge.MaxOverflow': max => i18n('icu:AxoBadge.MaxOverflow', { max }),
     };
 
     return (

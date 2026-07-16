@@ -8,12 +8,13 @@ import type { StateType as RootStateType } from '../reducer.preload.ts';
 import {
   clearCallHistoryDataAndSync,
   markAllCallHistoryReadAndSync,
+  markCallHistoryReadWithoutSync,
 } from '../../util/callDisposition.preload.ts';
 import type { BoundActionCreatorsMapObject } from '../../hooks/useBoundActions.std.ts';
 import { useBoundActions } from '../../hooks/useBoundActions.std.ts';
 import type { ToastActionType } from './toast.preload.ts';
 import { showToast } from './toast.preload.ts';
-import { DataReader, DataWriter } from '../../sql/Client.preload.ts';
+import { DataReader } from '../../sql/Client.preload.ts';
 import { ToastType } from '../../types/Toast.dom.tsx';
 import {
   ClearCallHistoryResult,
@@ -135,37 +136,27 @@ function updateCallHistoryUnreadCount(
 }
 
 function markCallHistoryRead(
-  conversationId: string,
   callId: string
 ): ThunkAction<void, RootStateType, unknown, CallHistoryUpdateUnread> {
-  return async dispatch => {
-    try {
-      await DataWriter.markCallHistoryRead(callId);
-    } catch (error) {
-      log.error(
-        'markCallHistoryRead: Error marking call history read',
-        Errors.toLogFormat(error)
-      );
-    } finally {
-      dispatch(updateCallHistoryUnreadCount([conversationId]));
-    }
+  return async () => {
+    await markCallHistoryReadWithoutSync({
+      mode: 'only-target-call',
+      target: { callId },
+      readAt: Date.now(),
+    });
   };
 }
 
 export function markCallHistoryReadInConversation(
   callId: string
 ): ThunkAction<void, RootStateType, unknown, CallHistoryUpdateUnread> {
-  return async (dispatch, getState) => {
+  return async (_dispatch, getState) => {
     const callHistorySelector = getCallHistorySelector(getState());
     const callHistory = callHistorySelector(callId);
     if (callHistory == null) {
       return;
     }
-    try {
-      await markAllCallHistoryReadAndSync(callHistory, true);
-    } finally {
-      dispatch(updateCallHistoryUnreadCount([callHistory.peerId]));
-    }
+    await markAllCallHistoryReadAndSync(callHistory, Date.now(), true);
   };
 }
 
@@ -175,14 +166,10 @@ function markCallsTabViewed(): ThunkAction<
   unknown,
   CallHistoryUpdateUnread
 > {
-  return async (dispatch, getState) => {
+  return async (_dispatch, getState) => {
     const latestCall = getCallHistoryLatestCall(getState());
-
     if (latestCall != null) {
-      const conversationIds =
-        await DataReader.getCallHistoryUnreadCallConversationIds();
-      await markAllCallHistoryReadAndSync(latestCall, false);
-      dispatch(updateCallHistoryUnreadCount(conversationIds));
+      await markAllCallHistoryReadAndSync(latestCall, Date.now(), false);
     }
   };
 }

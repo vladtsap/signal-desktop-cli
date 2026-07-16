@@ -100,6 +100,7 @@ const ListTileImpl = forwardRef<HTMLButtonElement, Props>(function ListTileImpl(
       isClickable && getClassName('--clickable'),
       getClassName(`--variant-${variant}`)
     ),
+    tabIndex: onClick != null ? 0 : undefined,
     onClick,
     'aria-disabled': disabled ? true : undefined,
     onContextMenu,

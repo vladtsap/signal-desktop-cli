@@ -518,7 +518,7 @@ export function StoriesSettingsModal({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmDeleteList != null,
@@ -543,7 +543,7 @@ export function StoriesSettingsModal({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmRemoveGroup != null,
@@ -773,7 +773,7 @@ export function DistributionListSettingsModal({
       >
         <AxoConfirmDialog.Cancel />
         <AxoConfirmDialog.Action
-          variant="destructive"
+          variant="strong-destructive"
           onClick={() => {
             strictAssert(
               confirmRemoveMember != null,

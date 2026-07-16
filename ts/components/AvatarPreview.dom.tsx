@@ -236,7 +236,6 @@ export function AvatarPreview({
             aria-label={i18n('icu:delete')}
             className="AvatarPreview__clear"
             onClick={onClear}
-            tabIndex={-1}
             type="button"
           />
         )}

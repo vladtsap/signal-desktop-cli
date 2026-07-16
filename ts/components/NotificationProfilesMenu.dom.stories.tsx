@@ -150,7 +150,7 @@ const Template: StoryFn<Props> = args => {
   return (
     <AxoDropdownMenu.Root>
       <AxoDropdownMenu.Trigger>
-        <AxoButton.Root size="md" variant="secondary">
+        <AxoButton.Root size="md" variant="strong-secondary">
           Open
         </AxoButton.Root>
       </AxoDropdownMenu.Trigger>

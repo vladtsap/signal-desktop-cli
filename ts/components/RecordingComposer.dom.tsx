@@ -21,14 +21,10 @@ export function RecordingComposer({
   return (
     <div className="RecordingComposer">
       <div className="RecordingComposer__content">{children}</div>
-      <AxoButton.Root
-        variant="borderless-secondary"
-        size="md"
-        onClick={onCancel}
-      >
+      <AxoButton.Root variant="implied-secondary" size="md" onClick={onCancel}>
         {i18n('icu:RecordingComposer__cancel')}
       </AxoButton.Root>
-      <AxoButton.Root variant="primary" size="md" onClick={onSend}>
+      <AxoButton.Root variant="strong-primary" size="md" onClick={onSend}>
         {i18n('icu:RecordingComposer__send')}
       </AxoButton.Root>
     </div>

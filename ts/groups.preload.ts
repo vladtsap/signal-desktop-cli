@@ -3344,6 +3344,10 @@ async function updateGroup(
   conversation.set({
     ...omit(newAttributes, FIELDS_UNRELATED_TO_GROUP_STATE),
     active_at: activeAt,
+
+    // Reset `needsGroupUpdate` so that group can be synced to storage service
+    // after the first fetch.
+    needsGroupUpdate: undefined,
   });
 
   if (idChanged) {

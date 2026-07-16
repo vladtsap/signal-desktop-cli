@@ -14,6 +14,9 @@
   "icu:AxoTextField.Clear": {
     "messageformat": "ತೆರವುಗೊಳಿಸಿ"
   },
+  "icu:AxoBadge.MaxOverflow": {
+    "messageformat": "{max,number}+"
+  },
   "icu:AddUserToAnotherGroupModal__title": {
     "messageformat": "ಗುಂಪಿಗೆ ಸೇರಿಸಿ"
   },
@@ -317,6 +320,9 @@
   "icu:LeftPaneChatFolders__ItemUnreadBadge__MaxCount": {
     "messageformat": "{maxCount,number}+"
   },
+  "icu:LeftPaneChatFolders__ItemUnreadBadge__AccessibleLabel": {
+    "messageformat": "{count, plural, one {{count,number} Unread Message} other {{count,number} Unread Messages}}"
+  },
   "icu:LeftPaneChatFolders__Item__ContextMenu__MarkAllRead": {
     "messageformat": "ಎಲ್ಲವನ್ನು ಓದಿದೆ ಎಂದು ಗುರುತು ಮಾಡಿ"
   },
@@ -451,9 +457,6 @@
   },
   "icu:unpinConversation": {
     "messageformat": "ಚಾಟ್ ಅನ್‌ಪಿನ್ ಮಾಡಿ"
-  },
-  "icu:pinnedConversationsFull": {
-    "messageformat": "ನೀವು ಕೇವಲ ಗರಿಷ್ಠ 4 ಚಾಟ್‌ಗಳನ್ನು ಪಿನ್ ಮಾಡಬಹುದು"
   },
   "icu:pinnedConversations--max": {
     "messageformat": "{maxPinnedConversations, plural, one {ನೀವು ಗರಿಷ್ಠ {maxPinnedConversations,number} ಚಾಟ್‍ ಅನ್ನು ಮಾತ್ರ ಪಿನ್ ಮಾಡಬಹುದು} other {ನೀವು ಗರಿಷ್ಠ {maxPinnedConversations,number} ಚಾಟ್‍‌ಗಳನ್ನು ಮಾತ್ರ ಪಿನ್ ಮಾಡಬಹುದು}}"
@@ -2780,15 +2783,6 @@
   "icu:stickers--toast--InstallFailed": {
     "messageformat": "ಸ್ಟಿಕ್ಕರ್ ಪ್ಯಾಕ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾಗದು"
   },
-  "icu:stickers--StickerManager--Available": {
-    "messageformat": "ಲಭ್ಯವಿದೆ"
-  },
-  "icu:stickers--StickerManager--InstalledPacks": {
-    "messageformat": "ಸ್ಥಾಪಿಸಲಾಗಿದೆ"
-  },
-  "icu:stickers--StickerManager--InstalledPacks--Empty": {
-    "messageformat": "ಇಲ್ಲ ಸ್ಟಿಕ್ಕರ್‌ಗಳು ಸ್ಥಾಪಿಸಲಾಗಿದೆ"
-  },
   "icu:stickers--StickerManager--MyStickers--None": {
     "messageformat": "ಯಾವುದೇ ಸ್ಟಿಕ್ಕರ್ ಪ್ಯಾಕ್‌ಗಳು ಇಲ್ಲವೇ, ನಿಮ್ಮ ಸ್ನೇಹಿತರಿಗೆ ಕಳುಹಿಸಲು ಸ್ಟಿಕ್ಕರ್‌ಗಳನ್ನು ಸೇರಿಸಿ."
   },
@@ -2801,17 +2795,11 @@
   "icu:stickers--StickerManager--BlessedPacks--Empty": {
     "messageformat": "Signal ಆರ್ಟಿಸ್ಟ್ ಸ್ಟಿಕ್ಕರ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ"
   },
-  "icu:stickers--StickerManager--ReceivedPacks": {
-    "messageformat": "ಸ್ಟಿಕ್ಕರ್‌ಗಳು ನೀವು ಸ್ವೀಕರಿಸಲಾಗಿದೆ"
-  },
   "icu:stickers--StickerManager--ReceivedPacks2": {
     "messageformat": "ನಿಮ್ಮೊಂದಿಗೆ ಹಂಚಿಕೊಂಡಿರುವುದು"
   },
   "icu:stickers--StickerManager--ReceivedPacksDescription": {
     "messageformat": "ನೀವು ಯಾರಿಂದಲಾದರೂ ಸ್ಟಿಕ್ಕರ್ ಸ್ವೀಕರಿಸಿದರೆ, ಸ್ಟಿಕ್ಕರ್ ಪ್ಯಾಕ್ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ."
-  },
-  "icu:stickers--StickerManager--ReceivedPacks--Empty": {
-    "messageformat": "ಸ್ಟಿಕ್ಕರ್‌ಗಳು ಒಳಬರುವ ಸಂದೇಶಗಳಿಂದ ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ"
   },
   "icu:stickers--StickerManager--Install": {
     "messageformat": "ಸ್ಥಾಪಿಸಿ"
@@ -2836,6 +2824,18 @@
   },
   "icu:stickers--StickerManagerPackContextMenu--Remove": {
     "messageformat": "ತೆಗೆದುಹಾಕಿ"
+  },
+  "icu:stickers--StickerManagerPackDragHandle--Label": {
+    "messageformat": "Drag to reorder sticker pack"
+  },
+  "icu:stickers--StickerManagerBlessedPacksList--Label": {
+    "messageformat": "Signal Artist Series sticker packs"
+  },
+  "icu:stickers--StickerManagerReceivedPacksList--Label": {
+    "messageformat": "Received sticker packs"
+  },
+  "icu:stickers--StickerManagerInstalledPacksList--Label": {
+    "messageformat": "Installed sticker packs"
   },
   "icu:stickers--StickerPreview--Title": {
     "messageformat": "ಸ್ಟಿಕ್ಕರ್ ಪ್ಯಾಕ್"
@@ -3079,6 +3079,18 @@
   },
   "icu:FunButton__Label--StickerPicker": {
     "messageformat": "ಸ್ಟಿಕ್ಕರ್ ಸೇರಿಸಿ"
+  },
+  "icu:FunPicker__Label--StickerReply": {
+    "messageformat": "Reply"
+  },
+  "icu:FunPicker__Label--SendStickerReply": {
+    "messageformat": "Send"
+  },
+  "icu:FunPicker__Label--CancelStickerReply": {
+    "messageformat": "Cancel"
+  },
+  "icu:FunPicker__Label--Sticker": {
+    "messageformat": "Sticker"
   },
   "icu:confirmation-dialog--Cancel": {
     "messageformat": "ರದ್ದುಮಾಡಿ"
@@ -6433,23 +6445,14 @@
   "icu:Preferences--local-backups-enter-backup-key": {
     "messageformat": "ಕೀ ನಮೂದಿಸಿ"
   },
-  "icu:Preferences--local-backups-record-recovery-key": {
-    "messageformat": "ನಿಮ್ಮ ರಿಕವರಿ ಕೀಯನ್ನು ರೆಕಾರ್ಡ್ ಮಾಡಿ"
-  },
   "icu:Preferences--local-backups-recovery-key--title": {
     "messageformat": "ನಿಮ್ಮ ರಿಕವರಿ ಕೀ"
-  },
-  "icu:Preferences--local-backups-record-backup-key-description": {
-    "messageformat": "ನಿಮ್ಮ ಖಾತೆ ಮತ್ತು ಡೇಟಾವನ್ನು ರಿಕವರ್ ಮಾಡಲು ಈ ಕೀ ಅಗತ್ಯವಿದೆ. ಈ ಕೀಯನ್ನು ಎಲ್ಲಾದರೂ ಸುರಕ್ಷಿತವಾಗಿ ಸಂಗ್ರಹಿಸಿ. ನೀವು ಅದನ್ನು ಕಳೆದುಕೊಂಡರೆ, ನಿಮ್ಮ ಖಾತೆಯನ್ನು ರಿಕವರ್ ಮಾಡಲು ನಿಮಗೆ ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. <learnMoreLink>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ.</learnMoreLink>"
   },
   "icu:Preferences--local-backups-recovery-key--description": {
     "messageformat": "ನಿಮ್ಮ ಖಾತೆ ಮತ್ತು ಡೇಟಾವನ್ನು ರಿಕವರ್ ಮಾಡಲು ಈ ಕೀ ಅಗತ್ಯವಿದೆ. ಇದನ್ನು ಸುರಕ್ಷಿತವಾದ ಕಡೆ ಸಂಗ್ರಹಿಸಿ ಮತ್ತು ಯಾರೊಂದಿಗೂ ಅದನ್ನು ಹಂಚಿಕೊಳ್ಳಬೇಡಿ. ನಿಮ್ಮ ರಿಕವರಿ ಕೀಗಾಗಿ Signal ಎಂದಿಗೂ ನಿಮಗೆ ಮೆಸೇಜ್ ಮಾಡುವುದಿಲ್ಲ. <learnMoreLink>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-title": {
     "messageformat": "ರಿಕವರಿ ಕೀ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಬೇಡಿ"
-  },
-  "icu:Preferences__recovery-key__do-not-share-description": {
-    "messageformat": "ನಿಮ್ಮ ರಿಕವರಿ ಕೀಗಾಗಿ <strong>Signal ಎಂದಿಗೂ ನಿಮಗೆ ಮೆಸೇಜ್ ಮಾಡುವುದಿಲ್ಲ</strong>. Signal ಎಂದು ಸೋಗುಹಾಕುವ ಚಾಟ್‌ಗೆ ಎಂದಿಗೂ ಪ್ರತಿಕ್ರಿಯಿಸಬೇಡಿ. ನಿಮ್ಮ ರಿಕವರಿ ಕೀ ಅನ್ನು ಸುರಕ್ಷಿತವಾದ ಕಡೆ ಸಂಗ್ರಹಿಸಿ ಮತ್ತು ಯಾರೊಂದಿಗೂ ಅದನ್ನು ಹಂಚಿಕೊಳ್ಳಬೇಡಿ. <learnMoreLink>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ.</learnMoreLink>"
   },
   "icu:Preferences__recovery-key__do-not-share-confirm": {
     "messageformat": "ಅರ್ಥವಾಯಿತು"
@@ -6460,17 +6463,8 @@
   "icu:CompositionInput__recovery-key-paste__do-not-share-key": {
     "messageformat": "ಕೀ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಬೇಡಿ"
   },
-  "icu:CompositionInput__recovery-key-paste__confirm-description": {
-    "messageformat": "ನಿಮ್ಮ ರಿಕವರಿ ಕೀ ಅನ್ನು ಯಾರೊಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳಬೇಡಿ. ಇದು ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಅವರ ನಿಯಂತ್ರಣಕ್ಕೆ ತೆಗೆದುಕೊಳ್ಳಲು ಅವಕಾಶ ನೀಡುತ್ತದೆ. ನಿಮ್ಮ ರಿಕವರಿ ಕೀಗಾಗಿ <strong>Signal ಎಂದಿಗೂ ನಿಮಗೆ ಮೆಸೇಜ್ ಮಾಡುವುದಿಲ್ಲ</strong>. Signal ಎಂದು ಸೋಗುಹಾಕುವ ಚಾಟ್‌ಗೆ ಎಂದಿಗೂ ಪ್ರತಿಕ್ರಿಯಿಸಬೇಡಿ."
-  },
   "icu:CompositionInput__recovery-key-warning--description": {
     "messageformat": "ನಿಮ್ಮ ರಿಕವರಿ ಕೀ ಅನ್ನು ಯಾರೊಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳಬೇಡಿ. ಇದು ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಅವರ ನಿಯಂತ್ರಣಕ್ಕೆ ತೆಗೆದುಕೊಳ್ಳಲು ಅವಕಾಶ ನೀಡುತ್ತದೆ. ನಿಮ್ಮ ರಿಕವರಿ ಕೀಗಾಗಿ <strong>Signal ಎಂದಿಗೂ ನಿಮಗೆ ಮೆಸೇಜ್ ಮಾಡುವುದಿಲ್ಲ</strong>. Signal ಎಂದು ಸೋಗುಹಾಕುವ ಚಾಟ್‌ಗೆ ಎಂದಿಗೂ ಪ್ರತಿಕ್ರಿಯಿಸಬೇಡಿ. <learnMoreLink>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ.</learnMoreLink>"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-dont-share": {
-    "messageformat": "ಹಂಚಿಕೊಳ್ಳಬೇಡಿ"
-  },
-  "icu:CompositionInput__recovery-key-paste__confirm-paste": {
-    "messageformat": "ಕೀ ಪೇಸ್ಟ್ ಮಾಡಿ"
   },
   "icu:Preferences--local-backups-confirm-recovery-key": {
     "messageformat": "ನಿಮ್ಮ ರಿಕವರಿ ಕೀಯನ್ನು ದೃಢೀಕರಿಸಿ"
@@ -6749,403 +6743,403 @@
     "messageformat": "Signal Desktop ಅಪ್ಡೇಟ್ ಮಾಡಲು ವಿಫಲಗೊಂಡಿದೆ, ಆದರೆ ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ. {downloadUrl} ಗೆ ಹೋಗಿ ಮತ್ತು ಕೈಯಾರೆ ಹೊಸ ಆವೃತ್ತಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ, ನಂತರ ಒಂದೋ ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ ಈ ಸಮಸ್ಯೆಯ ಕುರಿತು ಬಗ್ ಫೈಲ್ ಮಾಡಿ."
   },
   "icu:StandaloneRegistration--signal-logo": {
-    "messageformat": "Signal Logo"
+    "messageformat": "Signal ಲೋಗೋ"
   },
   "icu:StandaloneRegistration--back": {
-    "messageformat": "Back"
+    "messageformat": "ಹಿಂದಕ್ಕೆ"
   },
   "icu:StandaloneRegistration--PhoneNumber--header": {
-    "messageformat": "Phone number"
+    "messageformat": "ದೂರವಾಣಿ ಸಂಖ್ಯೆ"
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-1": {
-    "messageformat": "Enter your phone number to verify your account."
+    "messageformat": "ನಿಮ್ಮ ಖಾತೆಯನ್ನು ದೃಢೀಕರಿಸಲು ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ."
   },
   "icu:StandaloneRegistration--PhoneNumber--description--line-2": {
-    "messageformat": "Carrier rates may apply."
+    "messageformat": "ವಾಹಕ ದರಗಳು ಅನ್ವಯವಾಗಬಹುದು."
   },
   "icu:StandaloneRegistration--PhoneNumber--waiting": {
-    "messageformat": "Please try again in {duration}"
+    "messageformat": "{duration} ನಲ್ಲಿ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--PhoneNumber--placeholder": {
-    "messageformat": "Phone number"
+    "messageformat": "ಫೋನ್ ಸಂಖ್ಯೆ"
   },
   "icu:StandaloneRegistration--PhoneNumber--button": {
-    "messageformat": "Continue"
+    "messageformat": "ಮುಂದುವರಿಸಿ"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--description": {
-    "messageformat": "Is your phone number above correct?"
+    "messageformat": "ಈ ಮೇಲಿನ ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ ಸರಿಯಾಗಿದೆಯೇ?"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--cancel": {
-    "messageformat": "Edit number"
+    "messageformat": "ನಂಬರ್ ಎಡಿಟ್ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--PhoneNumber--Confirmation--confirm": {
-    "messageformat": "Yes"
+    "messageformat": "ಹೌದು"
   },
   "icu:StandaloneRegistration--Captcha--header": {
-    "messageformat": "Verify you’re a human to continue"
+    "messageformat": "ಮುಂದುವರಿಯಲು, ನೀವು ಮನುಷ್ಯರು ಎಂದು ದೃಢೀಕರಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--description": {
-    "messageformat": "To help prevent spam on Signal, please complete verification. After verifying, you can continue with registration."
+    "messageformat": "Signal ನಲ್ಲಿ ಸ್ಪ್ಯಾಮ್ ತಡೆಯಲು ಸಹಾಯ ಮಾಡುವುದಕ್ಕಾಗಿ, ದಯವಿಟ್ಟು ದೃಢೀಕರಣವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ. ದೃಢೀಕರಿಸಿದ ನಂತರ, ನೀವು ನೋಂದಣಿ ಮಾಡುವುದಕ್ಕೆ ಮುಂದುವರಿಯಬಹುದು."
   },
   "icu:StandaloneRegistration--Captcha--retry-button": {
-    "messageformat": "Retry verification"
+    "messageformat": "ದೃಢೀಕರಣವನ್ನು ಮರುಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--button": {
-    "messageformat": "Verify in browser"
+    "messageformat": "ಬ್ರೌಸರ್‌ನಲ್ಲಿ ದೃಢೀಕರಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--button--wait": {
-    "messageformat": "Verify in {duration}"
+    "messageformat": "{duration} ನಲ್ಲಿ ದೃಢೀಕರಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--header": {
-    "messageformat": "Further verification required"
+    "messageformat": "ಇನ್ನಷ್ಟು ದೃಢೀಕರಣದ ಅಗತ್ಯವಿದೆ"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--description": {
-    "messageformat": "Please complete another captcha to continue registration."
+    "messageformat": "ನೋಂದಣಿ ಮಾಡುವುದನ್ನು ಮುಂದುವರಿಸಲು ಇನ್ನೊಂದು ಕ್ಯಾಪ್ಚವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ."
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--Captcha--NeedAnother--retry": {
-    "messageformat": "Retry verification"
+    "messageformat": "ದೃಢೀಕರಣವನ್ನು ಮರುಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-1": {
-    "messageformat": "Can’t complete verification right now."
+    "messageformat": "ಸದ್ಯಕ್ಕೆ ದೃಢೀಕರಣವನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."
   },
   "icu:StandaloneRegistration--Captcha--MustWait--line-2": {
-    "messageformat": "Try again in {duration}"
+    "messageformat": "{duration} ನಲ್ಲಿ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--Captcha--Error--header": {
-    "messageformat": "Verification error"
+    "messageformat": "ದೃಢೀಕರಣ ದೋಷ"
   },
   "icu:StandaloneRegistration--Captcha--Error--description": {
-    "messageformat": "Try verifying again to continue registration."
+    "messageformat": "ನೋಂದಣಿಯನ್ನು ಮುಂದುವರಿಸಲು ಮತ್ತೊಮ್ಮೆ ದೃಢೀಕರಿಸಲು ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--Captcha--Error--try-again": {
-    "messageformat": "Try again"
+    "messageformat": "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--Captcha--Error--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--header": {
-    "messageformat": "Verification code"
+    "messageformat": "ದೃಢೀಕರಣ ಕೋಡ್"
   },
   "icu:StandaloneRegistration--VerificationCode--description": {
-    "messageformat": "Enter the code we sent to {phoneNumber}"
+    "messageformat": "{phoneNumber} ಗೆ ನಾವು ಕಳುಹಿಸಿದ ಕೋಡ್ ನಮೂದಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--button": {
-    "messageformat": "Continue"
+    "messageformat": "ಮುಂದುವರಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms": {
-    "messageformat": "Resend code"
+    "messageformat": "ಕೋಡ್ ಅನ್ನು ಪುನಃ ಕಳುಹಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--send-sms--duration": {
-    "messageformat": "Resend code in {duration}"
+    "messageformat": "{duration} ನಲ್ಲಿ ಕೋಡ್ ಅನ್ನು ಮರುಕಳುಹಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me": {
-    "messageformat": "Call me"
+    "messageformat": "ನನಗೆ ಕರೆ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--call-me--duration": {
-    "messageformat": "Call me in {duration}"
+    "messageformat": "{duration} ನಲ್ಲಿ ನನಗೆ ಕರೆ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--wrong-number": {
-    "messageformat": "Wrong number?"
+    "messageformat": "ಸಂಖ್ಯೆ ತಪ್ಪಾಗಿದೆಯೇ?"
   },
   "icu:StandaloneRegistration--VerificationCode--having-trouble": {
-    "messageformat": "Having trouble registering?"
+    "messageformat": "ನೋಂದಾಯಿಸುವಲ್ಲಿ ಸಮಸ್ಯೆ ಎದುರಿಸುತ್ತಿದ್ದೀರಾ?"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--aria-title": {
-    "messageformat": "Incorrect code"
+    "messageformat": "ತಪ್ಪಾದ ಕೋಡ್"
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--description": {
-    "messageformat": "The code you entered is incorrect. Please review the 6 digit code and try again."
+    "messageformat": "ನೀವು ನಮೂದಿಸಿದ ಕೋಡ್ ತಪ್ಪಾಗಿದೆ. 6 ಅಂಕಿಯ ಕೋಡ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--IncorrectCode--button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--aria-title": {
-    "messageformat": "Invalid code"
+    "messageformat": "ಅಮಾನ್ಯ ಕೋಡ್"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--description": {
-    "messageformat": "The code you entered is not valid. Please resend the code and try again."
+    "messageformat": "ನೀವು ನಮೂದಿಸಿದ ಕೋಡ್ ಅಮಾನ್ಯವಾಗಿದೆ. ಕೋಡ್ ಅನ್ನು ಮರುಕಳುಹಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "ಕೋಡ್ ಅನ್ನು ಪುನಃ ಕಳುಹಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--CodeInvalid--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "ನಂಬರ್ ಎಡಿಟ್ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--aria-title": {
-    "messageformat": "Unable to send SMS"
+    "messageformat": "SMS ಕಳುಹಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--description": {
-    "messageformat": "We couldn't send you a verification code via SMS. Try receiving your code via voice call instead."
+    "messageformat": "SMS ಮೂಲಕ ನಿಮಗೆ ದೃಢೀಕರಣ ಕೋಡ್ ಅನ್ನು ಕಳುಹಿಸಲು ನಮಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಬದಲಾಗಿ ಧ್ವನಿ ಕರೆ ಮೂಲಕ ನಿಮ್ಮ ಕೋಡ್ ಸ್ವೀಕರಿಸಲು ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--confirm": {
-    "messageformat": "Voice call"
+    "messageformat": "ಧ್ವನಿ ಕರೆ"
   },
   "icu:StandaloneRegistration--VerificationCode--SMSFailed--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Try again in {duration}."
+    "messageformat": "ನೀವು ಕೋಡ್ ನಮೂದಿಸಲು ಹಲವಾರು ಪ್ರಯತ್ನಗಳನ್ನು ಮಾಡಿದ್ದೀರಿ. {duration} ನಲ್ಲಿ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--MustWait--button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--aria-title": {
-    "messageformat": "Too many attempts"
+    "messageformat": "ಬಹಳಷ್ಟು ಪ್ರಯತ್ನಗಳು"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--description": {
-    "messageformat": "You’ve made too many attempts to enter the code. Please resend the code and try again."
+    "messageformat": "ನೀವು ಕೋಡ್ ನಮೂದಿಸಲು ಹಲವಾರು ಪ್ರಯತ್ನಗಳನ್ನು ಮಾಡಿದ್ದೀರಿ. ಕೋಡ್ ಅನ್ನು ಮರುಕಳುಹಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--resend-button": {
-    "messageformat": "Resend code"
+    "messageformat": "ಕೋಡ್ ಅನ್ನು ಪುನಃ ಕಳುಹಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--MaximumAttempts--edit-number-button": {
-    "messageformat": "Edit number"
+    "messageformat": "ನಂಬರ್ ಎಡಿಟ್ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--aria-title": {
-    "messageformat": "Unable to call"
+    "messageformat": "ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ"
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--description": {
-    "messageformat": "We couldn't call the phone number you entered. Make sure the phone number is correct and try again."
+    "messageformat": "ನೀವು ನಮೂದಿಸಿದ ಫೋನ್ ಸಂಖ್ಯೆಗೆ ಕರೆ ಮಾಡಲು ನಮಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಫೋನ್ ಸಂಖ್ಯೆ ಸರಿಯಾಗಿದೆ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--FailedToCall--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--aria-title": {
-    "messageformat": "Cannot send code"
+    "messageformat": "ಕೋಡ್ ಕಳುಹಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--description": {
-    "messageformat": "A verification code cannot be sent to the phone number you’ve entered. Make sure the number you’ve entered is correct, or try a different number."
+    "messageformat": "ನೀವು ನಮೂದಿಸಿದ ಫೋನ್ ಸಂಖ್ಯೆಗೆ ದೃಢೀಕರಣ ಕೋಡ್ ಅನ್ನು ಕಳುಹಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ. ನೀವು ನಮೂದಿಸಿದ ಸಂಖ್ಯೆಯು ಸರಿಯಾಗಿದೆ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ ಅಥವಾ ಬೇರೆ ಸಂಖ್ಯೆಯನ್ನು ಬಳಸಿ ನೋಡಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodePermanent--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--aria-title": {
-    "messageformat": "Try again later"
+    "messageformat": "ನಂತರ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--description": {
-    "messageformat": "An error occurred and the verification code could not be sent. Try again in {duration}."
+    "messageformat": "ದೋಷ ಉಂಟಾಗಿದೆ ಮತ್ತು ದೃಢೀಕರಣ ಕೋಡ್ ಅನ್ನು ಕಳುಹಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. {duration} ನಲ್ಲಿ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--VerificationCode--CannotSendCodeTemporary--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--ProfileEntry--header": {
-    "messageformat": "Set up your profile"
+    "messageformat": "ನಿಮ್ಮ ಪ್ರೊಫೈಲನ್ನು ಹೊಂದಿಸಿ"
   },
   "icu:StandaloneRegistration--ProfileEntry--description": {
-    "messageformat": "Profiles are visible to people you message, contacts, and groups."
+    "messageformat": "ನೀವು ಮೆಸೇಜ್ ಮಾಡುವ ಜನರು, ಸಂಪರ್ಕಗಳು ಮತ್ತು ಗ್ರೂಪ್‌ಗಳಿಗೆ ಪ್ರೊಫೈಲ್‌ಗಳು ಕಾಣಿಸುತ್ತವೆ."
   },
   "icu:StandaloneRegistration--ProfileEntry--learn-more": {
-    "messageformat": "Learn more"
+    "messageformat": "ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ"
   },
   "icu:StandaloneRegistration--ProfileEntry--add-photo": {
-    "messageformat": "Add photo"
+    "messageformat": "ಫೋಟೋ ಸೇರಿಸಿ"
   },
   "icu:StandaloneRegistration--ProfileEntry--first-name": {
-    "messageformat": "First name (required)"
+    "messageformat": "ಮೊದಲ ಹೆಸರು (ಅಗತ್ಯವಿದೆ)"
   },
   "icu:StandaloneRegistration--ProfileEntry--last-name": {
-    "messageformat": "Last name (optional)"
+    "messageformat": "ಕೊನೆಯ ಹೆಸರು (ಐಚ್ಛಿಕ)"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
-    "messageformat": "Who can find me by phone number"
+    "messageformat": "ಫೋನ್ ಸಂಖ್ಯೆಯ ಮೂಲಕ ಯಾರೆಲ್ಲಾ ನನ್ನನ್ನು ಹುಡುಕಬಹುದು"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
-    "messageformat": "Change"
+    "messageformat": "ಬದಲಾಯಿಸಿ"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
-    "messageformat": "Done"
+    "messageformat": "ಮುಗಿದಿದೆ"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
-    "messageformat": "Continue"
+    "messageformat": "ಮುಂದುವರಿಸಿ"
   },
   "icu:StandaloneRegistration--ProfileEntry--AvatarModal--header": {
-    "messageformat": "Your avatar"
+    "messageformat": "ನಿಮ್ಮ ಅವತಾರ್"
   },
   "icu:StandaloneRegistration--VerifyPIN--header": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "ನಿಮ್ಮ ಪಿನ್ ನಮೂದಿಸಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--description": {
-    "messageformat": "Enter the PIN you created for your account. This is different from your SMS verification code. <needHelp>Need help?</needHelp>"
+    "messageformat": "ನಿಮ್ಮ ಖಾತೆಗಾಗಿ ನೀವು ರಚಿಸಿದ PIN ನಮೂದಿಸಿ. ಇದು ನಿಮ್ಮ SMS ದೃಢೀಕರಣ ಕೋಡ್‌ಗಿಂತ ಭಿನ್ನವಾಗಿದೆ. <needHelp>ಸಹಾಯ ಅಗತ್ಯವಿದೆಯೇ?</needHelp>"
   },
   "icu:StandaloneRegistration--VerifyPIN--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "ನಿಮ್ಮ ಪಿನ್ ನಮೂದಿಸಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "ತಪ್ಪಾದ ಪಿನ್"
   },
   "icu:StandaloneRegistration--VerifyPIN--incorrect-pin--with-count": {
-    "messageformat": "{triesRemaining, plural, one {Incorrect PIN. {triesRemaining,number} attempt remaining.} other {Incorrect PIN. {triesRemaining,number} attempts remaining.}}"
+    "messageformat": "{triesRemaining, plural, one {ತಪ್ಪಾದ ಪಿನ್. {triesRemaining,number}ಪ್ರಯತ್ನಗಳು ಉಳಿದಿವೆ.} other {ತಪ್ಪಾದ ಪಿನ್. {triesRemaining,number} ಪ್ರಯತ್ನಗಳು ಉಳಿದಿವೆ.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--header": {
-    "messageformat": "Need help?"
+    "messageformat": "ಸಹಾಯ ಅಗತ್ಯವಿದೆಯೇ?"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--no-reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>."
+    "messageformat": "ನಿಮ್ಮ PIN ನೀವು ರಚಿಸಿದ 4+ ಅಂಕಿಗಳ ಕೋಡ್ ಆಗಿದ್ದು ಅದು ಸಂಖ್ಯಾತ್ಮಕ ಅಥವಾ ಆಲ್ಫಾನ್ಯೂಮರಿಕ್ ಆಗಿರಬಹುದು. ನಿಮ್ಮ PIN ನಿಮಗೆ ನೆನಪಾಗದಿದ್ದರೆ, ನೀವು ಹೊಸತನ್ನು ರಚಿಸಬಹುದು. ನಿಮ್ಮ ಖಾತೆಯನ್ನು ನೀವು ನೋಂದಾಯಿಸಬಹುದು ಮತ್ತು ಬಳಸಬಹುದು ಆದರೆ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಮಾಹಿತಿಯಂತಹ ಕೆಲವು ಸೇವ್ ಮಾಡಲಾದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನೀವು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--description--reglock": {
-    "messageformat": "Your PIN is a 4+ digit code you created that can be numeric or alphanumeric. If you can’t remember your PIN, you’ll have to wait 7 days to re-register your account. <learnMore>Learn more</learnMore>."
+    "messageformat": "ನಿಮ್ಮ PIN ನೀವು ರಚಿಸಿದ 4+ ಅಂಕಿಗಳ ಕೋಡ್ ಆಗಿದ್ದು ಅದು ಸಂಖ್ಯಾತ್ಮಕ ಅಥವಾ ಆಲ್ಫಾನ್ಯೂಮರಿಕ್ ಆಗಿರಬಹುದು. ನಿಮ್ಮ PIN ನಿಮಗೆ ನೆನಪಿಲ್ಲದಿದ್ದರೆ, ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಮರು ನೋಂದಾಯಿಸಲು ನೀವು 7 ದಿನಗಳವರೆಗೆ ಕಾಯಬೇಕಾಗುತ್ತದೆ. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>."
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--skip-button--no-reglock": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "ಸ್ಕಿಪ್ ಮಾಡಿ ಮತ್ತು ಹೊಸ PIN ರಚಿಸಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--contact-support-button": {
-    "messageformat": "Contact Support"
+    "messageformat": "ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--NeedHelp--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "ತಪ್ಪಾದ ಪಿನ್"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--no-reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, you can create a new PIN. You can register and use your account but you’ll lose some saved settings like your profile information. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {ನಿಮ್ಮಲ್ಲಿ {triesRemaining,number} ಪ್ರಯತ್ನ ಉಳಿದಿದೆ. ನಿಮ್ಮ ಪ್ರಯತ್ನದ ಸಂಖ್ಯೆ ಮುಗಿದರೆ, ನೀವು ಹೊಸ PIN ರಚಿಸಬಹುದು. ನಿಮ್ಮ ಖಾತೆಯನ್ನು ನೀವು ನೋಂದಾಯಿಸಿಕೊಳ್ಳಬಹುದು ಮತ್ತು ಬಳಸಬಹುದು ಆದರೆ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಮಾಹಿತಿಯಂತಹ ಕೆಲವು ಉಳಿಸಿದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನೀವು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>.} other {ನಿಮ್ಮಲ್ಲಿ {triesRemaining,number} ಪ್ರಯತ್ನಗಳು ಉಳಿದಿದೆ. ನಿಮ್ಮ ಪ್ರಯತ್ನಗಳ ಸಂಖ್ಯೆ ಮುಗಿದರೆ, ನೀವು ಹೊಸ PIN ರಚಿಸಬಹುದು. ನಿಮ್ಮ ಖಾತೆಯನ್ನು ನೀವು ನೋಂದಾಯಿಸಿಕೊಳ್ಳಬಹುದು ಮತ್ತು ಬಳಸಬಹುದು ಆದರೆ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಮಾಹಿತಿಯಂತಹ ಕೆಲವು ಉಳಿಸಿದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನೀವು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--description--reglock": {
-    "messageformat": "{triesRemaining, plural, one {You have {triesRemaining,number} attempt remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.} other {You have {triesRemaining,number} attempts remaining. If you run out of attempts, your account will be locked for 7 days. After 7 days of inactivity, you can re-register without your PIN. All content will be deleted. <learnMore>Learn more</learnMore>.}}"
+    "messageformat": "{triesRemaining, plural, one {ನಿಮ್ಮಲ್ಲಿ {triesRemaining,number} ಪ್ರಯತ್ನ ಉಳಿದಿದೆ. ನಿಮ್ಮ ಪ್ರಯತ್ನದ ಸಂಖ್ಯೆ ಮುಗಿದರೆ, ನಿಮ್ಮ ಖಾತೆಯನ್ನು 7 ದಿನಗಳವರೆಗೆ ಲಾಕ್ ಮಾಡಲಾಗುತ್ತದೆ. 7 ದಿನಗಳ ನಿಷ್ಕ್ರಿಯತೆಯ ನಂತರ, ನಿಮ್ಮ PIN ಇಲ್ಲದೆಯೇ ನೀವು ಮರು-ನೋಂದಣಿ ಮಾಡಬಹುದು. ಎಲ್ಲಾ ಕಂಟೆಂಟ್ ಅನ್ನು ಅಳಿಸಲಾಗುತ್ತದೆ. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>.} other {ನಿಮ್ಮಲ್ಲಿ {triesRemaining,number} ಪ್ರಯತ್ನಗಳು ಉಳಿದಿವೆ. ನಿಮ್ಮ ಪ್ರಯತ್ನಗಳ ಸಂಖ್ಯೆ ಮುಗಿದರೆ, ನಿಮ್ಮ ಖಾತೆಯನ್ನು 7 ದಿನಗಳವರೆಗೆ ಲಾಕ್ ಮಾಡಲಾಗುತ್ತದೆ. 7 ದಿನಗಳ ನಿಷ್ಕ್ರಿಯತೆಯ ನಂತರ, ನಿಮ್ಮ PIN ಇಲ್ಲದೆಯೇ ನೀವು ಮರು-ನೋಂದಣಿ ಮಾಡಬಹುದು. ಎಲ್ಲಾ ಕಂಟೆಂಟ್ ಅನ್ನು ಅಳಿಸಲಾಗುತ್ತದೆ. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>.}}"
   },
   "icu:StandaloneRegistration--VerifyPIN--FewRemainingTries--button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--header": {
-    "messageformat": "Incorrect PIN"
+    "messageformat": "ತಪ್ಪಾದ ಪಿನ್"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--description": {
-    "messageformat": "You’ve run out of PIN guesses, but you can still access your Signal account by creating a new PIN. For your privacy and security your account will be restored without any saved profile information or settings."
+    "messageformat": "ನಿಮ್ಮPIN ಊಹೆಗಳ ಅವಕಾಶ ಮುಗಿದಿದೆ, ಹೊಸ PIN ರಚಿಸುವ ಮೂಲಕ ನಿಮ್ಮ Signal ಖಾತೆಯನ್ನು ಈಗಲೂ ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಬಹುದು. ನಿಮ್ಮ ಗೌಪ್ಯತೆ ಮತ್ತು ಭದ್ರತೆಗಾಗಿ ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಯಾವುದೇ ಉಳಿಸಿದ ಪ್ರೊಫೈಲ್ ಮಾಹಿತಿ ಅಥವಾ ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಲ್ಲದೆ ರಿಸ್ಟೋರ್ ಮಾಡಲಾಗುತ್ತದೆ."
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--create-new-pin": {
-    "messageformat": "Create new PIN"
+    "messageformat": "ಹೊಸ ಪಿನ್ ರಚಿಸಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--NoRemainingTries--learn-more": {
-    "messageformat": "Learn more about PINs"
+    "messageformat": "ಪಿನ್‌ಗಳ ಕುರಿತು ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ."
   },
   "icu:StandaloneRegistration--VerifyPIN--menu--skip-pin": {
-    "messageformat": "Skip PIN"
+    "messageformat": "PIN ಸ್ಕಿಪ್ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--header": {
-    "messageformat": "Skip PIN entry?"
+    "messageformat": "ಪಿನ್ ನಮೂದನ್ನು ಬಿಟ್ಟುಬಿಡುವುದೇ?"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--description": {
-    "messageformat": "If you can’t remember your PIN, you can create a new one. You can register and use your account but you’ll lose some saved settings like your profile information. Learn more."
+    "messageformat": "ನಿಮ್ಮ PIN ನಿಮಗೆ ನೆನಪಾಗದಿದ್ದರೆ, ನೀವು ಹೊಸತನ್ನು ರಚಿಸಬಹುದು. ನಿಮ್ಮ ಖಾತೆಯನ್ನು ನೀವು ನೋಂದಾಯಿಸಬಹುದು ಮತ್ತು ಬಳಸಬಹುದು ಆದರೆ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಮಾಹಿತಿಯಂತಹ ಕೆಲವು ಸೇವ್ ಮಾಡಲಾದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನೀವು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ. ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ."
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--skip-button": {
-    "messageformat": "Skip and create new PIN"
+    "messageformat": "ಸ್ಕಿಪ್ ಮಾಡಿ ಮತ್ತು ಹೊಸ PIN ರಚಿಸಿ"
   },
   "icu:StandaloneRegistration--VerifyPIN--SkipPIN--cancel-button": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--header": {
-    "messageformat": "Create your PIN"
+    "messageformat": "ನಿಮ್ಮ ಪಿನ್ ರಚಿಸಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--description": {
-    "messageformat": "PINs can help you restore your account and keep your info encrypted with Signal. <learnMore>Learn More</learnMore>"
+    "messageformat": "ನಿಮ್ಮ ಖಾತೆಯನ್ನು ರಿಸ್ಟೋರ್ ಮಾಡಲು ಮತ್ತು ನಿಮ್ಮ ಮಾಹಿತಿಯನ್ನು Signal ನೊಂದಿಗೆ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಆಗಿರಿಸಲು PIN ಸಹಾಯ ಮಾಡಬಲ್ಲುದು. <learnMore>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ</learnMore>"
   },
   "icu:StandaloneRegistration--CreatePIN--placeholder": {
-    "messageformat": "Create your PIN"
+    "messageformat": "ನಿಮ್ಮ ಪಿನ್ ರಚಿಸಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--helper-text": {
-    "messageformat": "PIN must be at least 4 characters"
+    "messageformat": "PIN ಕನಿಷ್ಠ 4 ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು"
   },
   "icu:StandaloneRegistration--CreatePIN--continue": {
-    "messageformat": "Continue"
+    "messageformat": "ಮುಂದುವರಿಸಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--open-menu": {
-    "messageformat": "Open menu"
+    "messageformat": "ಮೆನು ತೆರೆಯಿರಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--more-about": {
-    "messageformat": "More about PINs"
+    "messageformat": "PIN ಗಳ ಕುರಿತು ಇನ್ನಷ್ಟು"
   },
   "icu:StandaloneRegistration--CreatePIN--menu--disable": {
-    "messageformat": "Disable PIN"
+    "messageformat": "ಪಿನ್ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--header": {
-    "messageformat": "Warning"
+    "messageformat": "ಎಚ್ಚರಿಕೆ"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--description": {
-    "messageformat": "If you disable the PIN, you will lose all data when you re-register Signal unless you transfer it from another iOS device. You can not turn on Registration Lock while the PIN is disabled."
+    "messageformat": "ನೀವು PIN ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿದರೆ, ನೀವು Signal ಅನ್ನು ಮರು-ನೋಂದಣಿ ಮಾಡಿದಾಗ, ನೀವು ಅದನ್ನು ಬೇರೆ iOS ಸಾಧನದಿಂದ ವರ್ಗಾಯಿಸದ ಹೊರತು, ನೀವು ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ. PIN ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿದಾಗ ನೀವು ನೋಂದಣಿ ಲಾಕ್ ಅನ್ನು ಆನ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ."
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--disable-button": {
-    "messageformat": "Disable PIN"
+    "messageformat": "ಪಿನ್ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--DisableWarning--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--header": {
-    "messageformat": "About Signal PINs"
+    "messageformat": "Signal PIN ಗಳ ಕುರಿತು"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--description": {
-    "messageformat": "PINs keep your information stored with Signal encrypted so only you can access it. Your profile, settings and contacts will restore when you reinstall."
+    "messageformat": "PIN ಗಳು ನಿಮ್ಮ ಮಾಹಿತಿಯನ್ನು Signal ಎನ್ಕ್ರಿಪ್ಟ್ ಆಗಿರುವಂತೆ ಸಂಗ್ರಹಿಸುತ್ತವೆ ಆದ್ದರಿಂದ ನೀವು ಮಾತ್ರ ಅದನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಬಹುದು. ನೀವು ರಿಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿದಾಗ ನಿಮ್ಮ ಪ್ರೊಫೈಲ್, ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಮತ್ತು ಸಂಪರ್ಕಗಳು ರಿಸ್ಟೋರ್ ಆಗುತ್ತವೆ."
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--learn-more-button": {
-    "messageformat": "Learn more"
+    "messageformat": "ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--AboutPINs--ok-button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--header": {
-    "messageformat": "Confirm your PIN"
+    "messageformat": "ನಿಮ್ಮ PIN ಅನ್ನು ದೃಢಪಡಿಸಿ"
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--description": {
-    "messageformat": "Re-enter the PIN you just created."
+    "messageformat": "ನೀವು ಈಗಷ್ಟೇ ರಚಿಸಿದ PIN ಅನ್ನು ಮರುನಮೂದಿಸಿ."
   },
   "icu:StandaloneRegistration--CreatePIN--confirming--placeholder": {
-    "messageformat": "Enter your PIN"
+    "messageformat": "ನಿಮ್ಮ ಪಿನ್ ನಮೂದಿಸಿ"
   },
   "icu:StandaloneRegistration--AccountLocked--header": {
-    "messageformat": "Account locked"
+    "messageformat": "ಖಾತೆಯನ್ನು ಲಾಕ್ ಮಾಡಲಾಗಿದೆ"
   },
   "icu:StandaloneRegistration--AccountLocked--description": {
-    "messageformat": "Your account has been locked to protect your privacy and security. After 7 days of inactivity in your account you’ll be able to reregister this phone number without needing your PIN. All content will be deleted."
+    "messageformat": "ನಿಮ್ಮ ಗೌಪ್ಯತೆ ಮತ್ತು ಭದ್ರತೆಯನ್ನು ರಕ್ಷಿಸಲು ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಲಾಕ್ ಮಾಡಲಾಗಿದೆ. ನಿಮ್ಮ ಖಾತೆಯಲ್ಲಿನ 7 ದಿನಗಳ ನಿಷ್ಕ್ರಿಯತೆಯ ನಂತರ ನಿಮ್ಮ PIN ನ ಅಗತ್ಯವಿಲ್ಲದೆಯೇ ನೀವು ಈ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನೋಂದಾಯಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ. ಎಲ್ಲಾ ಕಂಟೆಂಟ್ ಅನ್ನು ಅಳಿಸಲಾಗುತ್ತದೆ."
   },
   "icu:StandaloneRegistration--AccountLocked--start-over-button": {
-    "messageformat": "Use a different number"
+    "messageformat": "ಬೇರೆ ಸಂಖ್ಯೆಯನ್ನು ಬಳಸಿ"
   },
   "icu:StandaloneRegistration--AccountLocked--help-button": {
-    "messageformat": "Learn about locked accounts"
+    "messageformat": "ಲಾಕ್ ಮಾಡಲಾದ ಖಾತೆಗಳ ಕುರಿತು ತಿಳಿಯಿರಿ"
   },
   "icu:StandaloneRegistration--UpdateRequired--header": {
-    "messageformat": "Update required"
+    "messageformat": "ಅಪ್‌ಡೇಟ್‌ ಅಗತ್ಯವಿದೆ"
   },
   "icu:StandaloneRegistration--UpdateRequired--description": {
-    "messageformat": "To continue with registration, please update to the latest version of Signal."
+    "messageformat": "ನೋಂದಣಿಯೊಂದಿಗೆ ಮುಂದುವರಿಯಲು, Signal ನ ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಗೆ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ."
   },
   "icu:StandaloneRegistration--UpdateRequired--update": {
-    "messageformat": "Update"
+    "messageformat": "ಅಪ್‌ಡೇಟ್ ಮಾಡಿ"
   },
   "icu:StandaloneRegistration--UpdateRequired--cancel": {
-    "messageformat": "Cancel"
+    "messageformat": "ರದ್ದುಮಾಡಿ"
   },
   "icu:StandaloneRegistration--ConnectionProblem--header": {
-    "messageformat": "Check your connection"
+    "messageformat": "ನಿಮ್ಮ ಕನೆಕ್ಷನ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ"
   },
   "icu:StandaloneRegistration--ConnectionProblem--description": {
-    "messageformat": "To continue, check your computer’s Internet connection and try again."
+    "messageformat": "ಮುಂದುವರಿಯಲು, ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‍‌ನ ಇಂಟರ್‍‌ನೆಟ್ ಕನೆಕ್ಷನ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
   },
   "icu:StandaloneRegistration--ConnectionProblem--button": {
-    "messageformat": "OK"
+    "messageformat": "ಸರಿ"
   },
   "icu:StandaloneRegistration--UnexpectedError--header": {
-    "messageformat": "Can’t complete registration"
+    "messageformat": "ನೋಂದಣಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"
   },
   "icu:StandaloneRegistration--UnexpectedError--description": {
-    "messageformat": "An error occurred and registration cannot be completed. If this problem persists, please contact support."
+    "messageformat": "ದೋಷ ಉಂಟಾಗಿದೆ ಮತ್ತು ನೋಂದಣಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಈ ಸಮಸ್ಯೆ ಮುಂದುವರಿದರೆ, ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ."
   },
   "icu:StandaloneRegistration--UnexpectedError--try-again-button": {
-    "messageformat": "Try again"
+    "messageformat": "ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"
   },
   "icu:StandaloneRegistration--UnexpectedError--contact-support-button": {
-    "messageformat": "Contact support"
+    "messageformat": "ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ"
   },
   "icu:NSIS__retry-dialog--first-line": {
     "messageformat": "Signal ಅನ್ನು ಮುಚ್ಚಲು ಸಾಧ್ಯವಿಲ್ಲ.",
@@ -8671,6 +8665,12 @@
     "messageformat": "ಸಮೀಕ್ಷೆಗಳನ್ನು ಈಗ ಪ್ರತ್ಯೇಕ ಚಾಟ್‌ಗಳಲ್ಲಿಯೂ ರಚಿಸಬಹುದು. ನಿರ್ಧಾರ ತೆಗೆದುಕೊಳ್ಳಲು ಕಷ್ಟಪಡುತ್ತಿರುವ ನಿಮ್ಮ ಸ್ನೇಹಿತರಿಗೆ ಕ್ಯುರೇಟ್ ಮಾಡಲಾದ ಆಯ್ಕೆಗಳ ಪಟ್ಟಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ. ಅಥವಾ ‘ನಿನಗೆ ನಾನು ಇಷ್ಟವೇ? ಹೌದು / ಇಲ್ಲ / ಬಹುಶಃ’ ಎಂಬ ಸಮೀಕ್ಷೆಯನ್ನು ರಚಿಸುವ ಮೂಲಕ ನೀವು ಇಷ್ಟಪಡುವವರಿಗೆ ಚೀಟಿ ಕೊಟ್ಟು ಕೇಳುತ್ತಿದ್ದ ಆ ಸಿಹಿ ಕ್ಷಣಗಳನ್ನು ಮತ್ತೆ ಅನುಭವಿಸಿ."
   },
   "icu:WhatsNew__8.19--0": {
-    "messageformat": "Group admins can now bring chats to their natural conclusion with the new \"End Group\" option in group settings. Ending a group prevents group members from sending messages or starting calls, and also disables invites. Now you can make sure everyone stays on the right thread by ending last year's sewing meetup group before stitching a new one together."
+    "messageformat": "ಗುಂಪು ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿನ \"ಗುಂಪು ಕೊನೆಗೊಳಿಸಿ\" ಆಯ್ಕೆಯೊಂದಿಗೆ ಗುಂಪಿನ ಅಡ್ಮಿನ್‌ಗಳು ಚಾಟ್‌ಗಳನ್ನು ಕೊನೆಗೊಳಿಸಬಹುದು. ಗುಂಪನ್ನು ಕೊನೆಗೊಳಿಸುವುದರಿಂದ ಸದಸ್ಯರು ಮೆಸೇಜ್ ಕಳುಹಿಸಲು ಅಥವಾ ಕರೆ ಮಾಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ ಮತ್ತು ಆಹ್ವಾನಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ. ಈಗ, ಹೊಸದನ್ನು ರಚಿಸುವ ಮೊದಲು ಹಳೆಯ ಗುಂಪನ್ನು ಕೊನೆಗೊಳಿಸುವ ಮೂಲಕ, ಎಲ್ಲರೂ ಒಂದೇ ಚಾಟ್‌ನಲ್ಲಿದ್ದಾರೆ ಎಂದು ನೀವು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಬಹುದು."
+  },
+  "icu:WhatsNew__8.20--0": {
+    "messageformat": "Introducing disappearing call events: Missed, outgoing, and received calls that occur after you install this update will now automatically disappear in any chat where disappearing messages are enabled."
+  },
+  "icu:WhatsNew__8.20--1": {
+    "messageformat": "Now you can reorder installed sticker packs so your new favorites don’t get stuck in the back of the line."
   }
 }

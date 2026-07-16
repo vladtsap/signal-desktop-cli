@@ -193,7 +193,7 @@ export const MessageMetadata = forwardRef<HTMLDivElement, Readonly<PropsType>>(
         >
           <AxoConfirmDialog.Cancel />
           <AxoConfirmDialog.Action
-            variant="destructive"
+            variant="strong-destructive"
             onClick={() => {
               retryMessageSend(id);
               setConfirmationType(undefined);
@@ -221,7 +221,7 @@ export const MessageMetadata = forwardRef<HTMLDivElement, Readonly<PropsType>>(
             <AxoAlertDialog.Footer>
               <AxoAlertDialog.Cancel />
               <AxoAlertDialog.Action
-                variant="primary"
+                variant="strong-primary"
                 onClick={() => {
                   retryDeleteForEveryone(id);
                   setConfirmationType(undefined);

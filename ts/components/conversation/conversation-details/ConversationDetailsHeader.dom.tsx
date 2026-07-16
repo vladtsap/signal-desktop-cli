@@ -282,7 +282,7 @@ export function ConversationDetailsHeader({
         <div
           className={tw(
             'mb-3 px-2 py-[5px]',
-            'curved-xl bg-fill-secondary text-label-primary',
+            'curved-xl bg-primary text-primary',
             'text-start type-body-small'
           )}
         >

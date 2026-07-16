@@ -17,7 +17,7 @@ export default {
         <div
           className={tw(
             'flex flex-col items-center gap-4 py-8',
-            'text-center type-body-small text-label-secondary'
+            'text-center type-body-small text-secondary'
           )}
         >
           <Story />
